@@ -1,28 +1,45 @@
-# CONTRIBUTING — Inbox Island
+# Contributing to Inbox Island
 
-*Private operating tracker until a public code surface exists.*
+Inbox Island is preparing for a public source release. Small, auditable changes
+with synthetic tests are preferred.
 
-Estate-wide board: `/Users/Sean/projects/CONTRIBUTIONS_INDEX.md`.
+## Before submitting a change
 
-## Upstream Posture
+```sh
+npm run verify
+git diff --check
+```
 
-- No upstream repository, issue, or pull-request lane exists yet.
-- Do not publish mailbox fixtures, OAuth material, raw/derived email data,
-  internal firm policies, or private floor documentation.
-- Future public source must use synthetic fixtures and pass secret, path,
-  privacy-claim, license, model-provenance, and zero-egress review.
+Node.js 22 or newer is required. The project intentionally has no npm runtime
+or development dependencies.
 
-## Open / In Flight
+## Privacy boundary
 
-| Contribution | Repo | Link | Status | Notes |
-|---|---|---|---|---|
+Never commit or post:
 
-## Landed / Credited
+- real mailbox fixtures, subjects, bodies, addresses, attachments, summaries,
+  screenshots, or derived user triage data;
+- OAuth access/refresh tokens, cookies, client secrets, passwords, or 2FA;
+- personal browser profiles or absolute private filesystem paths;
+- internal firm policies or confidential client/workplace material.
 
-| Contribution | Repo | Link | Status | Evidence / Notes |
-|---|---|---|---|---|
+Use fictional `.example.test` data. Treat all mail/model input as hostile and
+keep executable code, network access, tokens, and persistence outside the
+inference boundary.
 
-## Watch / Ideas
+## Product invariants
 
-- Upstream generic WebGPU cache-integrity or Gmail restricted-scope guidance
-  only when it is independent of this product's private architecture and data.
+- `gmail.readonly` only; no Gmail mutation features.
+- No Inbox Island server, cloud model, telemetry, remote code, or content
+  scripts in the mailbox path.
+- Raw email and OAuth material are not persisted.
+- Deterministic safety/direction/deadline conclusions remain authoritative.
+- Categories are advisory and Gmail remains the source of truth.
+- Permission or OAuth expansion requires an explicit architecture and privacy
+  decision, not a drive-by patch.
+
+## Reporting issues
+
+Ordinary bugs may use GitHub Issues. Security vulnerabilities belong in GitHub
+private vulnerability reporting. Never include credentials or real email in
+either channel; see `SECURITY.md` and `SUPPORT.md`.

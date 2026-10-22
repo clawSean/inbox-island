@@ -15,7 +15,7 @@ const oauthClientId = /^\d{6,32}-[a-z0-9]{16,128}\.apps\.googleusercontent\.com$
 if (buildRoot !== path.join(projectRoot, "extension", "build")) {
   throw new Error("UNSAFE_BUILD_PATH");
 }
-if (sourceManifest.version !== "0.4.8"
+if (sourceManifest.version !== "0.4.9"
   || identity.oauth_client_type !== "web-application"
   || identity.oauth_client_status !== "active-private-pilot"
   || !oauthClientId.test(identity.oauth_client_id || "")

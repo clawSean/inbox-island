@@ -62,8 +62,9 @@
           <div class="topbar-actions">
             <button class="button button-quiet" id="disconnect-button" type="button" hidden>Disconnect Gmail</button>
             <button class="button button-quiet" id="clear-button" type="button">Clear local demo</button>
+            <button class="button button-quiet" id="demo-button" type="button" hidden>Try demo</button>
             <button class="button button-quiet expand-button" id="expand-button" type="button">Full page ↗</button>
-            <button class="button button-primary" id="run-button" type="button">
+            <button class="button button-primary" id="run-button" type="button" aria-describedby="gmail-disclosure">
               <span class="button-spark" aria-hidden="true">✦</span><span id="run-button-label">Run demo</span>
             </button>
           </div>
@@ -75,6 +76,7 @@
               <p class="kicker">Your calm inbox</p>
               <h1 id="hero-title">Finding the signal.</h1>
               <p class="hero-copy" id="hero-copy">The local worker is sorting a synthetic mailbox.</p>
+              <p class="gmail-disclosure" id="gmail-disclosure" hidden>Choosing a Google account means you agree to let Inbox Island read addresses, subjects, and message text from a bounded recent Inbox/Sent slice for on-device triage. It does not send that data to an Inbox Island server or cloud AI.</p>
               <div class="gmail-account-check" id="gmail-account-check" hidden>
                 <label for="gmail-expected-email">Selected Google account</label>
                 <input id="gmail-expected-email" type="email" autocomplete="email" maxlength="320" required readonly>

@@ -1,7 +1,7 @@
 # Publication Trust Plan
 
 Status: accepted product direction plus documented platform constraints.
-Updated: 2026-10-12.
+Updated: 2026-10-22.
 
 ## Goal
 
@@ -97,51 +97,44 @@ should let users decide that for themselves.
 
 ## Website
 
-Use `https://inboxisland.jpop.cloud/` as the proposed canonical product
-homepage, with obvious links to the source repository, privacy policy, current
-release, and install options. Publishing the page is a later release task, not
-a private-pilot blocker.
+Use `https://inboxisland.jpop.cloud/` as the canonical product homepage. The
+pilot page and draft policy are live. Before Store submission, publish the
+final policy plus obvious links to the public source, support, current release,
+hashes, and install path; verify the live bytes after deployment.
 
-## Demo plan
+## Disconnected demo
 
-Deferred until after the private pilot works. It is not a blocker for JPop's
-pilot or the first publication pass.
+The `0.4.9` candidate now includes the built-in disconnected synthetic demo.
+It requests no OAuth grant, makes no Gmail request, labels the surface
+**Synthetic demo / Gmail not connected**, and replaces real-mail links with a
+non-action synthetic label. The Store screenshots use that same packaged
+surface and contain `.example.test` data only.
 
-1. Later, add a built-in disconnected synthetic demo before Connect. It
-   must request no OAuth grant, make no Gmail request, and clearly label all
-   content synthetic.
-2. Use the same demo for Store screenshots and the promotional video.
-3. Consider local MBOX/Takeout import later as a no-live-OAuth evaluation lane;
-   it needs its own parser, deletion, hostile-content, and storage proof before
-   release.
+Local MBOX/Takeout import remains a later no-live-OAuth evaluation lane; it
+needs its own parser, deletion, hostile-content, and storage proof.
 
 ## Arc/Dia OAuth decision
 
-The prior `0.3.2` implementation failed before `getAuthToken()` because it first
-required `getProfileUserInfo()` and passed the Chrome-profile account ID into
-the token call. It did not prove that the policy-preferred Chrome Extension
-client fails when `getAuthToken({ interactive: true })` is called without a
-profile-bound account.
+The browser-neutral private pilot now uses a Web application client with
+`launchWebAuthFlow()`. Exact prior Arc/Dia builds reached Google's account
+chooser without a browser-profile account, but the OAuth 2 implicit grant is a
+discouraged legacy flow and is not the public architecture by default.
 
-Use this order:
+Before public Gmail authorization:
 
-1. Run a bounded disposable-profile Arc and Dia spike with the existing Chrome
-   Extension client, no `getProfileUserInfo()`, no `identity.email`, and no
-   explicit account parameter. Stop after proving whether the browser presents
-   a Google account/sign-in flow; use no personal account or Gmail data.
-2. If that works, prefer it: it matches Google's extension client guidance and
-   keeps the existing no-server trust boundary.
-3. If it fails, use the Web-application client/direct token flow only for
-   JPop's bounded staging pilot while obtaining Google verification guidance.
-4. Do not publish that legacy direct flow as the permanent architecture without
-   resolving Google's platform/client-type policy.
-5. If no compliant pure-extension route supports Arc and Dia, prefer a local
-   native companion using installed-app OAuth with PKCE over a hosted token
-   broker. A hosted broker would materially expand token, outage, breach, and
-   restricted-scope assessment exposure.
+1. Reconcile the documented Chrome Extension client / `getAuthToken()` path
+   with Arc and Dia without `getProfileUserInfo()`, `identity.email`, or a
+   profile-bound account.
+2. If that path cannot support the target browsers, obtain explicit Google
+   guidance before publishing the Web-client flow.
+3. Preserve explicit account choice, least privilege, memory-only access, no
+   refresh token, and no developer-server restricted-data path.
+4. If no compliant pure-extension route works, prefer a local installed-app
+   companion with PKCE over a hosted token broker. A broker would materially
+   expand breach, outage, and restricted-scope assessment exposure.
 
-This is a real public-release blocker, not a reason to become Chrome-only and
-not a blocker to a clearly bounded one-person pilot.
+This is a public OAuth blocker, not a blocker to the bounded one-person pilot
+or submitting the disconnected Store package for Chrome review.
 
 ## Projects and ownership
 

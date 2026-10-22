@@ -1,0 +1,23 @@
+{
+  "schema": "inbox-island.web-store-assets.v1",
+  "syntheticDataOnly": true,
+  "externalRequests": 0,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "files": [
+    {
+      "file": "store-icon-128.png",
+      "sha256": "a720afda7f208d13f033f15b8c70ada6df525f92d6a5b37c4d7748482967bd2c"
+    },
+    {
+      "file": "screenshot-01-needs-you.png",
+      "sha256": "f71857ff24892e0c12b8951d68e8cc1470fe97b62148045d36da07278c0837d1"
+    },
+    {
+      "file": "screenshot-02-low-signal.png",
+      "sha256": "edafdb2db9a0f306c8a83015742e53db9c5873a1fdfbd6f27e8340a8ea25f684"
+    }
+  ]
+}

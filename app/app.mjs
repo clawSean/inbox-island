@@ -85,6 +85,7 @@ function setRunning(running) {
   const button = root.querySelector("#run-button");
   button.disabled = running && !gmailPilot;
   root.querySelector("#clear-button").disabled = running;
+  root.querySelector("#demo-button").disabled = running;
   root.querySelector("#disconnect-button").disabled = running;
   const idle = gmailPilot
     ? (state.pendingAccount !== undefined ? "Sync selected account"
@@ -130,12 +131,15 @@ function showResults(mailbox, output, persisted, source) {
   const counts = deriveViewCounts(state.rows);
   root.querySelector("#hero-title").textContent = `${counts["needs-me"]} threads likely need you.`;
   if (source === "gmail") {
+    root.querySelector("#surface-badge").textContent = "Private Gmail pilot";
     state.accountLabel = mailbox.profile.emailAddress;
     root.querySelector("#connection-label").textContent = mailbox.profile.emailAddress;
     root.querySelector("#hero-copy").textContent = persisted
       ? `${mailbox.messages.length} recent messages processed locally. Raw Gmail content was not saved.`
       : "Processed locally. A newer surface already owns the saved snapshot.";
   } else {
+    root.querySelector("#surface-badge").textContent = "Synthetic demo";
+    root.querySelector("#connection-label").textContent = "Demo · Gmail not connected";
     root.querySelector("#hero-copy").textContent = persisted
       ? "Sorted locally from a hostile synthetic mailbox. Nothing left this browser."
       : "Sorted locally. A newer surface already owns the saved snapshot.";
@@ -162,6 +166,13 @@ async function runDemo() {
   } finally {
     setRunning(false);
   }
+}
+
+async function runPublicDemo() {
+  if (state.running) return;
+  gmailUi?.cancelPreparation();
+  root.querySelector("#gmail-disclosure").hidden = true;
+  await runDemo();
 }
 
 async function clearLocal() {
@@ -211,7 +222,10 @@ bindInteractions({
   narrowLayout,
   paint,
   root,
-  run: gmailUi?.run ?? runDemo,
+  run: gmailPilot ? () => {
+    root.querySelector("#gmail-disclosure").hidden = false;
+    return gmailUi.run();
+  } : runDemo,
   setDetailOpen,
   setError,
   setLive,
@@ -225,12 +239,16 @@ if (gmailPilot) {
   root.querySelector("#privacy-copy").textContent =
     "Gmail content goes directly from Google to this browser. No telemetry or app server.";
   root.querySelector("#clear-button").textContent = "Clear local data";
+  root.querySelector("#demo-button").hidden = false;
   root.querySelector("#disconnect-button").hidden = false;
   root.querySelector("#hero-title").textContent = "Connect your Gmail.";
   root.querySelector("#hero-copy").textContent =
     "Choose any Google account in this browser, approve read-only access, then confirm before Inbox Island reads recent messages.";
+  root.querySelector("#gmail-disclosure").hidden = false;
   setRunning(false);
   gmailUi.restore();
 } else {
   runDemo();
 }
+
+root.querySelector("#demo-button").addEventListener("click", () => void runPublicDemo());

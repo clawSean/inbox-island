@@ -1,0 +1,40 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Inbox-Island-0.4.9-SBOM",
+  "documentNamespace": "https://github.com/clawSean/inbox-island/sbom/0.4.9/2026-10-22",
+  "creationInfo": {
+    "created": "2026-10-22T21:30:00Z",
+    "creators": [
+      "Tool: Inbox Island build process"
+    ]
+  },
+  "packages": [
+    {
+      "name": "Inbox Island",
+      "SPDXID": "SPDXRef-Package-Inbox-Island",
+      "versionInfo": "0.4.9",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:generic/inbox-island@0.4.9"
+        }
+      ],
+      "comment": "Dependency-free Manifest V3 extension source. Optional verification harnesses use an externally supplied playwright-core and browser; neither ships in the extension."
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Inbox-Island"
+    }
+  ]
+}

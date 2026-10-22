@@ -48,7 +48,7 @@ async function hashesAndAssets() {
   const assets = [];
   for (const [name, filePath] of ASSET_FILES) {
     const details = await stat(filePath);
-    assets.push({ filePath, name, sha256: await sha256File(filePath), size: details.size });
+    assets.push({ name, sha256: await sha256File(filePath), size: details.size });
   }
   return { assets, moduleLineCounts, moduleSha256 };
 }
@@ -102,13 +102,14 @@ export async function buildReceipt(input) {
     generatedAt: new Date().toISOString(),
     decision: "reject-this-six-prototype-bge-classifier",
     experiment: {
-      path: experimentRoot,
+      path: "experiments/model-bakeoff",
       runnerSha256: moduleSha256["run-bakeoff.mjs"],
       moduleSha256,
       moduleLineCounts,
       maximumModuleLineCount: Math.max(...Object.values(moduleLineCounts)),
       productionFilesModified: false,
       downloadsOrInstalls: false,
+      localPathMetadataRedacted: true,
     },
     holdout: {
       version: HOLDOUT_VERSION,
@@ -135,7 +136,7 @@ export async function buildReceipt(input) {
       revision: MODEL_REVISION,
       task: "prototype-similarity classification only",
       license: "MIT (upstream BAAI model; cached Xenova conversion has no bundled license file)",
-      snapshotPath: MODEL_ROOT,
+      snapshot: `${MODEL_ID}@${MODEL_REVISION}`,
       assets,
     },
     runtime: {

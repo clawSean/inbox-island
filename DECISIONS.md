@@ -2,7 +2,7 @@
 
 2026-10-12 · accepted · Make a persistent compact companion window the cross-browser primary triage surface, keep the browser-owned popup for quick controls and retain a separate explicit full-page launcher; do not rely on native side-panel visibility · because Arc creates a hidden SIDE_PANEL document and reports API success without displaying it, while a browser window is visible, resizable, and consistently testable in Arc and Dia · supersedes: native side panel as primary or progressive product surface
 
-2026-09-25 · accepted · Keep the product as a separate project at `/Users/Sean/projects/inbox-island/` while referencing Portal and the screened-email project now named Mailreef as evidence sources · because its users, UX, distribution, trust boundary, and release obligations differ from both existing projects · supersedes: none
+2026-09-25 · accepted · Keep the product as a separate repository while referencing Portal and the screened-email project now named Mailreef as evidence sources · because its users, UX, distribution, trust boundary, and release obligations differ from both existing projects · supersedes: none
 
 2026-09-25 · accepted · Make the target architecture client-only between Gmail and the user's browser, with no application backend able to receive restricted Gmail data or derived mailbox data · because removing the server data path is the strongest privacy control and preserves the intended local-only value proposition · supersedes: none
 
@@ -56,3 +56,9 @@
 
 2026-10-12 · accepted · Before freezing the staging Web-client workaround, test the existing Chrome Extension OAuth client in Arc and Dia without `getProfileUserInfo()`, `identity.email`, or an explicit profile account · because `0.3.2` failed at its profile-preview gate and never established whether interactive `getAuthToken()` can use a non-profile Google web account in those browsers; the policy-preferred path deserves one bounded proof before the legacy workaround · supersedes: treating Web-client creation as the sole immediate blocker
 2026-10-12 · accepted · Remove the compact companion-window product path, expand the browser-owned toolbar popup into a quick category dashboard, and retain the full page as the only persistent triage workspace · because Arc 1.167 clamps extension popup windows to roughly 1162×816 even after a verified sequential normalize-then-resize call and `window.open` also fails · supersedes: persistent compact companion window as the cross-browser primary triage surface
+
+2026-10-22 · accepted · Remove the `sidePanel` manifest permission and all side-panel migration code from 0.4.9; keep only `identity` plus the Gmail API host · because the withdrawn preference no longer justifies a standing permission and the popup/full-page launcher can repair itself without side-panel authority · supersedes: temporary `sidePanel` migration permission
+
+2026-10-22 · accepted · Ship a clearly labeled disconnected synthetic demo in the same packaged extension and use it for Store screenshots and reviewer instructions · because users and reviewers should be able to inspect the real UI/classifier without Gmail credentials, OAuth, external requests, or misleading Open in Gmail actions · supersedes: deferring the disconnected demo until after the private pilot
+
+2026-10-22 · accepted · Treat the current Web-client `launchWebAuthFlow()` implicit flow as private-pilot-only while public OAuth remains unresolved · because it is browser-neutral in Arc/Dia but Google documents the Chrome Extension client path and discourages implicit grants; public distribution needs explicit platform guidance or a supported replacement · supersedes: treating the profile-free `getAuthToken()` probe as a settled production decision

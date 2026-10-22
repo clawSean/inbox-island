@@ -1,4 +1,5 @@
 import { BUCKET_META, VIEW_META } from "./view-model.mjs";
+import { SYNTHETIC_ACCOUNT_ID } from "../fixtures/synthetic-mailbox.mjs";
 
 const bucketById = new Map(BUCKET_META.map((item) => [item.id, item]));
 const viewById = new Map(VIEW_META.map((item) => [item.id, item]));
@@ -131,12 +132,16 @@ export function renderDetail(root, row) {
   heading.tabIndex = -1;
   const sender = element("p", "detail-sender", row.from);
   const actions = element("div", "detail-actions");
-  const openInGmail = element("a", "detail-primary-action", "Open in Gmail ↗");
-  openInGmail.href = gmailThreadUrl(row);
-  openInGmail.target = "_blank";
-  openInGmail.rel = "noopener noreferrer";
-  openInGmail.setAttribute("aria-label", "Open this thread in Gmail in a new tab");
-  actions.append(openInGmail);
+  if (row.accountId === SYNTHETIC_ACCOUNT_ID) {
+    actions.append(element("span", "detail-muted", "Synthetic example · no Gmail connection"));
+  } else {
+    const openInGmail = element("a", "detail-primary-action", "Open in Gmail ↗");
+    openInGmail.href = gmailThreadUrl(row);
+    openInGmail.target = "_blank";
+    openInGmail.rel = "noopener noreferrer";
+    openInGmail.setAttribute("aria-label", "Open this thread in Gmail in a new tab");
+    actions.append(openInGmail);
+  }
   const summary = detailSection("Local summary", row.summary);
   const fragment = document.createDocumentFragment();
   fragment.append(tags, heading, sender, actions, summary);

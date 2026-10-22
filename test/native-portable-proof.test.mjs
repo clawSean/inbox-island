@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   assertCanceledAuthOutcome,
   assertChooserPromiseContract,
@@ -15,6 +16,8 @@ import {
   classifyProviderNavigation,
   createIdempotentCleanup,
   createSignalCleanupCoordinator,
+  desktopSessionLockedFromIoreg,
+  devToolsPortFromStderr,
   deriveExtensionId,
   inspectOAuthLaunchUrl,
   parseCli,
@@ -30,6 +33,7 @@ const extensionId = "jeemdbgakejlmmmbngpihndfkjiddbhl";
 const redirectUri = `https://${extensionId}.chromiumapp.org/oauth2`;
 const clientId = "270655843779-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.apps.googleusercontent.com";
 const state = "abcdefghijklmnopqrstuvwxyzABCDEFGH123456789_-";
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function authorizationUrl(overrides = {}) {
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -63,11 +67,31 @@ test("portable proof CLI defaults to sequential Arc and Dia and supports one bro
   assert.deepEqual(parseCli(["--browser", "arc", "--preflight-only"]), {
     browsers: ["arc"],
     preflightOnly: true,
-    receiptDirectory: "/Users/Sean/projects/inbox-island/artifacts",
+    receiptDirectory: path.join(projectRoot, "artifacts"),
     help: false,
   });
   assert.throws(() => parseCli(["--browser", "chrome"]), /arc, dia, or all/u);
   assert.throws(() => parseCli(["--expected-client-sha256", "a".repeat(64)]), /Unknown argument/u);
+});
+
+test("DevTools discovery accepts only Arc's loopback stderr endpoint", () => {
+  assert.equal(devToolsPortFromStderr([
+    "noise",
+    "DevTools listening on ws://127.0.0.1:49152/devtools/browser/opaque",
+  ]), "49152");
+  assert.equal(devToolsPortFromStderr([
+    "DevTools listening on ws://0.0.0.0:49152/devtools/browser/opaque",
+    "DevTools listening on ws://127.0.0.1:70000/devtools/browser/opaque",
+  ]), null);
+});
+
+test("native proof detects a locked macOS desktop before browser launch", () => {
+  assert.equal(desktopSessionLockedFromIoreg(
+    '"CGSSessionScreenIsLocked"=Yes,"kCGSessionLoginDoneKey"=Yes',
+  ), true);
+  assert.equal(desktopSessionLockedFromIoreg(
+    '"CGSSessionScreenIsLocked"=No,"kCGSessionLoginDoneKey"=Yes',
+  ), false);
 });
 
 test("manifest key derives the permanent extension ID", async () => {
@@ -229,7 +253,7 @@ test("receipt-safe errors redact paths, ports, process IDs, UUIDs, auth, tokens,
     `https://127.0.0.1:9222/callback#access_token=secret&state=${state}`,
     clientId,
     "person@example.test",
-    "/Users/Sean/private/file.txt",
+    "/Users/example/private/file.txt",
     "/var/folders/aa/private",
     "pid=12345",
     "123e4567-e89b-42d3-a456-426614174000",
@@ -239,7 +263,7 @@ test("receipt-safe errors redact paths, ports, process IDs, UUIDs, auth, tokens,
   ].join(" "));
   const safe = sanitizeError(unsafe);
   for (const forbidden of [
-    "secret", state, clientId, "person@example.test", "/Users/Sean", "/var/folders",
+    "secret", state, clientId, "person@example.test", "/Users/example", "/var/folders",
     "12345", "123e4567-e89b-42d3-a456-426614174000", "top-secret", "SID=private",
     "localhost:9333",
   ]) assert.doesNotMatch(safe, new RegExp(forbidden.replaceAll(".", "\\."), "u"));
@@ -328,7 +352,7 @@ test("signal coordinator reuses cleanup and exits once for repeated signals", as
 });
 
 test("persisted failures contain only allowlisted phase and code", () => {
-  assert.deepEqual(receiptFailure(Object.assign(new Error("/Users/Sean/private"), {
+  assert.deepEqual(receiptFailure(Object.assign(new Error("/Users/example/private"), {
     code: "CHOOSER_CANCEL_RESOLVED",
   }), "oauth-cancel"), {
     phase: "oauth-cancel",
@@ -368,7 +392,7 @@ test("receipt writes are no-clobber and reject sensitive path content", async ()
       error.code === "RECEIPT_ALREADY_EXISTS");
     await assert.rejects(() => writeReceipt(path.join(directory, "unsafe.json"), {
       verdict: "FAIL",
-      failure: "/Users/Sean/private",
+      failure: "/Users/example/private",
     }), (error) => error.code === "RECEIPT_SANITIZATION_FAILED");
     await assert.rejects(() => writeReceipt(path.join(directory, "secret-key.json"), {
       verdict: "FAIL",

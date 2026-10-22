@@ -1,131 +1,102 @@
 # Inbox Island
 
-Inbox Island is a private, local-first Gmail triage pilot for Chromium-family
-browsers, including **Arc and Dia**. It reads a bounded mailbox slice through
-the official Gmail API, classifies it locally, and stores only minimal derived
-state. It cannot send, modify, label, archive, delete, or mark mail as read.
+Inbox Island is a local-first Gmail triage extension for Chromium-family
+browsers, including Arc and Dia. It reads a bounded recent Inbox/Sent slice,
+classifies it in the browser, and leaves Gmail unchanged.
 
-> Versions 0.3.0–0.4.7 are withdrawn. Do not install or resend them. Version
-> 0.4.8 is the current private-pilot candidate. It fixes triage false positives
-> and gives every result a direct, account-bound **Open in Gmail** action.
+> **Current state:** `0.4.9` is a verified source candidate, not an approved
+> release. Versions `0.3.0` through `0.4.8` are withdrawn. Do not install or
+> resend an older archive.
 
 ## Product contract
 
-- Categories are advisory shortcuts, not completeness guarantees.
-- Uncertain mail stays visible in Review and every triaged thread stays in All.
-- Gmail remains authoritative.
-- No mailbox data or token flows through an Inbox Island server.
-- Raw bodies, HTML, attachments, summaries, active links, and OAuth material
-  are not persisted.
+- Categories are advisory shortcuts; Gmail remains authoritative.
+- Every real result can open the exact thread in Gmail.
+- The extension cannot send, reply, label, archive, delete, or mark mail read.
+- Mail and tokens never pass through an Inbox Island server or cloud model.
+- Raw bodies, HTML, attachments, summaries, and OAuth material are not
+  persisted.
 
-## 0.4.9 architecture
+## Surfaces
 
-The Manifest V3 shell uses an expanded browser-owned action popup for a quick
-category summary. **Open full triage** launches the persistent workspace. A
-separate compact companion window is not a product surface because Arc 1.167
-clamps extension popup windows to a large browser-controlled minimum size.
-Native side panels are likewise excluded because Arc can report API success
-without displaying one.
+- The browser-owned toolbar popup shows quick Needs you, Waiting, Filed, and
+  Low signal counts.
+- **Open full triage** launches the persistent workspace.
+- **Try demo** runs bundled synthetic `.example.test` messages without Google,
+  Gmail, or external requests.
+- The former side-panel and compact-window paths are removed. Arc can report a
+  hidden side panel and clamps requested compact windows to a large minimum.
 
-The manifest requests exactly:
+## Permission and network boundary
 
-- `identity` plus temporary `sidePanel` migration permission used only to clear
-  the withdrawn builds' persisted toolbar preference;
-- `https://gmail.googleapis.com/*` host access;
-- Google scope `https://www.googleapis.com/auth/gmail.readonly`.
+The Manifest V3 package requests exactly:
 
-Authentication is explicit and browser-neutral:
+- extension permission `identity`;
+- host access `https://gmail.googleapis.com/*`;
+- Google OAuth scope `https://www.googleapis.com/auth/gmail.readonly`.
 
-```text
-Choose Google account
-  -> browser-owned launchWebAuthFlow window
-  -> Google's account chooser (`prompt=select_account`)
-  -> exact chromiumapp.org callback + one-use state validation
-  -> users/me/profile only
-  -> display selected address
-Confirm selected account
-  -> bounded Gmail profile/list/message reads with one pinned token lease
-  -> deterministic local triage
-  -> derived-only local snapshot
-  -> token lease forgotten
-```
+It has no content scripts, remote code, telemetry, analytics, Gmail mutations,
+refresh token, client secret, or application backend.
 
-The extension does **not** use Chrome-profile identity, `identity.email`,
-`getProfileUserInfo()`, `getAuthToken()`, a client secret, or a refresh token.
-Disconnect forgets the in-memory lease and local derived state; Google Account
-grant revocation remains a separate Google setting.
-
-The backendless direct token flow is limited to this private pilot. A public
-release must reassess Google's modern authorization architecture and
-restricted-scope review requirements.
+The current private-pilot flow uses an explicit Google account chooser through
+`chrome.identity.launchWebAuthFlow()`, displays the selected address after a
+profile-only read, and requires a second click before message discovery. Its
+short-lived token is held only in page memory and forgotten after the bounded
+run. That Web-client implicit flow is **not yet the frozen public OAuth
+architecture**; Google documents Chrome Extension clients with `getAuthToken()`
+for published extensions, and `gmail.readonly` is a restricted scope.
 
 ## Gmail and classifier bounds
 
 - Query: recent Inbox/Sent mail from the last 30 days.
-- Default: 100 messages; hard maximum: 200; maximum: four pages.
+- Default: 100 messages; hard maximum: 200 and four pages.
 - Gmail responses and MIME structure are byte/complexity bounded.
-- Unsafe individual messages become Review placeholders; account, auth,
+- Unsafe individual messages become Review placeholders. Account, auth,
   network, permission, server, and abort failures stop the sync.
-- The deterministic engine is authoritative. Optional local inference may only
-  refine clean non-safety `uncertain` results and cannot override risk,
-  deadline, or direction conclusions.
+- Deterministic rules are authoritative. Optional networkless local inference
+  may refine only clean `uncertain` results.
 
-## Development proof
+## Development and proof
 
-Requires Node.js 22 or newer:
-
-```sh
-npm test
-npm run check
-node extension/scripts/validate.mjs
-```
-
-The source/unit gate currently passes **152/152 tests**. The native Arc/Dia
-proof runner's focused gate passes 19/19, and independent review found no P0-P2
-issues. The validator is
-uses the active public Web OAuth client recorded in `extension/identity.json`
-and `app/gmail-auth.mjs`.
-
-The build command also fails closed before replacing `extension/build`:
+Requires Node.js 22 or newer. The extension has no npm package dependencies;
+browser proof uses an explicitly supplied existing `playwright-core` and
+Chromium path as documented in `BUILD.md`.
 
 ```sh
-npm run build:extension
+npm run verify
+npm run webstore:assets
+npm run native:proof:portable -- --browser arc
+npm run native:proof:portable -- --browser dia
 ```
 
-After the client is frozen, the release gate adds coverage, exact source/build
-byte parity, synthetic UI proof, then native disposable-profile proof in both
-Arc and Dia. No package is a release candidate until the exact extracted ZIP
-passes the same validator and tree hash.
+The source/unit/browser/build/validator/UI gate passes **157/157 tests**. The
+native runner now parses Arc's loopback DevTools endpoint, targets a disposable
+browser window, and refuses to run on a locked desktop. Exact `0.4.9` Arc/Dia
+proof is still pending an unlocked ClawPop desktop with the corresponding
+personal browser closed.
 
-The native proof also requires an independently source-pinned SHA-256 of the
-public client ID. It fails closed before launching either browser while the
-client, hash, or build is pending.
+The inspected 42-case development corpus is in-sample calibration evidence:
+`12/14` reply-or-attention capture and zero observed false-important results.
+It is not unseen or real-mail validation. The real-mail smoke awaits a renewed
+read-only Google grant on JPop's own device.
 
-## Google setup still required
+## Chrome Web Store
 
-In GCP project `inbox-island`, add one OAuth client:
+`webstore/` contains synthetic screenshots, listing copy, privacy disclosures,
+reviewer instructions, and the Halloween submission checklist for item
+`jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
-- type: `Web application`
-- name: `Inbox Island Browser OAuth`
-- redirect:
-  `https://jeemdbgakejlmmmbngpihndfkjiddbhl.chromiumapp.org/oauth2`
+The Store upload can be prepared and submitted before Halloween. Full Google
+restricted-scope verification is a separate process whose published estimate
+is about six weeks, so public Gmail authorization is not promised by Halloween.
 
-Record only its public Client ID. Never place the issued client secret in this
-repository, the extension, a receipt, or chat.
+## Canonical references
 
-## Current proof boundary
+- Current truth: `STATUS.md`
+- Sequencing: `ROADMAP.md`
+- Architecture: `resources/ARCHITECTURE.md`
+- Pilot handoff: `resources/JPOP-PILOT-INSTALL.md`
+- Publication controls: `resources/PUBLICATION-TRUST-PLAN.md`
+- Store kit: `webstore/README.md`
 
-No personal Google account, Gmail consent, token, cookie, or mailbox has been
-used on ClawPop. Disposable Arc/Dia runs may prove installation, launcher,
-redirect construction, Google's chooser entry, cancellation, and zero Gmail
-access before consent. Account selection, consent, token issuance, and bounded
-live sync remain JPop-owned-device gates.
-
-Current truth: `STATUS.md`
-Sequencing: `ROADMAP.md`
-Architecture: `resources/ARCHITECTURE.md`
-GCP handoff: `resources/JPOP-GOOGLE-SETUP.md`
-Pilot install/runbook: `resources/JPOP-PILOT-INSTALL.md`
-
-Historical 0.3.x receipts remain under `artifacts/` for audit only. None is a
-supported install.
+Updated: 2026-10-22 by Sean

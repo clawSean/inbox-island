@@ -3,9 +3,13 @@ import { access } from "node:fs/promises";
 import { once } from "node:events";
 import os from "node:os";
 import path from "node:path";
-import playwright from "/Users/Sean/projects/lobster-chat/node_modules/playwright-core/index.mjs";
+import { pathToFileURL } from "node:url";
 import { startAssetServer } from "./asset-server.mjs";
 import { MODEL_ID } from "./support.mjs";
+
+const playwrightEntry = process.env.PLAYWRIGHT_CORE_PATH;
+if (!playwrightEntry) throw new Error("PLAYWRIGHT_CORE_PATH_REQUIRED");
+const { default: playwright } = await import(pathToFileURL(playwrightEntry));
 
 async function chromeExecutable() {
   const candidates = [

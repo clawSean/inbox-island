@@ -1,4 +1,5 @@
-const accountAddress = "synthetic-user@example.test";
+export const SYNTHETIC_ACCOUNT_ID = "synthetic-user@example.test";
+const accountAddress = SYNTHETIC_ACCOUNT_ID;
 
 function encode(value) {
   const bytes = new TextEncoder().encode(value);

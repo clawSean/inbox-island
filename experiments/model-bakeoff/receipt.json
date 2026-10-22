@@ -3,27 +3,28 @@
   "generatedAt": "2026-10-09T03:27:24.635Z",
   "decision": "reject-this-six-prototype-bge-classifier",
   "experiment": {
-    "path": "/Users/Sean/projects/inbox-island/experiments/model-bakeoff",
+    "path": "experiments/model-bakeoff",
     "runnerSha256": "3fe7b878e5887259eeae1ac9fcfb509c812aebc62e4280ddc475a706a47bbab5",
     "moduleSha256": {
       "asset-server.mjs": "962bc55922de2be7c34095471e8423a5f6a0ff16c55a59f543515ba752dea91a",
-      "browser-runtime.mjs": "d68394b55bd99fc647b43d5ff278df3e355e425a4f4d44fa87803ea432b6320c",
+      "browser-runtime.mjs": "ee53925f6bc748ceab6302517dc17550ff8f9e27b7635c7355adf2e041e58299",
       "holdout.mjs": "03df10eb279efa9848f0f2a487e6f67954f317fb992957212f322dce826204b7",
-      "receipt-builder.mjs": "9b2b1f0fb138828c75efff1b6d9afe7515700af5967a05e425f2d9a5616192af",
+      "receipt-builder.mjs": "45598d47967d22d0f5d6b6953902513184dbe36a265193b87dc10c504cf0345d",
       "run-bakeoff.mjs": "3fe7b878e5887259eeae1ac9fcfb509c812aebc62e4280ddc475a706a47bbab5",
-      "support.mjs": "94e5d723a72c06a2338cebbb46d1fcb4038ca60f5189f0d4bfd57244e7541739"
+      "support.mjs": "f3733d4f353372e0e15738d4743b8866c97ed2f4ea8bb760be6a276806ba7df4"
     },
     "moduleLineCounts": {
       "asset-server.mjs": 92,
-      "browser-runtime.mjs": 170,
+      "browser-runtime.mjs": 174,
       "holdout.mjs": 170,
-      "receipt-builder.mjs": 219,
+      "receipt-builder.mjs": 220,
       "run-bakeoff.mjs": 98,
-      "support.mjs": 176
+      "support.mjs": 173
     },
-    "maximumModuleLineCount": 219,
+    "maximumModuleLineCount": 220,
     "productionFilesModified": false,
-    "downloadsOrInstalls": false
+    "downloadsOrInstalls": false,
+    "localPathMetadataRedacted": true
   },
   "holdout": {
     "version": "inbox-island-bge-holdout-v1",
@@ -75,52 +76,44 @@
     "revision": "ea104dacec62c0de699686887e3f920caeb4f3e3",
     "task": "prototype-similarity classification only",
     "license": "MIT (upstream BAAI model; cached Xenova conversion has no bundled license file)",
-    "snapshotPath": "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots/ea104dacec62c0de699686887e3f920caeb4f3e3",
+    "snapshot": "Xenova/bge-small-en-v1.5@ea104dacec62c0de699686887e3f920caeb4f3e3",
     "assets": [
       {
-        "filePath": "/Users/Sean/projects/lobster-chat/.privacy-runtime/4.2.0/transformers.webgpu.min.js",
         "name": "runtime/transformers.webgpu.min.js",
         "sha256": "d60534c119750d53d3d25ee1170d29701d58f8ba7a88c280d5e28934c60e6c3b",
         "size": 556822
       },
       {
-        "filePath": "/Users/Sean/projects/lobster-chat/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs",
         "name": "runtime/ort-wasm-simd-threaded.asyncify.mjs",
         "sha256": "5959c6733039619c9af710d8e1bae8d6e84402787990637be987c2b1bd6c5fa9",
         "size": 47389
       },
       {
-        "filePath": "/Users/Sean/projects/lobster-chat/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm",
         "name": "runtime/ort-wasm-simd-threaded.asyncify.wasm",
         "sha256": "e0c0c6d3e73d43b8a249972f8358f845b08cc16fec3c80efafdf8bed40366786",
         "size": 23567050
       },
       {
-        "filePath": "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots/ea104dacec62c0de699686887e3f920caeb4f3e3/config.json",
         "name": "model/config.json",
         "sha256": "fa73f90bf92c8cace1fbcb709626306f2bdbc9ea3e5b5f94b440df9b6aa56350",
         "size": 683
       },
       {
-        "filePath": "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots/ea104dacec62c0de699686887e3f920caeb4f3e3/tokenizer_config.json",
         "name": "model/tokenizer_config.json",
         "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3",
         "size": 366
       },
       {
-        "filePath": "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots/ea104dacec62c0de699686887e3f920caeb4f3e3/tokenizer.json",
         "name": "model/tokenizer.json",
         "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
         "size": 711396
       },
       {
-        "filePath": "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots/ea104dacec62c0de699686887e3f920caeb4f3e3/special_tokens_map.json",
         "name": "model/special_tokens_map.json",
         "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
         "size": 125
       },
       {
-        "filePath": "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots/ea104dacec62c0de699686887e3f920caeb4f3e3/onnx/model.onnx",
         "name": "model/onnx/model.onnx",
         "sha256": "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35",
         "size": 133093490

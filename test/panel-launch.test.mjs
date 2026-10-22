@@ -9,6 +9,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const manifest = JSON.parse(await readFile(path.join(root, "extension/manifest.json"), "utf8"));
 const worker = await readFile(path.join(root, "extension/background.mjs"), "utf8");
 const popup = await readFile(path.join(root, "app/popup.mjs"), "utf8");
+const appHtml = await readFile(path.join(root, "app/index.html"), "utf8");
+const appSource = await readFile(path.join(root, "app/app.mjs"), "utf8");
 
 async function withChrome(stub, run) {
   const hadChrome = Object.hasOwn(globalThis, "chrome");
@@ -42,7 +44,14 @@ test("toolbar popup exposes one honest persistent-workspace action", () => {
   assert.match(handler, /globalThis\.close\(\)/u);
 });
 
-test("worker evaluation clears 0.3.1 direct-panel ownership without relying on lifecycle events", async () => {
+test("packaged Gmail surface exposes a disconnected synthetic demo", () => {
+  assert.match(appHtml, /id="demo-button"[^>]*hidden[^>]*>Try demo</u);
+  assert.match(appSource, /gmailUi\?\.cancelPreparation\(\);\s+root\.querySelector\("#gmail-disclosure"\)\.hidden = true;\s+await runDemo\(\)/u);
+  assert.match(appSource, /#demo-button"\)\.hidden = false/u);
+  assert.match(appSource, /Demo · Gmail not connected/u);
+});
+
+test("worker evaluation verifies the browser-owned popup without side-panel access", async () => {
   const calls = [];
   const listeners = {};
   runInNewContext(worker, {
@@ -51,16 +60,6 @@ test("worker evaluation clears 0.3.1 direct-panel ownership without relying on l
         getURL: (relative) => `chrome-extension://pilot/${relative}`,
         onInstalled: { addListener: (listener) => { listeners.installed = listener; } },
         onStartup: { addListener: (listener) => { listeners.startup = listener; } },
-      },
-      sidePanel: {
-        setPanelBehavior: (options) => {
-          calls.push(["panel", options.openPanelOnActionClick]);
-          return Promise.resolve();
-        },
-        getPanelBehavior: () => {
-          calls.push(["get-panel"]);
-          return Promise.resolve({ openPanelOnActionClick: false });
-        },
       },
       action: {
         setPopup: (options) => {
@@ -81,17 +80,15 @@ test("worker evaluation clears 0.3.1 direct-panel ownership without relying on l
   assert.deepEqual(calls, [
     ["popup", "app/popup.html"],
     ["get-popup"],
-    ["panel", false],
-    ["get-panel"],
   ]);
 
   assert.equal(await listeners.installed(), true);
-  assert.deepEqual(calls.slice(4), calls.slice(0, 4));
+  assert.deepEqual(calls.slice(2), calls.slice(0, 2));
   assert.equal(await listeners.startup(), true);
-  assert.deepEqual(calls.slice(8), calls.slice(0, 4));
+  assert.deepEqual(calls.slice(4), calls.slice(0, 2));
 });
 
-test("worker-evaluation popup failure leaves panel ownership untouched and opens a tab", async () => {
+test("worker-evaluation popup failure opens a full-page fallback", async () => {
   const calls = [];
   const listeners = {};
   runInNewContext(worker, {
@@ -102,7 +99,6 @@ test("worker-evaluation popup failure leaves panel ownership untouched and opens
         onStartup: { addListener: () => {} },
       },
       action: { setPopup: () => { calls.push("popup"); return Promise.reject(new Error("POPUP_FAIL")); } },
-      sidePanel: { setPanelBehavior: () => { calls.push("panel"); return Promise.resolve(); } },
       tabs: {
         create: (options) => { calls.push(options.url); return Promise.resolve(); },
       },
@@ -117,7 +113,7 @@ test("worker-evaluation popup failure leaves panel ownership untouched and opens
   ]);
 });
 
-test("worker-evaluation panel-reset failure opens a full-page launcher instead of leaving a silent action", async () => {
+test("worker-evaluation popup mismatch opens a full-page launcher", async () => {
   const calls = [];
   const listeners = {};
   runInNewContext(worker, {
@@ -129,11 +125,7 @@ test("worker-evaluation panel-reset failure opens a full-page launcher instead o
       },
       action: {
         setPopup: () => { calls.push("popup"); return Promise.resolve(); },
-        getPopup: () => Promise.resolve("chrome-extension://pilot/app/popup.html"),
-      },
-      sidePanel: {
-        setPanelBehavior: () => { calls.push("panel"); return Promise.reject(new Error("PANEL_FAIL")); },
-        getPanelBehavior: () => Promise.resolve({ openPanelOnActionClick: false }),
+        getPopup: () => Promise.resolve(""),
       },
       tabs: {
         create: (options) => { calls.push(options.url); return Promise.resolve(); },
@@ -145,7 +137,6 @@ test("worker-evaluation panel-reset failure opens a full-page launcher instead o
   await settleWorker();
   assert.deepEqual(calls, [
     "popup",
-    "panel",
     "chrome-extension://pilot/app/index.html?surface=tab&launcher=repair",
   ]);
 });

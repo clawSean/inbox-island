@@ -18,7 +18,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function chromium() {
   const require = createRequire(import.meta.url);
-  return require("/Users/Sean/.npm-global/lib/node_modules/openclaw/node_modules/playwright-core").chromium;
+  return require(process.env.PLAYWRIGHT_CORE_PACKAGE || "playwright-core").chromium;
 }
 
 async function waitFor(fn, timeout = 30_000) {

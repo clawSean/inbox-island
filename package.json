@@ -1,6 +1,6 @@
 {
   "name": "inbox-island",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "private": true,
   "type": "module",
   "description": "Local-first Gmail triage core and private Chromium-browser extension pilot.",
@@ -19,6 +19,8 @@
     "build:extension": "node extension/scripts/build-pilot.mjs",
     "validate:extension": "node extension/scripts/validate.mjs --unpacked extension/build && node extension/scripts/validate-seed.mjs",
     "ui:proof": "npm run build:extension && node scripts/run-ui-proof.mjs",
+    "webstore:assets": "npm run build:extension && node scripts/build-web-store-assets.mjs",
+    "webstore:package": "npm run build:extension && node scripts/package-web-store.mjs",
     "verify": "npm run check && npm test && npm run quality:development && npm run smoke && npm run browser:proof && npm run build:extension && npm run validate:extension && node scripts/run-ui-proof.mjs"
   },
   "engines": {

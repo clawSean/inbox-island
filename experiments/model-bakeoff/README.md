@@ -54,13 +54,14 @@ uncertain results. `record` and `noise` recall remained zero.
   for its run; those machine timings naturally vary between runs.
 - Warm repeat delta was `0`; normalized prototype vector norms round to `1` at
   the receipt's six-decimal precision.
-- The executable proof is split into focused modules; the largest is 219 lines.
+- The executable proof is split into focused modules; the largest is 220 lines.
 
 ## Reproduction boundary
 
-[`receipt.json`](./receipt.json) is the preserved original result. Its six
-experiment modules and eight runtime/model assets still match their recorded
-hashes and sizes. The runner, however, imports the mutable production pipeline,
+[`receipt.json`](./receipt.json) preserves the original result with local path
+metadata redacted. Its six experiment modules retain equivalent proof logic and
+match the recorded public hashes; the eight runtime/model assets retain their
+original hashes and sizes. The runner, however, imports the mutable production pipeline,
 normalizer, transitive core, and product fixture; those original production
 bytes were not snapshotted or hashed in the receipt. After the deterministic
 core changed, rerunning the runner changed its baseline and hybrid metrics.

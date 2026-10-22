@@ -2,18 +2,10 @@
 
 ## Internal evidence and reusable patterns
 
-2026-09-25 · int · `/Users/Sean/projects/lobster-chat/VISION.md` · Canonical privacy promises and honest non-guarantee language for the existing browser-local Privacy Check.
-2026-09-25 · int · `/Users/Sean/projects/lobster-chat/src/privacy-model-assets.mjs` · Immutable model/runtime asset manifest and integrity metadata pattern.
-2026-09-25 · int · `/Users/Sean/projects/lobster-chat/public/privacy-model-worker.js` · Browser worker, WebGPU runtime, and model-loading implementation reference.
-2026-09-25 · int · `/Users/Sean/projects/lobster-chat/ops/verify-privacy-cache.mjs` · Cold, reload, relaunch, cache-integrity, and transfer-count proof pattern.
-2026-09-25 · int · `/Users/Sean/projects/lobster-chat/ops/verify-privacy-model.mjs` · Real WebGPU quality, model binding, and egress proof pattern.
-2026-09-25 · int · `/Users/Sean/projects/lobster-chat/ops/verify-privacy-ui.mjs` · Browser interaction, recovery, accessibility, and responsive proof harness pattern.
-2026-09-25 · int · `/Users/Sean/.openclaw/workspace/knowledge/research/pii-screener-ux-review-2026-09-02.md` · Local-first UX and honest privacy-copy lessons.
-2026-09-25 · int · `/Users/Sean/projects/mailreef/VISION.md` · Existing hostile-email and read-only capability-isolation principles; canonical project renamed to Mailreef on 2026-10-08.
-2026-09-25 · int · `/Users/Sean/projects/mailreef/docs/ARCHITECTURE.md` · Gmail broker, untrusted-source, and schema-bound output reference.
-2026-09-25 · int · `/Users/Sean/projects/mailreef/scripts/bootstrap_mailreef_oauth.py` · Exact-scope, expected-account, local PKCE, and private credential-handling reference; not directly reusable as browser code.
-2026-09-25 · int · `/Users/Sean/projects/mailreef/tests/` · Adversarial email and OAuth failure-test inventory reference.
-2026-09-25 · int · `/Users/Sean/.openclaw/workspace/MEMORY.md` · Current warning that Sean's screened Gmail capability is disabled and must not be misrepresented as live proof for this product.
+2026-09-25 · int · sibling `lobster-chat` project · Privacy promises, immutable local-model assets, worker containment, cache/integrity proof, and honest non-guarantee patterns.
+2026-09-25 · int · local PII-screener UX research · Local-first UX and honest privacy-copy lessons.
+2026-09-25 · int · sibling `mailreef` project · Hostile-email, read-only capability isolation, exact-scope OAuth, typed evidence, and fail-closed test patterns; its broker/plugin architecture is not reused here.
+2026-09-25 · int · agent activation memory · Real-mail proof must not be claimed while the screened read lane is unavailable.
 
 ## External primary sources
 

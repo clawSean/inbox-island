@@ -29,7 +29,7 @@ const identityPath = path.join(projectRoot, "extension", "identity.json");
 const validatorPath = path.join(projectRoot, "extension", "scripts", "validate.mjs");
 const expected = Object.freeze({
   extensionId: "jeemdbgakejlmmmbngpihndfkjiddbhl",
-  version: "0.4.8",
+  version: "0.4.9",
   popupPath: "app/popup.html",
   fullPagePath: "app/index.html?surface=tab",
   redirectUri: "https://jeemdbgakejlmmmbngpihndfkjiddbhl.chromiumapp.org/oauth2",
@@ -420,11 +420,25 @@ function processIds(processName) {
   return result.stdout.trim().split(/\s+/u).filter(Boolean).map(Number).filter(Number.isSafeInteger);
 }
 
-export function assertNoPersonalBrowsersRunning() {
-  const running = Object.values(browserConfigs).filter((config) => processIds(config.processName).length > 0);
+export function assertNoPersonalBrowsersRunning(browserIds = Object.keys(browserConfigs)) {
+  const running = browserIds.map((browserId) => browserConfigs[browserId])
+    .filter(Boolean)
+    .filter((config) => processIds(config.processName).length > 0);
   if (running.length > 0) {
     fail("PERSONAL_BROWSER_RUNNING",
       `Close ${running.map(({ label }) => label).join(" and ")} before running the disposable-profile proof`);
+  }
+}
+
+export function desktopSessionLockedFromIoreg(output) {
+  return /"CGSSessionScreenIsLocked"=Yes/u.test(String(output));
+}
+
+function assertInteractiveDesktopUnlocked() {
+  const result = spawnSync("/usr/sbin/ioreg", ["-n", "Root", "-d1"], { encoding: "utf8" });
+  if (result.status !== 0) fail("DESKTOP_SESSION_UNAVAILABLE", "Cannot verify the macOS desktop session");
+  if (desktopSessionLockedFromIoreg(result.stdout)) {
+    fail("DESKTOP_SESSION_LOCKED", "Unlock the macOS desktop before native popup proof");
   }
 }
 
@@ -455,9 +469,9 @@ async function assertFrozenBuild() {
   }
   if (manifest.version !== expected.version || deriveExtensionId(manifest.key) !== expected.extensionId
     || manifest.action?.default_popup !== expected.popupPath
-    || JSON.stringify(manifest.permissions) !== JSON.stringify(["sidePanel", "identity"])
+    || JSON.stringify(manifest.permissions) !== JSON.stringify(["identity"])
     || Object.hasOwn(manifest, "oauth2") || manifest.permissions.includes("identity.email")) {
-    fail("FROZEN_MANIFEST_MISMATCH", "The built manifest differs from the portable 0.4.0 contract");
+    fail("FROZEN_MANIFEST_MISMATCH", `The built manifest differs from the portable ${expected.version} contract`);
   }
   if (identity.extension_id !== expected.extensionId
     || identity.oauth_redirect_uri !== expected.redirectUri
@@ -468,7 +482,7 @@ async function assertFrozenBuild() {
     || marker.oauthClientType !== "web-application"
     || marker.oauthMode !== "launchWebAuthFlow-implicit-private-pilot"
     || marker.gmailConnected !== false) {
-    fail("FROZEN_MARKER_MISMATCH", "The build marker is not the portable 0.4.0 marker");
+    fail("FROZEN_MARKER_MISMATCH", `The build marker is not the portable ${expected.version} marker`);
   }
 
   const files = await walkFiles(buildRoot);
@@ -515,21 +529,27 @@ export function assertExpectedClientHash(clientId, expectedClientSha256) {
 
 function loadChromium() {
   const require = createRequire(import.meta.url);
-  const candidates = [
-    "playwright-core",
-    "/Users/Sean/.npm-global/lib/node_modules/openclaw/node_modules/playwright-core",
-  ];
+  const candidates = [process.env.PLAYWRIGHT_CORE_PACKAGE, "playwright-core"].filter(Boolean);
   for (const candidate of candidates) {
     try {
       return require(candidate).chromium;
     } catch {
-      // Try the OpenClaw-bundled fallback next.
+      // Try the explicitly supplied or locally resolvable package next.
     }
   }
-  fail("PLAYWRIGHT_CORE_MISSING", "playwright-core is unavailable for the CDP proof");
+  fail("PLAYWRIGHT_CORE_MISSING",
+    "Set PLAYWRIGHT_CORE_PACKAGE or install playwright-core for the CDP proof");
 }
 
-async function waitForDevTools(profile, child) {
+export function devToolsPortFromStderr(stderr) {
+  for (const line of [...stderr].reverse()) {
+    const match = String(line).match(/DevTools listening on ws:\/\/127\.0\.0\.1:(\d+)\//u);
+    if (match && Number(match[1]) >= 1 && Number(match[1]) <= 65_535) return match[1];
+  }
+  return null;
+}
+
+async function waitForDevTools(profile, child, stderr) {
   return waitFor(async () => {
     if (child.exitCode !== null) fail("BROWSER_EXITED_EARLY", "Browser exited before DevTools became ready");
     let contents;
@@ -541,8 +561,9 @@ async function waitForDevTools(profile, child) {
         if (error?.code !== "ENOENT") throw error;
       }
     }
-    if (!contents) return null;
-    const [port] = contents.trim().split(/\r?\n/u);
+    const [activePort] = contents ? contents.trim().split(/\r?\n/u) : [];
+    const port = /^\d+$/u.test(activePort || "") ? activePort : devToolsPortFromStderr(stderr);
+    if (!port) return null;
     if (!/^\d+$/u.test(port)) return null;
     const endpoint = `http://127.0.0.1:${port}`;
     const version = await fetch(`${endpoint}/json/version`).then((response) => response.json());
@@ -665,7 +686,7 @@ async function launchBrowser(config, profile, copiedBuild, cleanupState) {
     "about:blank",
   ];
   // The check is deliberately adjacent to spawn to minimize the singleton-app race.
-  assertNoPersonalBrowsersRunning();
+  assertNoPersonalBrowsersRunning([config.id]);
   const child = spawn(config.executable, args, { stdio: ["ignore", "ignore", "pipe"] });
   cleanupState.child = child;
   cleanupState.config = config;
@@ -680,7 +701,7 @@ async function launchBrowser(config, profile, copiedBuild, cleanupState) {
   });
   cleanupState.rootRecord = await captureSpawnRoot(child, config, profile, cleanupState.runId);
   cleanupState.knownProcesses.set(cleanupState.rootRecord.pid, cleanupState.rootRecord);
-  const devtools = await Promise.race([waitForDevTools(profile, child), earlyError]);
+  const devtools = await Promise.race([waitForDevTools(profile, child, stderr), earlyError]);
   const observer = await connectBrowserObserver(devtools);
   cleanupState.observer = observer;
   const browser = await loadChromium().connectOverCDP(devtools.endpoint);
@@ -692,6 +713,7 @@ async function launchBrowser(config, profile, copiedBuild, cleanupState) {
     browser,
     cdp,
     child,
+    config,
     context,
     devtools,
     observer,
@@ -715,17 +737,13 @@ async function waitForWorker(context) {
     worker.url() === `chrome-extension://${expected.extensionId}/background.mjs`), {
     timeout: 20_000,
     code: "EXTENSION_WORKER_MISSING",
-    label: "Inbox Island 0.4.0 service worker",
+    label: `Inbox Island ${expected.version} service worker`,
   });
 }
 
 async function inspectWorker(worker) {
   return worker.evaluate(async (redirectPath) => {
-    const panelOpenAvailable = typeof chrome.sidePanel?.open === "function"
-      && Number.isInteger(chrome.windows?.WINDOW_ID_CURRENT);
-    const panelBehaviorInspectable = typeof chrome.sidePanel?.getPanelBehavior === "function";
-    const [panelBehavior, popup, contexts] = await Promise.all([
-      panelBehaviorInspectable ? chrome.sidePanel.getPanelBehavior() : Promise.resolve(null),
+    const [popup, contexts] = await Promise.all([
       chrome.action.getPopup({}),
       chrome.runtime.getContexts({}),
     ]);
@@ -736,9 +754,6 @@ async function inspectWorker(worker) {
       permissions: manifest.permissions,
       hasOauth2: Object.hasOwn(manifest, "oauth2"),
       popup,
-      panelOpenAvailable,
-      panelBehaviorInspectable,
-      panelBehavior,
       redirectUri: chrome.identity.getRedirectURL(redirectPath),
       contexts: contexts.map(({ contextId, contextType, documentUrl }) => ({
         contextId,
@@ -988,18 +1003,50 @@ async function rawTrustedClick(raw, selector, tag) {
   }, { timeout: 3_000, code: "UNTRUSTED_EXTENSION_CLICK", label: `${tag} trusted click` });
 }
 
-async function openNativePopup(instance, worker, label) {
+async function openNativePopup(instance, worker, label, anchorPage) {
+  await anchorPage.bringToFront();
   const popupUrl = `chrome-extension://${expected.extensionId}/${expected.popupPath}`;
   const beforeTargets = new Set((await targetCensus(instance.cdp)).map(({ targetId }) => targetId));
   const beforeContexts = new Set((await inspectWorker(worker)).contexts.map(({ contextId }) => contextId));
-  const invocation = await worker.evaluate(async () => {
+  const created = await worker.evaluate(async () => {
     try {
-      await chrome.action.openPopup();
-      return { ok: true };
+      const targetWindow = await chrome.windows.create({
+        focused: true,
+        type: "normal",
+        url: "about:blank",
+      });
+      if (!Number.isInteger(targetWindow?.id)) throw new Error("No normal browser window is available");
+      return { ok: true, windowId: targetWindow.id };
     } catch (error) {
       return { ok: false, message: error?.message || String(error) };
     }
   });
+  if (!created.ok) fail("ACTION_POPUP_OPEN_FAILED", sanitizeError(created.message));
+  const activation = spawnSync("/usr/bin/osascript", [
+    "-e",
+    `tell application id "${instance.config.expectedBundleId}" to activate`,
+  ], { encoding: "utf8" });
+  if (activation.status !== 0) {
+    fail("BROWSER_ACTIVATION_FAILED", `Could not activate ${instance.config.label}'s disposable window`);
+  }
+  await sleep(250);
+  const invocation = await worker.evaluate(async (windowId) => {
+    try {
+      const tabs = await chrome.tabs.query({ windowId });
+      if (Number.isInteger(tabs[0]?.id)) await chrome.tabs.update(tabs[0].id, { active: true });
+      let targetWindow;
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        targetWindow = await chrome.windows.update(windowId, { focused: true });
+        if (targetWindow.focused) break;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      if (!targetWindow.focused) throw new Error("Disposable browser window did not become focused");
+      await chrome.action.openPopup({ windowId });
+      return { ok: true, windowIdPresent: true };
+    } catch (error) {
+      return { ok: false, message: error?.message || String(error) };
+    }
+  }, created.windowId);
   if (!invocation.ok) fail("ACTION_POPUP_OPEN_FAILED", sanitizeError(invocation.message));
   const target = await waitFor(async () => (await targetCensus(instance.cdp)).find((candidate) =>
     !beforeTargets.has(candidate.targetId) && candidate.url === popupUrl), {
@@ -1060,10 +1107,10 @@ async function closeProofTarget(instance, targetId) {
   });
 }
 
-async function provePopupAndFullPage(instance, worker, workerProof) {
+async function provePopupAndFullPage(instance, worker, workerProof, anchorPage) {
   const popupUrl = `chrome-extension://${expected.extensionId}/${expected.popupPath}`;
   const fullPageUrl = `chrome-extension://${expected.extensionId}/${expected.fullPagePath}`;
-  const secondPopup = await openNativePopup(instance, worker, "canonical-full-page");
+  const secondPopup = await openNativePopup(instance, worker, "canonical-full-page", anchorPage);
   try {
     const beforeTargets = new Set((await targetCensus(instance.cdp)).map(({ targetId }) => targetId));
     const trusted = await rawTrustedClick(secondPopup.raw, "#open-tab", "popup-full-page");
@@ -1086,6 +1133,8 @@ async function provePopupAndFullPage(instance, worker, workerProof) {
       badge: document.querySelector("#surface-badge")?.textContent || null,
       connection: document.querySelector("#connection-label")?.textContent || null,
       runAction: document.querySelector("#run-button-label")?.textContent || null,
+      demoAction: document.querySelector("#demo-button")?.textContent?.trim() || null,
+      demoHidden: document.querySelector("#demo-button")?.hidden,
       accountCheckHidden: document.querySelector("#gmail-account-check")?.hidden,
       accountValueEmpty: document.querySelector("#gmail-expected-email")?.value === "",
     }));
@@ -1096,6 +1145,8 @@ async function provePopupAndFullPage(instance, worker, workerProof) {
       badge: "Private Gmail pilot",
       connection: "Gmail not connected",
       runAction: "Choose Google account",
+      demoAction: "Try demo",
+      demoHidden: false,
       accountCheckHidden: true,
       accountValueEmpty: true,
     });
@@ -1487,12 +1538,13 @@ const receiptPhases = new Set([
 ]);
 const receiptFailureCodes = new Set([
   "ACTION_POPUP_CONTEXT_MISSING", "ACTION_POPUP_NOT_READY", "ACTION_POPUP_OPEN_FAILED",
-  "ACTION_POPUP_TARGET_MISSING", "BROWSER_CHROMIUM_TOO_OLD", "BROWSER_CONTEXT_MISSING",
+  "ACTION_POPUP_TARGET_MISSING", "BROWSER_ACTIVATION_FAILED", "BROWSER_CHROMIUM_TOO_OLD", "BROWSER_CONTEXT_MISSING",
   "BROWSER_EXITED_EARLY", "BROWSER_LAUNCH_FAILED", "BROWSER_OBSERVER_UNAVAILABLE",
   "CHOOSER_CANCEL_CODE_UNSAFE", "CHOOSER_CANCEL_OUTCOME_MISSING", "CHOOSER_CANCEL_RESOLVED",
   "CHOOSER_CANCEL_UI_MISSING", "CHOOSER_INSTRUMENTATION_BLOCKED", "CHOOSER_INVOCATION_MISSING",
   "CHOOSER_PROMISE_CONTRACT_INVALID", "CHOOSER_SETTLED_BEFORE_CANCEL",
-  "DEVTOOLS_START_TIMEOUT", "DISPOSABLE_CLEANUP_FAILED", "DISPOSABLE_OWNERSHIP_INVALID",
+  "DESKTOP_SESSION_LOCKED", "DESKTOP_SESSION_UNAVAILABLE", "DEVTOOLS_START_TIMEOUT",
+  "DISPOSABLE_CLEANUP_FAILED", "DISPOSABLE_OWNERSHIP_INVALID",
   "EXTENSION_PAGE_MISSING", "EXTENSION_SURFACE_NOT_READY", "EXTENSION_WORKER_MISSING",
   "FULL_PAGE_TARGET_MISSING", "GOOGLE_CHOOSER_CLOSE_FAILED", "GOOGLE_CHOOSER_REQUEST_MISSING",
   "GOOGLE_CHOOSER_TARGET_MISSING", "NATIVE_PROOF_ASSERTION_FAILED", "NATIVE_PROOF_FAILED",
@@ -1542,7 +1594,7 @@ function createBatchId(date = new Date(), randomBytes = crypto.randomBytes) {
 }
 
 function receiptFile(receiptDirectory, browserId, batchId) {
-  return path.join(receiptDirectory, `native-pilot-0.4.0-${batchId}-${browserId}-proof.json`);
+  return path.join(receiptDirectory, `native-pilot-${expected.version}-${batchId}-${browserId}-proof.json`);
 }
 
 export async function writeReceipt(filePath, receipt, forbiddenValues = []) {
@@ -1636,7 +1688,7 @@ async function runBrowserProof(config, install, frozen, receiptDirectory, batchI
   let phase = "prepare";
   let proofFailure;
   try {
-    assertNoPersonalBrowsersRunning();
+    assertNoPersonalBrowsersRunning([config.id]);
     cleanupState.runId = crypto.randomUUID();
     cleanupState.tempRoot = mkdtempSync(path.join(os.tmpdir(), `inbox-island-native-${config.id}-`));
     writeFileSync(path.join(cleanupState.tempRoot, ".inbox-island-proof-owner.json"), `${JSON.stringify({
@@ -1700,15 +1752,10 @@ async function runBrowserProof(config, install, frozen, receiptDirectory, batchI
     const workerProof = await inspectWorker(worker);
     assert.equal(workerProof.runtimeId, expected.extensionId);
     assert.equal(workerProof.version, expected.version);
-    assert.deepEqual(workerProof.permissions, ["sidePanel", "identity"]);
+    assert.deepEqual(workerProof.permissions, ["identity"]);
     assert.equal(workerProof.hasOauth2, false);
     assert.equal(workerProof.popup,
       `chrome-extension://${expected.extensionId}/${expected.popupPath}`);
-    if (workerProof.panelBehaviorInspectable) {
-      assert.equal(workerProof.panelBehavior.openPanelOnActionClick, false);
-    } else {
-      assert.equal(workerProof.panelBehavior, null);
-    }
     assert.equal(workerProof.redirectUri, expected.redirectUri);
     receipt.runtime = {
       extensionId: workerProof.runtimeId,
@@ -1716,15 +1763,11 @@ async function runBrowserProof(config, install, frozen, receiptDirectory, batchI
       permissions: workerProof.permissions,
       manifestOauth2Present: workerProof.hasOauth2,
       popup: workerProof.popup,
-      sidePanelOpenAvailable: workerProof.panelOpenAvailable,
-      sidePanelBehaviorInspectable: workerProof.panelBehaviorInspectable,
-      openPanelOnActionClick: workerProof.panelBehavior?.openPanelOnActionClick ?? null,
       redirectUri: workerProof.redirectUri,
     };
-    await bootstrap.close();
-
     phase = "surfaces";
-    const surfaces = await provePopupAndFullPage(instance, worker, workerProof);
+    const surfaces = await provePopupAndFullPage(instance, worker, workerProof, bootstrap);
+    await bootstrap.close();
     receipt.actionPopup = surfaces.popup;
     receipt.fullPage = surfaces.surface;
     phase = "oauth-cancel";
@@ -1808,7 +1851,8 @@ async function runBrowserProof(config, install, frozen, receiptDirectory, batchI
 }
 
 async function preflight(browserIds) {
-  assertNoPersonalBrowsersRunning();
+  assertInteractiveDesktopUnlocked();
+  assertNoPersonalBrowsersRunning(browserIds);
   const installs = {};
   for (const browserId of browserIds) {
     installs[browserId] = await inspectBrowserInstall(browserConfigs[browserId]);
@@ -1827,7 +1871,7 @@ async function writePairedSummary(receiptDirectory, batchId, results) {
   }
   const summaryPath = path.join(
     receiptDirectory,
-    `native-pilot-0.4.0-${batchId}-paired-summary.json`,
+    `native-pilot-${expected.version}-${batchId}-paired-summary.json`,
   );
   await writeReceipt(summaryPath, {
     schema: "inbox-island.native-portable-paired-summary.v1",
@@ -1874,7 +1918,7 @@ async function main(signalCoordinator) {
   const batchId = createBatchId();
   const results = [];
   for (const browserId of options.browsers) {
-    assertNoPersonalBrowsersRunning();
+    assertNoPersonalBrowsersRunning([browserId]);
     results.push(await runBrowserProof(
       browserConfigs[browserId],
       installs[browserId],

@@ -2,6 +2,7 @@
 
 import assert from "node:assert/strict";
 import { access, mkdir } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { startUiProofServer } from "./ui-proof-server.mjs";
@@ -20,13 +21,13 @@ const artifactRoot = path.join(root, "artifacts");
 const proofDate = "2026-10-09";
 await mkdir(artifactRoot, { recursive: true });
 
-const playwrightEntry = process.env.PLAYWRIGHT_CORE_PATH
-  || "/Users/Sean/projects/lobster-chat/node_modules/playwright-core/index.mjs";
+const playwrightEntry = process.env.PLAYWRIGHT_CORE_PATH;
+if (!playwrightEntry) throw new Error("PLAYWRIGHT_CORE_PATH_REQUIRED");
 await access(playwrightEntry);
 const { default: playwright } = await import(pathToFileURL(playwrightEntry));
 const candidates = [
   process.env.CHROME_PATH,
-  "/Users/Sean/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  path.join(os.homedir(), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 ].filter(Boolean);
 let executablePath = null;
@@ -94,12 +95,8 @@ async function openApp(viewport, surface, screenshot) {
   await page.locator("[data-thread-id]").click();
   assert.equal(await page.locator("a[href*='evil.example.test']").count(), 0);
   assert.equal((await page.locator("#detail-content").textContent()).includes("evil.example.test"), true);
-  const gmailLink = new URL(await page.locator(".detail-primary-action").getAttribute("href"));
-  assert.equal(gmailLink.origin, "https://mail.google.com");
-  assert.equal(gmailLink.searchParams.get("authuser"), "synthetic-user@example.test");
-  assert.equal(gmailLink.hash, "#all/m-phish");
-  assert.equal(await page.locator(".detail-primary-action").getAttribute("target"), "_blank");
-  assert.equal(await page.locator(".detail-primary-action").getAttribute("rel"), "noopener noreferrer");
+  assert.equal(await page.locator(".detail-primary-action").count(), 0);
+  assert.match(await page.locator(".detail-actions").textContent(), /Synthetic example/u);
   if (viewport.width <= 840) await page.keyboard.press("Escape");
   await page.locator("#search-input").fill("");
   await page.locator("[data-view=needs-me]").click();

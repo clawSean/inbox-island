@@ -6,7 +6,7 @@ not whole private trees, and never create compatibility aliases.
 
 ## Portal Privacy Check
 
-Canonical project: `/Users/Sean/projects/lobster-chat/`
+Canonical source: sibling `lobster-chat` project.
 
 Reuse or adapt:
 
@@ -31,7 +31,7 @@ Do not infer:
 
 ## Mailreef screened email boundary
 
-Canonical project: `/Users/Sean/projects/mailreef/`
+Canonical source: sibling `mailreef` project.
 
 Reuse or adapt:
 
@@ -57,14 +57,12 @@ Do not infer:
 
 ## Workspace knowledge and memory
 
-- `/Users/Sean/.openclaw/workspace/knowledge/research/pii-screener-ux-review-2026-09-02.md`
-  — privacy UX should unblock with usable output while keeping technical detail
-  behind contextual disclosure.
-- `/Users/Sean/.openclaw/workspace/knowledge/research/local-first-pii-document-screener-landscape-2026-07-25.md`
-  — local-first evaluation, quality, and non-guarantee lessons.
-- `/Users/Sean/.openclaw/workspace/MEMORY.md`
-  — current email-read activation warning; consult before any test involving a
-  real mailbox.
+- Local PII-screener UX research — privacy UX should unblock with usable output
+  while keeping technical detail behind contextual disclosure.
+- Local-first screener landscape research — evaluation, quality, and
+  non-guarantee lessons.
+- Agent activation memory — consult before any test involving a real mailbox;
+  never infer that a screened mail lane is live.
 
 ## Anti-drift boundary
 

@@ -12,7 +12,7 @@ const manifestPath = path.join(extensionRoot, "manifest.json");
 const identityPath = path.join(extensionRoot, "identity.json");
 const iconSizes = [16, 32, 48, 128];
 const failures = [];
-const expectedVersion = "0.4.8";
+const expectedVersion = "0.4.9";
 const oauthClientId = /^\d{6,32}-[a-z0-9]{16,128}\.apps\.googleusercontent\.com$/u;
 
 function check(condition, message) {
@@ -105,11 +105,13 @@ const manifest = await json(manifestPath);
 const identity = await json(identityPath);
 check(manifest.manifest_version === 3, "manifest_version must be 3");
 check(manifest.name === "Inbox Island", "manifest must use the canonical product name");
+check(manifest.description === "Prioritize recent Gmail locally, without changing your mailbox or sending mail to an Inbox Island server.",
+  "manifest description must match the reviewed Store listing copy");
 check(manifest.version === expectedVersion,
   `private pilot manifest version must be ${expectedVersion}`);
 check(manifest.minimum_chrome_version === "145", "minimum Chrome version must be 145");
-check(JSON.stringify(manifest.permissions) === JSON.stringify(["sidePanel", "identity"]),
-  "the only declared permissions must be sidePanel and identity");
+check(JSON.stringify(manifest.permissions) === JSON.stringify(["identity"]),
+  "the only declared permission must be identity");
 check(JSON.stringify(manifest.host_permissions) === JSON.stringify([
   "https://gmail.googleapis.com/*",
 ]), "the only host permission must be the Gmail API origin");
@@ -123,20 +125,20 @@ for (const forbidden of [
 check(JSON.stringify(manifest.background) === JSON.stringify({
   service_worker: "background.mjs",
   type: "module",
-}), "background must reset the withdrawn direct-panel preference");
+}), "background must verify the browser-owned popup launcher");
 const backgroundSource = await readFile(path.join(extensionRoot, "background.mjs"), "utf8");
 check(!/\b(?:fetch|WebSocket|XMLHttpRequest|EventSource|sendBeacon)\s*\(/u.test(backgroundSource)
   && !/\bhttps?:\/\//u.test(backgroundSource),
 "background service worker must not cross the network boundary");
-check(/openPanelOnActionClick:\s*false/u.test(backgroundSource)
+check(!/openPanelOnActionClick:\s*false/u.test(backgroundSource)
   && /POPUP_PATH\s*=\s*["']app\/popup\.html["']/u.test(backgroundSource)
   && /action\.setPopup/u.test(backgroundSource)
   && /action\.getPopup/u.test(backgroundSource)
-  && /sidePanel\.getPanelBehavior/u.test(backgroundSource)
+  && !/sidePanel/u.test(backgroundSource)
   && /tabs\.create/u.test(backgroundSource)
   && /void\s+ensureToolbarLauncher\(\)/u.test(backgroundSource)
   && !/action\.onClicked/u.test(backgroundSource),
-"background must immediately verify popup migration, progressively disable direct action ownership, and expose a visible fallback");
+"background must verify the popup launcher without side-panel access and expose a visible fallback");
 
 const expectedCsp = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; worker-src 'self'; connect-src https://gmail.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 check(manifest.content_security_policy?.extension_pages === expectedCsp,
@@ -145,7 +147,7 @@ check(manifest.action?.default_popup === "app/popup.html",
   "toolbar click must always expose the browser-owned popup launcher");
 check(manifest.action?.default_title === "Open Inbox Island",
   "toolbar tooltip must describe the visible launcher");
-check(manifest.side_panel?.default_path === "app/index.html", "side panel must use app/index.html");
+check(!Object.hasOwn(manifest, "side_panel"), "manifest must not declare a side panel");
 
 const derivedId = extensionId(manifest.key);
 check(derivedId === "jeemdbgakejlmmmbngpihndfkjiddbhl", "manifest key derives the wrong ID");
@@ -180,18 +182,25 @@ for (const size of iconSizes) {
 await validateUiSources();
 
 const unpackedFlag = process.argv.indexOf("--unpacked");
-if (unpackedFlag >= 0) {
-  const argument = process.argv[unpackedFlag + 1];
-  check(Boolean(argument), "--unpacked requires a directory");
+const webstoreFlag = process.argv.indexOf("--webstore-unpacked");
+check(!(unpackedFlag >= 0 && webstoreFlag >= 0),
+  "choose either --unpacked or --webstore-unpacked, not both");
+if (unpackedFlag >= 0 || webstoreFlag >= 0) {
+  const isWebStore = webstoreFlag >= 0;
+  const activeFlag = isWebStore ? webstoreFlag : unpackedFlag;
+  const argument = process.argv[activeFlag + 1];
+  check(Boolean(argument), `${isWebStore ? "--webstore-unpacked" : "--unpacked"} requires a directory`);
   if (argument) {
     const unpacked = path.resolve(process.cwd(), argument);
     check(existsSync(unpacked), `unpacked build is missing: ${unpacked}`);
     if (existsSync(unpacked)) {
       const actual = await filesBelow(unpacked);
-      const expected = await expectedBuildFiles();
+      const expected = (await expectedBuildFiles())
+        .filter((file) => !isWebStore || file !== ".inbox-island-build.json");
       check(JSON.stringify(actual) === JSON.stringify(expected),
         `unpacked file list differs:\n${actual.join("\n")}`);
-      for (const relative of expected.filter((file) => file !== ".inbox-island-build.json")) {
+      for (const relative of expected.filter((file) => file !== "manifest.json"
+        && file !== ".inbox-island-build.json")) {
         const [sourceBytes, builtBytes] = await Promise.all([
           readFile(sourceFileForBuild(relative)),
           readFile(path.join(unpacked, relative)),
@@ -201,15 +210,21 @@ if (unpackedFlag >= 0) {
           `unpacked build contains secret-shaped content: ${relative}`);
       }
       const builtManifest = await json(path.join(unpacked, "manifest.json"));
-      check(JSON.stringify(builtManifest) === JSON.stringify(manifest),
-        "unpacked manifest differs from source manifest");
-      const marker = await json(path.join(unpacked, ".inbox-island-build.json"));
-      check(marker.artifact === "gmail-pilot-unpacked" && marker.gmailOauthEnabled === true
-        && marker.gmailConnected === false && marker.browserPortable === true
-        && marker.oauthClientType === "web-application"
-        && marker.oauthMode === "launchWebAuthFlow-implicit-private-pilot"
-        && marker.extensionVersion === expectedVersion,
-        "unpacked build marker is invalid");
+      const expectedManifest = structuredClone(manifest);
+      if (isWebStore) delete expectedManifest.key;
+      check(JSON.stringify(builtManifest) === JSON.stringify(expectedManifest),
+        `unpacked ${isWebStore ? "Web Store " : ""}manifest differs from its reviewed source transform`);
+      check(!isWebStore || !Object.hasOwn(builtManifest, "key"),
+        "Web Store package must omit the development-only manifest key");
+      if (!isWebStore) {
+        const marker = await json(path.join(unpacked, ".inbox-island-build.json"));
+        check(marker.artifact === "gmail-pilot-unpacked" && marker.gmailOauthEnabled === true
+          && marker.gmailConnected === false && marker.browserPortable === true
+          && marker.oauthClientType === "web-application"
+          && marker.oauthMode === "launchWebAuthFlow-implicit-private-pilot"
+          && marker.extensionVersion === expectedVersion,
+          "unpacked build marker is invalid");
+      }
     }
   }
 }

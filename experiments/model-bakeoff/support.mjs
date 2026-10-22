@@ -5,13 +5,10 @@ import path from "node:path";
 import { normalizeMailbox } from "../../src/gmail-normalize.mjs";
 import { LABELS, MODEL_GATE } from "./holdout.mjs";
 
-export const LOBSTER_ROOT = "/Users/Sean/projects/lobster-chat";
+export const LOBSTER_ROOT = process.env.LOBSTER_CHAT_ROOT || "";
 export const MODEL_ID = "Xenova/bge-small-en-v1.5";
 export const MODEL_REVISION = "ea104dacec62c0de699686887e3f920caeb4f3e3";
-export const MODEL_ROOT = path.join(
-  "/Users/Sean/Library/Caches/octolib/fastembed/models--Xenova--bge-small-en-v1.5/snapshots",
-  MODEL_REVISION,
-);
+export const MODEL_ROOT = process.env.BGE_MODEL_SNAPSHOT || "";
 export const RUNTIME_ROOT = path.join(LOBSTER_ROOT, ".privacy-runtime/4.2.0");
 export const ORT_ROOT = path.join(LOBSTER_ROOT, "node_modules/onnxruntime-web/dist");
 export const FIXED_NOW = () => new Date("2026-11-04T00:00:00.000Z");

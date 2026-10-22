@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Inbox Island",
-  "version": "0.4.8",
-  "description": "A private, local-first Gmail triage pilot with read-only access.",
+  "version": "0.4.9",
+  "description": "Prioritize recent Gmail locally, without changing your mailbox or sending mail to an Inbox Island server.",
   "minimum_chrome_version": "145",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyRfdNM1BJdQ1GxcMQDnquugPuG+8ZVin5k437lk44U61kdBXhFThPZWXePcUc46mEZUgqtOp3PhZQ8yD1V7VSpUplHZxzCMA48iHQdScVXxotvcJ3f65fxvYbX5sb2+Wf0+ZWFaF8kwjOrIzLJmmo0SdauoD2TexL906Niwd7bl8Zvq7AP/Ccv+CrtpP8AgCGHeDV1R8WG4UejXhJRtUQc4KxpJzyRoBVorIQDbDIQ5GHdTTqGn5HJoZgjFde0pFLDDNkH5WfuBzW1ruU55m53TRidNGQKNxL+/zy+bmeZviZDNsHZDJEb0wDRi1VTKyw5VY7HbYqAywBngUrbi6pwIDAQAB",
   "action": {
@@ -16,15 +16,11 @@
     }
   },
   "permissions": [
-    "sidePanel",
     "identity"
   ],
   "host_permissions": [
     "https://gmail.googleapis.com/*"
   ],
-  "side_panel": {
-    "default_path": "app/index.html"
-  },
   "background": {
     "service_worker": "background.mjs",
     "type": "module"

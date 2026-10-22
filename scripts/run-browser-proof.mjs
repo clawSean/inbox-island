@@ -3,18 +3,19 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import http from "node:http";
+import os from "node:os";
 import path from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const playwrightEntry = process.env.PLAYWRIGHT_CORE_PATH
-  || "/Users/Sean/projects/lobster-chat/node_modules/playwright-core/index.mjs";
+const playwrightEntry = process.env.PLAYWRIGHT_CORE_PATH;
+if (!playwrightEntry) throw new Error("PLAYWRIGHT_CORE_PATH_REQUIRED");
 await access(playwrightEntry);
 const { default: playwright } = await import(pathToFileURL(playwrightEntry));
 
 const chromeCandidates = [
   process.env.CHROME_PATH,
-  "/Users/Sean/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  path.join(os.homedir(), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 ].filter(Boolean);
 let executablePath = null;

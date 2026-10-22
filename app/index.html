@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en" data-surface="panel" data-ui-state="loading">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Inbox Island</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="detail.css">
+    <link rel="stylesheet" href="responsive.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to inbox</a>
+    <div class="app-shell">
+      <aside class="nav-rail" aria-label="Inbox Island navigation">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span class="brand-copy"><strong>Inbox Island</strong><small>Local triage</small></span>
+        </div>
+
+        <nav class="view-nav" aria-label="Triage views">
+          <button class="view-button is-active" type="button" data-view="needs-me" aria-pressed="true">
+            <span class="view-glyph glyph-needs" aria-hidden="true">↗</span>
+            <span>Needs me</span><span class="view-count" data-count="needs-me">0</span>
+          </button>
+          <button class="view-button" type="button" data-view="review" aria-pressed="false">
+            <span class="view-glyph glyph-review" aria-hidden="true">!</span>
+            <span>Review</span><span class="view-count" data-count="review">0</span>
+          </button>
+          <button class="view-button" type="button" data-view="waiting" aria-pressed="false">
+            <span class="view-glyph glyph-waiting" aria-hidden="true">◷</span>
+            <span>Waiting</span><span class="view-count" data-count="waiting">0</span>
+          </button>
+          <button class="view-button" type="button" data-view="record" aria-pressed="false">
+            <span class="view-glyph glyph-record" aria-hidden="true">✓</span>
+            <span>Records</span><span class="view-count" data-count="record">0</span>
+          </button>
+          <button class="view-button" type="button" data-view="noise" aria-pressed="false">
+            <span class="view-glyph glyph-noise" aria-hidden="true">–</span>
+            <span>Low signal</span><span class="view-count" data-count="noise">0</span>
+          </button>
+          <button class="view-button" type="button" data-view="all" aria-pressed="false">
+            <span class="view-glyph glyph-all" aria-hidden="true">≡</span>
+            <span>All mail</span><span class="view-count" data-count="all">0</span>
+          </button>
+        </nav>
+
+        <section class="privacy-card" aria-label="Privacy status">
+          <div class="privacy-line"><span class="privacy-dot" aria-hidden="true"></span><strong id="privacy-title">Local only</strong></div>
+          <p id="privacy-copy">Synthetic mail. No Gmail connection, network calls, or telemetry.</p>
+        </section>
+      </aside>
+
+      <div class="content-shell">
+        <header class="topbar">
+          <div class="topbar-status">
+            <span class="surface-badge" id="surface-badge">Synthetic demo</span>
+            <span class="connection-state" id="connection-state"><span aria-hidden="true"></span><span id="connection-label">Gmail disconnected</span></span>
+          </div>
+          <div class="topbar-actions">
+            <button class="button button-quiet" id="disconnect-button" type="button" hidden>Disconnect Gmail</button>
+            <button class="button button-quiet" id="clear-button" type="button">Clear local demo</button>
+            <button class="button button-quiet expand-button" id="expand-button" type="button">Full page ↗</button>
+            <button class="button button-primary" id="run-button" type="button">
+              <span class="button-spark" aria-hidden="true">✦</span><span id="run-button-label">Run demo</span>
+            </button>
+          </div>
+        </header>
+
+        <main id="main-content" tabindex="-1">
+          <section class="hero" aria-labelledby="hero-title">
+            <div>
+              <p class="kicker">Your calm inbox</p>
+              <h1 id="hero-title">Finding the signal.</h1>
+              <p class="hero-copy" id="hero-copy">The local worker is sorting a synthetic mailbox.</p>
+              <div class="gmail-account-check" id="gmail-account-check" hidden>
+                <label for="gmail-expected-email">Selected Google account</label>
+                <input id="gmail-expected-email" type="email" autocomplete="email" maxlength="320" required readonly>
+                <p id="gmail-account-guidance"></p>
+                <button class="button button-quiet" id="gmail-rechoose-button" type="button">Choose another account</button>
+              </div>
+            </div>
+            <div class="hero-orbit" aria-hidden="true"><span></span><i></i></div>
+          </section>
+
+          <section class="metric-grid" aria-label="Triage summary">
+            <article class="metric-card metric-primary">
+              <span class="metric-label">Needs you</span>
+              <strong id="metric-needs">—</strong>
+              <small>reply or attention</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Review queue</span>
+              <strong id="metric-review">—</strong>
+              <small>can overlap needs you</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Waiting</span>
+              <strong id="metric-waiting">—</strong>
+              <small>you already replied</small>
+            </article>
+          </section>
+
+          <section class="triage-workspace" aria-label="Triage results">
+            <section class="thread-pane" aria-labelledby="thread-heading">
+              <div class="pane-header">
+                <div>
+                  <p class="pane-eyebrow" id="active-view-label">Needs me</p>
+                  <h2 id="thread-heading">What likely needs your attention</h2>
+                </div>
+                <label class="search-field">
+                  <span class="sr-only">Search triage results</span>
+                  <span aria-hidden="true">⌕</span>
+                  <input id="search-input" type="search" placeholder="Search" autocomplete="off">
+                </label>
+              </div>
+              <div class="thread-list" id="thread-list" aria-busy="true"></div>
+              <div class="empty-state" id="empty-state" hidden>
+                <span aria-hidden="true">○</span>
+                <h3>Nothing here</h3>
+                <p>Try another view or clear your search.</p>
+              </div>
+            </section>
+
+            <aside class="detail-pane" id="detail-pane" aria-labelledby="detail-heading">
+              <button class="detail-back" id="detail-back" type="button">← Back to list</button>
+              <div class="detail-placeholder" id="detail-placeholder">
+                <span class="detail-compass" aria-hidden="true">✦</span>
+                <h2 id="detail-heading">Choose a thread</h2>
+                <p>Inbox Island shows why it classified something—without acting on it.</p>
+              </div>
+              <div class="detail-content" id="detail-content" hidden></div>
+            </aside>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <p class="sr-only" id="live-status" aria-live="polite"></p>
+    <div class="error-banner" id="error-banner" role="alert" hidden></div>
+    <script type="module" src="app.mjs"></script>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "inbox-island",
+  "version": "0.4.8",
+  "private": true,
+  "type": "module",
+  "description": "Local-first Gmail triage core and private Chromium-browser extension pilot.",
+  "scripts": {
+    "check": "node scripts/verify-source.mjs",
+    "test": "node --test",
+    "test:coverage": "node --experimental-test-coverage --test",
+    "quality:development": "node scripts/run-development-quality.mjs",
+    "smoke": "node scripts/run-synthetic.mjs",
+    "browser:proof": "node scripts/run-browser-proof.mjs",
+    "native:proof:portable": "node scripts/run-native-portable-proof.mjs",
+    "probe:oauth:arc": "node scripts/run-profile-free-oauth-probe.mjs --browser arc",
+    "probe:oauth:dia": "node scripts/run-profile-free-oauth-probe.mjs --browser dia",
+    "proof:oauth:arc": "node scripts/run-profile-free-oauth-probe.mjs --browser arc --exact-build",
+    "proof:oauth:dia": "node scripts/run-profile-free-oauth-probe.mjs --browser dia --exact-build",
+    "build:extension": "node extension/scripts/build-pilot.mjs",
+    "validate:extension": "node extension/scripts/validate.mjs --unpacked extension/build && node extension/scripts/validate-seed.mjs",
+    "ui:proof": "npm run build:extension && node scripts/run-ui-proof.mjs",
+    "verify": "npm run check && npm test && npm run quality:development && npm run smoke && npm run browser:proof && npm run build:extension && npm run validate:extension && node scripts/run-ui-proof.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

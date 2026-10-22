@@ -1,0 +1,16 @@
+{
+  "product_name": "Inbox Island",
+  "distribution": "web-store-draft-unpublished",
+  "extension_id": "jeemdbgakejlmmmbngpihndfkjiddbhl",
+  "extension_id_status": "canonical-web-store-item-id",
+  "web_store_item_id": "jeemdbgakejlmmmbngpihndfkjiddbhl",
+  "canonical_identity_source": "chrome-web-store-draft",
+  "google_cloud_project_id": "inbox-island",
+  "oauth_client_type": "web-application",
+  "oauth_client_name": "Inbox Island Browser OAuth",
+  "oauth_client_id": "270655843779-er0c77n90u9up4oru4mm3ditkfmkphd0.apps.googleusercontent.com",
+  "oauth_client_status": "active-private-pilot",
+  "oauth_redirect_uri": "https://jeemdbgakejlmmmbngpihndfkjiddbhl.chromiumapp.org/oauth2",
+  "oauth_flow": "launchWebAuthFlow-implicit-private-pilot",
+  "gmail_scope": "https://www.googleapis.com/auth/gmail.readonly"
+}

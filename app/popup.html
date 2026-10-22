@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-popup-state="loading">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Inbox Island</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header class="popup-header">
+        <span class="popup-mark" aria-hidden="true"><span></span></span>
+        <div>
+          <p>Inbox Island</p>
+          <span>Local triage</span>
+        </div>
+        <span class="local-badge"><i aria-hidden="true"></i>Local</span>
+      </header>
+
+      <section class="popup-summary" aria-labelledby="popup-title">
+        <p class="summary-kicker">Synthetic preview</p>
+        <h1 id="popup-title">Ready to clear the noise?</h1>
+        <p id="popup-copy">Open the cockpit to sort a synthetic mailbox entirely on this device.</p>
+        <div class="mini-stats" id="mini-stats" hidden>
+          <span><strong id="saved-needs">0</strong> need you</span>
+          <span><strong id="saved-waiting">0</strong> waiting</span>
+          <span><strong id="saved-records">0</strong> filed</span>
+          <span><strong id="saved-low-signal">0</strong> low signal</span>
+        </div>
+      </section>
+
+      <div class="popup-actions">
+        <button class="popup-button primary" id="open-tab" type="button">
+          <span aria-hidden="true">✦</span> Open full triage
+        </button>
+      </div>
+
+      <section class="boundary-card" aria-label="Current access boundary">
+        <div><span aria-hidden="true"></span><strong id="boundary-title">Gmail is disconnected</strong></div>
+        <p id="boundary-copy">No account, inbox, network request, or telemetry is active in this build.</p>
+      </section>
+
+      <footer>
+        <button id="clear-saved" type="button">Clear local demo</button>
+        <button id="disconnect-gmail" type="button" hidden>Disconnect Gmail</button>
+        <span id="popup-status" aria-live="polite"></span>
+      </footer>
+    </main>
+    <script type="module" src="popup.mjs"></script>
+  </body>
+</html>

@@ -1,0 +1,3 @@
+[allowlist]
+description = "Chrome Web Store public identity key; manifest.json contains no secrets."
+paths = ['''^extension/manifest\.json$''']

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inbox Island</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <img class="app-icon" src="icons/icon48.png" alt="" width="48" height="48">
+        <div>
+          <p class="eyebrow">Pilot shell</p>
+          <h1>Inbox Island</h1>
+        </div>
+      </header>
+
+      <section class="status" aria-labelledby="status-title">
+        <div class="status-row">
+          <span class="status-dot" aria-hidden="true"></span>
+          <h2 id="status-title">No Gmail access is enabled</h2>
+        </div>
+        <p>
+          This static pilot is not connected to Google and cannot read, store,
+          classify, or change any email.
+        </p>
+      </section>
+
+      <ul class="facts" aria-label="Current pilot boundaries">
+        <li>No Google account or OAuth connection</li>
+        <li>No network requests or telemetry</li>
+        <li>No background process or inbox access</li>
+      </ul>
+
+      <footer>
+        Gmail access will remain off until a later, explicitly reviewed build.
+      </footer>
+    </main>
+  </body>
+</html>

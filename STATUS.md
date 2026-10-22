@@ -10,8 +10,10 @@ Updated: 2026-10-22 by Sean
 - `0.4.9` is a source and Chrome Web Store package candidate. It is **not
   released or approved for upload** until the exact Arc/Dia native proof and
   renewed-grant real-mail smoke pass.
-- Local Git provenance exists. The current release work still needs its final
-  commit, public GitHub push, tag, and package receipt.
+- Public Git provenance is live at `https://github.com/clawSean/inbox-island`.
+  The candidate source is commit `c83aca30dfa1129c5e6788643191ea448683d8c7`,
+  with its package receipt committed as `fadb371`. The final release tag still
+  waits for the native and real-mail gates.
 - Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
 ## What 0.4.9 changes
@@ -96,6 +98,11 @@ Prepared under `webstore/`:
   package-tree SHA-256
   `fa98f0b62b5819ddb3927f6473728b358266aaf596a464b994028920818dd8f6`;
   receipt: `webstore/PACKAGE-RECEIPT.json`.
+- public source, build instructions, release status, SBOM, support Issues, and
+  private vulnerability reporting at `https://github.com/clawSean/inbox-island`;
+- live homepage and final policy at `https://inboxisland.jpop.cloud/` and
+  `https://inboxisland.jpop.cloud/privacy/`, byte-matched to committed website
+  source and browser-proved at 390px and 1440px.
 
 The candidate package is mechanical proof only. It is not the final upload
 until native/browser and real-mail gates pass unchanged.
@@ -106,8 +113,7 @@ Remaining public-release decisions:
   uses “Inbox Island”; no current Store listing or verified exact USPTO result
   was found, but that is not legal clearance;
 - production OAuth architecture and Google verification submission;
-- public source repo/release, live final policy/support links, and Verified CRX
-  key custody.
+- final release tag/artifact and Verified CRX key custody.
 
 ## Blockers before 0.4.9 handoff
 
@@ -116,7 +122,8 @@ Remaining public-release decisions:
 3. Renew Mailreef's read-only Google grant through a fresh private five-minute
    handoff and run the screened real-mail sample.
 4. Turn repeatable real-mail misses into regressions, rerun all gates, then
-   freeze, package, extract, revalidate, hash, tag, push, and deliver.
+   freeze, regenerate the package from the final release commit, revalidate,
+   hash, tag, push, and deliver.
 
 ## Product boundary
 

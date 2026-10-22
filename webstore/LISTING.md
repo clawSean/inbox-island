@@ -43,9 +43,9 @@
 - **Support:** https://github.com/clawSean/inbox-island/issues
 - **Source:** https://github.com/clawSean/inbox-island
 
-The Official URL field requires Search Console verification in JPop's
-authenticated account. Do not add these URLs until the source repository and
-final policy are publicly reachable.
+All four URLs are publicly reachable. The Official URL field still requires
+Search Console verification in JPop's authenticated account; that dashboard
+step must happen on JPop's own device.
 
 ## Graphic assets
 

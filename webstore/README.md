@@ -7,6 +7,12 @@ This directory contains copy and synthetic-only assets for the existing Web
 Store draft. It is not proof that the extension or Google OAuth app has been
 approved.
 
+The public source/support repository and final privacy endpoints are live:
+
+- https://github.com/clawSean/inbox-island
+- https://inboxisland.jpop.cloud/
+- https://inboxisland.jpop.cloud/privacy/
+
 ## Contents
 
 - `LISTING.md` — Store Listing form copy and URLs.
@@ -38,8 +44,10 @@ byte-compares, revalidates, scans, and hashes the result.
 
 ## Current boundary
 
-The Store package can be prepared and submitted for Chrome review before
-Halloween. Public Gmail authorization is a separate Google review: the sole
+The candidate Store package and public submission materials are prepared. The
+final upload waits for native Arc/Dia proof and a fresh-grant real-mail smoke,
+but can still be submitted for Chrome review before Halloween. Public Gmail
+authorization is a separate Google review: the sole
 `gmail.readonly` scope is restricted, and Google currently estimates about six
 weeks for restricted-scope verification. The current private-pilot Web-client
 implicit flow must also be accepted or replaced before a public Gmail launch.

@@ -15,15 +15,20 @@ expected to finish by Halloween.
 - [x] Required 128px icon and two 1280×800 synthetic screenshots exist with
       hashes and zero external requests.
 - [x] Listing, privacy-form, policy, and reviewer-instruction copy are drafted.
-- [x] Local Git provenance exists.
+- [x] Public Git provenance, build instructions, release status, candidate
+      artifact hashes, SBOM, support Issues, and private vulnerability reporting
+      are live at `https://github.com/clawSean/inbox-island`.
+- [x] Final privacy/support URLs are public, byte-matched to committed website
+      source, and browser-proved at phone and desktop widths.
 - [x] Exact 0.4.9 source/unit/browser/build/validator/UI gate passes after the
       final documentation and package changes.
+- [x] Candidate upload ZIP is root-manifest, extracted, byte-diffed,
+      revalidated, hashed, scanned, and tied to source commit
+      `c83aca30dfa1129c5e6788643191ea448683d8c7`.
 - [ ] Exact native Arc and Dia proof passes on an unlocked Mac with both
       personal browsers closed.
-- [ ] Exact upload ZIP is root-manifest, extracted, byte-diffed, revalidated,
-      hashed, scanned, and tied to a release commit/tag.
-- [ ] Public GitHub source, release notes, build instructions, artifact hash,
-      SBOM, and security reporting are live.
+- [ ] Regenerate the final upload ZIP after the native and real-mail gates and
+      tie its unchanged bytes to the release commit/tag.
 
 ## Product/quality gates
 

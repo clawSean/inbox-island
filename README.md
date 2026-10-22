@@ -90,6 +90,12 @@ The Store upload can be prepared and submitted before Halloween. Full Google
 restricted-scope verification is a separate process whose published estimate
 is about six weeks, so public Gmail authorization is not promised by Halloween.
 
+Public project pages:
+
+- Product: https://inboxisland.jpop.cloud/
+- Privacy: https://inboxisland.jpop.cloud/privacy/
+- Source and support: https://github.com/clawSean/inbox-island
+
 ## Canonical references
 
 - Current truth: `STATUS.md`

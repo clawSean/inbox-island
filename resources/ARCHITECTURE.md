@@ -1,8 +1,8 @@
 # Reference Architecture — Inbox Island
 
 Status: versions `0.3.0` through `0.4.8` are withdrawn. `0.4.9` is the current
-unpackaged source candidate; live consent, real-mail calibration, and exact
-Arc/Dia native proof remain pending.
+source and Store-package candidate; live consent, real-mail calibration, and
+exact Arc/Dia native proof remain pending.
 
 ## Product shape
 

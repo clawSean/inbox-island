@@ -7,8 +7,9 @@ Updated: 2026-10-22 by Sean
 - Canonical project: this repository root.
 - Versions `0.3.0` through `0.4.8` are withdrawn. Do not install or resend
   them. Their receipts remain historical evidence only.
-- `0.4.9` is an unpackaged source candidate. It is **not released** until the
-  exact Arc/Dia native proof and renewed-grant real-mail smoke pass.
+- `0.4.9` is a source and Chrome Web Store package candidate. It is **not
+  released or approved for upload** until the exact Arc/Dia native proof and
+  renewed-grant real-mail smoke pass.
 - Local Git provenance exists. The current release work still needs its final
   commit, public GitHub push, tag, and package receipt.
 - Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
@@ -90,6 +91,14 @@ Prepared under `webstore/`:
 - a disconnected reviewer path requiring no Google account or credentials;
 - a reproducible root-manifest upload packager that strips only the
   development `key`, extracts, byte-compares, revalidates, scans, and hashes.
+- candidate ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`, 38 files,
+  SHA-256 `d9cf942bbc036b78cbfbf9e90e7a6a984df2038d9d6fad66ba3d0a070ce11ae3`,
+  package-tree SHA-256
+  `fa98f0b62b5819ddb3927f6473728b358266aaf596a464b994028920818dd8f6`;
+  receipt: `webstore/PACKAGE-RECEIPT.json`.
+
+The candidate package is mechanical proof only. It is not the final upload
+until native/browser and real-mail gates pass unchanged.
 
 Remaining public-release decisions:
 

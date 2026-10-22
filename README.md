@@ -4,9 +4,9 @@ Inbox Island is a local-first Gmail triage extension for Chromium-family
 browsers, including Arc and Dia. It reads a bounded recent Inbox/Sent slice,
 classifies it in the browser, and leaves Gmail unchanged.
 
-> **Current state:** `0.4.9` is a verified source candidate, not an approved
-> release. Versions `0.3.0` through `0.4.8` are withdrawn. Do not install or
-> resend an older archive.
+> **Current state:** `0.4.9` is a verified source/Store-package candidate, not
+> an approved release. Versions `0.3.0` through `0.4.8` are withdrawn. Do not
+> install or resend an older archive.
 
 ## Product contract
 

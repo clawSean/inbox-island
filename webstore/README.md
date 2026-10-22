@@ -17,8 +17,8 @@ approved.
 - `SBOM.spdx.json` — SPDX 2.3 package inventory; the extension has no npm
   dependencies.
 - `assets/` — 128px icon, two 1280×800 screenshots, and SHA-256 receipt.
-- `PACKAGE-RECEIPT.json` — created only from a clean committed tree by the
-  reproducible Store packager.
+- `PACKAGE-RECEIPT.json` — candidate package hash and proof generated from a
+  clean committed tree by the reproducible Store packager.
 
 Regenerate the synthetic-only assets after building:
 

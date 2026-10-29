@@ -24,7 +24,9 @@ verification will continue on their own timelines.
 - [x] Superseded October 22 upload ZIP was root-manifest, extracted,
       byte-diffed, revalidated, hashed, scanned, and tied to source commit
       `c83aca30dfa1129c5e6788643191ea448683d8c7`.
-- [ ] Rebuild and validate the replacement candidate from October 29 source.
+- [x] Replacement candidate rebuilt and validated from October 29 source
+      `39c6b69a078828d3eb0d9f56a783d4d3cb419d01`; the 39-file ZIP hash is
+      `876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138`.
 - [ ] Exact native Arc and Dia proof passes on an unlocked Mac with both
       personal browsers closed.
 - [ ] Regenerate the final upload ZIP after the native and real-mail gates and

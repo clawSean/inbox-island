@@ -44,9 +44,10 @@ byte-compares, revalidates, scans, and hashes the result.
 
 ## Current boundary
 
-The candidate Store package and public submission materials are prepared. The
-October 22 ZIP is superseded by the October 29 classifier repair; the final
-upload waits for exact native Arc/Dia and visible live-pilot proof. Public Gmail
+The October 29 candidate Store package and public submission materials are
+prepared. Its exact source, package-tree, and ZIP hashes are in
+`PACKAGE-RECEIPT.json`; the October 22 ZIP is superseded. The final upload waits
+for exact native Arc/Dia and visible live-pilot proof. Public Gmail
 authorization is a separate Google review: the sole
 `gmail.readonly` scope is restricted, and Google currently estimates about six
 weeks for restricted-scope verification. The current private-pilot Web-client

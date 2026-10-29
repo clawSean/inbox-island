@@ -12,9 +12,9 @@ Updated: 2026-10-29 by Sean
   pilot proof pass. The October 29 classifier repair supersedes the October 22
   package candidate; its old ZIP must not be uploaded.
 - Public Git provenance is live at `https://github.com/clawSean/inbox-island`.
-  The prior candidate source was commit `c83aca30dfa1129c5e6788643191ea448683d8c7`,
-  with its package receipt committed as `fadb371`. A replacement candidate is
-  being prepared; the final release tag still waits for native/live-pilot proof.
+  The current candidate source is commit
+  `39c6b69a078828d3eb0d9f56a783d4d3cb419d01`. The final release tag still
+  waits for native/live-pilot proof.
 - Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
 ## What 0.4.9 changes
@@ -103,20 +103,21 @@ Prepared under `webstore/`:
 - a disconnected reviewer path requiring no Google account or credentials;
 - a reproducible root-manifest upload packager that strips only the
   development `key`, extracts, byte-compares, revalidates, scans, and hashes.
-- superseded October 22 ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`, 38 files,
-  SHA-256 `d9cf942bbc036b78cbfbf9e90e7a6a984df2038d9d6fad66ba3d0a070ce11ae3`,
+- current candidate ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`,
+  39 files, SHA-256
+  `876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138`,
   package-tree SHA-256
-  `fa98f0b62b5819ddb3927f6473728b358266aaf596a464b994028920818dd8f6`;
-  receipt: `webstore/PACKAGE-RECEIPT.json`.
+  `28a816c188afa2694fa5a56d125e7f65f94c27a07643456580f3f2d7275a1c28`;
+  receipt: `webstore/PACKAGE-RECEIPT.json`. The old 38-file ZIP is retained
+  only under `artifacts/superseded/`.
 - public source, build instructions, release status, SBOM, support Issues, and
   private vulnerability reporting at `https://github.com/clawSean/inbox-island`;
 - live homepage and final policy at `https://inboxisland.jpop.cloud/` and
   `https://inboxisland.jpop.cloud/privacy/`, byte-matched to committed website
   source and browser-proved at 390px and 1440px.
 
-The October 22 package is historical mechanical proof only. A new package and
-hash must follow the October 29 source; neither is the final upload until
-native and live-pilot gates pass unchanged.
+The October 29 package passed mechanical proof, but it is **not the final
+upload** until native and live-pilot gates pass unchanged.
 
 Remaining public-release decisions:
 

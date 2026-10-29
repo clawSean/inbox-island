@@ -17,11 +17,11 @@ export const DEVELOPMENT_CAVEAT =
   "Metrics are in-sample fit on labels inspected during deterministic-rule calibration, not proof of generalization.";
 export const DEVELOPMENT_FIXED_TIME = "2026-11-04T00:00:00.000Z";
 export const EXPECTED_CURRENT_HEADLINE = Object.freeze({
-  exactCorrect: 26,
+  exactCorrect: 40,
   replyAttentionCaught: 12,
   replyAttentionSupport: 14,
   falseImportantCount: 0,
-  uncertainCount: 23,
+  uncertainCount: 9,
   unsafeToNoiseCount: 0,
 });
 

@@ -16,7 +16,7 @@ npm run verify
 npm run webstore:assets
 ```
 
-`npm run verify` checks browser-core source policy, 157 unit/integration
+`npm run verify` checks browser-core source policy, unit/integration
 contracts, development-quality invariants, synthetic triage, browser behavior,
 the exact extension build, manifest/OAuth boundaries, and network-isolated UI
 proof.

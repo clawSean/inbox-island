@@ -9,8 +9,8 @@ Future sequencing only. Current truth and blockers live in `STATUS.md`.
 - Require the real toolbar popup, **Open full triage**, disconnected demo,
   explicit account-selection entry, safe cancellation, zero Gmail requests
   before consent, exact build hashes, and clean disposable-profile teardown.
-- Renew Mailreef's read-only Google grant through JPop's own device, then run a
-  bounded screened sample of surfaced, demoted, skipped, and failed outcomes.
+- Use the restored Mailreef read-only grant to review bounded screened samples;
+  keep screened-summary labels distinct from the raw-body browser pilot.
 - Add regressions only for repeatable classifier failures; rerun the full gate.
 
 **Advance when:** both browsers pass unchanged bytes and the screened real-mail
@@ -32,8 +32,9 @@ account choice, bounded sync, disconnect, and reconnect behavior.
 
 ## 3. Submit the Chrome Web Store draft
 
-Target submission: **2026-10-26**, leaving five calendar days before Halloween
-for normal Chrome Web Store review variance.
+Submit as soon as the exact package and native/live-pilot gates pass. The prior
+October 26 target was missed; neither Store review nor Google OAuth verification
+can now be promised by Halloween.
 
 - Publish final source, policy, support, release notes, hashes, SBOM, and
   reviewer instructions.

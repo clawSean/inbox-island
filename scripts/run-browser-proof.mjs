@@ -83,6 +83,7 @@ const allowedPaths = new Set([
   "/src/inference.mjs",
   "/src/pipeline.mjs",
   "/src/triage-worker.mjs",
+  "/src/triage-evidence.mjs",
 ]);
 const requests = [];
 const blockedRequests = [];

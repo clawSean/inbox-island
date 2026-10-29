@@ -1,9 +1,8 @@
-# Submission checklist — Halloween target
+# Chrome Web Store submission checklist
 
-Target: submit the existing Chrome Web Store draft for review by 2026-10-26,
-leaving five calendar days before Halloween for ordinary Store review variance.
-Google OAuth restricted-scope verification will continue separately and is not
-expected to finish by Halloween.
+Submit the existing draft after exact native and live-pilot gates. The earlier
+October 26 target was missed; Chrome review and Google restricted-scope
+verification will continue on their own timelines.
 
 ## Automated/source gates
 
@@ -22,9 +21,10 @@ expected to finish by Halloween.
       source, and browser-proved at phone and desktop widths.
 - [x] Exact 0.4.9 source/unit/browser/build/validator/UI gate passes after the
       final documentation and package changes.
-- [x] Candidate upload ZIP is root-manifest, extracted, byte-diffed,
-      revalidated, hashed, scanned, and tied to source commit
+- [x] Superseded October 22 upload ZIP was root-manifest, extracted,
+      byte-diffed, revalidated, hashed, scanned, and tied to source commit
       `c83aca30dfa1129c5e6788643191ea448683d8c7`.
+- [ ] Rebuild and validate the replacement candidate from October 29 source.
 - [ ] Exact native Arc and Dia proof passes on an unlocked Mac with both
       personal browsers closed.
 - [ ] Regenerate the final upload ZIP after the native and real-mail gates and
@@ -32,9 +32,10 @@ expected to finish by Halloween.
 
 ## Product/quality gates
 
-- [ ] JPop renews Mailreef's read-only Google consent on his own device.
-- [ ] Bounded real-mail smoke compares surfaced, demoted, skipped, and failed
-      outcomes; repeatable misses become regressions before release.
+- [x] Mailreef's read-only grant was renewed on JPop's own device and passed
+      bounded list/body canaries.
+- [x] A bounded screened-summary sample informed source regressions; it is not
+      an exact live-extension real-mail accuracy score.
 - [ ] JPop performs the visible 0.4.9 Arc/Dia pilot and confirms the popup,
       full page, demo, direct Gmail links, account selection, and fresh sync.
 - [ ] Decide whether to retain **Inbox Island** publicly. An active paid

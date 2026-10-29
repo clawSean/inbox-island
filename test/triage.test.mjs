@@ -317,6 +317,97 @@ test("commercial suggestions solicitations and course promos stay low signal", a
   }
 });
 
+test("ordinary completed records and bulk formats have exact classification evidence", async () => {
+  for (const [index, [subject, body]] of [
+    ["Order confirmed", "Your order was confirmed and will arrive next week."],
+    ["Shipment update", "Your package has shipped."],
+    ["Statement ready", "Your September earnings statement has been posted."],
+    ["Admission issued", "Two digital admission passes for Saturday are now in your account."],
+    ["Membership renewed", "Your annual membership renewed successfully."],
+  ].entries()) {
+    const output = await triageBody(`natural-record-${index}`, subject, body);
+    const [result] = output.results;
+    assert.equal(result.bucket, "record", subject);
+    const evidence = result.evidence.find(({ kind }) => kind === "classification");
+    assert.ok(evidence, subject);
+    const source = evidence.field === "subject" ? subject : body;
+    assert.equal(source.slice(evidence.start, evidence.end), evidence.quote, subject);
+  }
+
+  for (const [index, [subject, body]] of [
+    ["Neighborhood roundup", "This week's community roundup is ready."],
+    ["Autumn lookbook", "Explore the new autumn lookbook and editor picks."],
+    ["People you may know", "Seven new profiles appeared in your network."],
+    ["Visit survey", "A two-minute satisfaction survey is available."],
+    ["Creator highlights", "Fresh creator highlights are ready to browse."],
+  ].entries()) {
+    const output = await triageBody(`natural-bulk-${index}`, subject, body);
+    const [result] = output.results;
+    assert.equal(result.bucket, "noise", subject);
+    const evidence = result.evidence.find(({ kind }) => kind === "classification");
+    assert.ok(evidence, subject);
+    const source = evidence.field === "subject" ? subject : body;
+    assert.equal(source.slice(evidence.start, evidence.end), evidence.quote, subject);
+  }
+});
+
+test("natural transaction cues separate active attention from completed records", async () => {
+  for (const [index, [subject, body]] of [
+    ["Pickup update", "Order 6416 is ready for pickup."],
+    ["Bid status", "Your current bid is winning."],
+    ["Calendar event", "A calendar event ends next week."],
+  ].entries()) {
+    const output = await triageBody(`natural-attention-${index}`, subject, body);
+    const [result] = output.results;
+    assert.equal(result.bucket, "attention", subject);
+    const evidence = result.evidence.find(({ kind }) => kind === "classification");
+    assert.ok(evidence, subject);
+  }
+
+  for (const [index, [subject, body]] of [
+    ["Order approved", "Your order was approved."],
+    ["Reservation confirmation", "Your hotel reservation confirmation is attached."],
+    ["Payment received", "A payment of $30.00 from a contact was received."],
+  ].entries()) {
+    const output = await triageBody(`natural-record-status-${index}`, subject, body);
+    assert.equal(output.results[0].bucket, "record", subject);
+  }
+});
+
+test("ordinary bank-account mentions are not credential requests", async () => {
+  const payment = await triageBody(
+    "payment-bank-transfer",
+    "Payment received",
+    "A payment of $30.00 from a contact was received. You can transfer funds to a bank account.",
+  );
+  assert.equal(payment.results[0].bucket, "record");
+  assert.equal(payment.results[0].riskFlags.includes("credential_request"), false);
+
+  const training = await triageBody(
+    "security-newsletter",
+    "Security newsletter",
+    "Never share your password. Unsubscribe from these tips at any time.",
+  );
+  assert.equal(training.results[0].bucket, "noise");
+  assert.equal(training.results[0].riskFlags.includes("credential_request"), false);
+
+  const mixed = await triageBody(
+    "credential-mixed",
+    "Account notice",
+    "Never share your password. Please provide your bank account number to verify the account.",
+  );
+  assert.equal(mixed.results[0].bucket, "attention");
+  assert.ok(mixed.results[0].riskFlags.includes("credential_request"));
+
+  const phish = await triageBody(
+    "credential-request",
+    "Account verification",
+    "Please provide your bank account number to verify the account.",
+  );
+  assert.equal(phish.results[0].bucket, "attention");
+  assert.ok(phish.results[0].riskFlags.includes("credential_request"));
+});
+
 test("ordinary hidden marketing layout does not force safety withholding", async () => {
   const output = await triageBody(
     "hidden-marketing-layout",

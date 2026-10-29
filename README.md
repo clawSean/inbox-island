@@ -69,26 +69,28 @@ npm run native:proof:portable -- --browser arc
 npm run native:proof:portable -- --browser dia
 ```
 
-The source/unit/browser/build/validator/UI gate passes **157/157 tests**. The
+The full source/unit/browser/build/validator/UI gate passes. The
 native runner now parses Arc's loopback DevTools endpoint, targets a disposable
 browser window, and refuses to run on a locked desktop. Exact `0.4.9` Arc/Dia
 proof is still pending an unlocked ClawPop desktop with the corresponding
 personal browser closed.
 
 The inspected 42-case development corpus is in-sample calibration evidence:
-`12/14` reply-or-attention capture and zero observed false-important results.
-It is not unseen or real-mail validation. The real-mail smoke awaits a renewed
-read-only Google grant on JPop's own device.
+`40/42` exact, `12/14` reply-or-attention capture, and zero observed
+false-important results. It is not unseen or real-mail validation. A separate
+Mailreef review of 40 screened summaries informed the classifier repair, but
+only JPop's visible Arc/Dia pilot can validate the exact real-mail experience.
 
 ## Chrome Web Store
 
 `webstore/` contains synthetic screenshots, listing copy, privacy disclosures,
-reviewer instructions, and the Halloween submission checklist for item
+reviewer instructions, and a submission checklist for item
 `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
-The Store upload can be prepared and submitted before Halloween. Full Google
-restricted-scope verification is a separate process whose published estimate
-is about six weeks, so public Gmail authorization is not promised by Halloween.
+The Store package can be submitted for Chrome review after its exact native and
+pilot gates pass. Google restricted-scope verification is a separate process
+whose published estimate is about six weeks; Store review alone does not make
+public Gmail authorization ready.
 
 Public project pages:
 
@@ -105,4 +107,4 @@ Public project pages:
 - Publication controls: `resources/PUBLICATION-TRUST-PLAN.md`
 - Store kit: `webstore/README.md`
 
-Updated: 2026-10-22 by Sean
+Updated: 2026-10-29 by Sean

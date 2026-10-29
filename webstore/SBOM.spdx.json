@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "Inbox-Island-0.4.9-SBOM",
-  "documentNamespace": "https://github.com/clawSean/inbox-island/sbom/0.4.9/2026-10-22",
+  "documentNamespace": "https://github.com/clawSean/inbox-island/sbom/0.4.9/2026-10-29",
   "creationInfo": {
-    "created": "2026-10-22T21:30:00Z",
+    "created": "2026-10-29T10:02:00Z",
     "creators": [
       "Tool: Inbox Island build process"
     ]

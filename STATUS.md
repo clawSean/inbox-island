@@ -1,19 +1,20 @@
 # STATUS
 
-Updated: 2026-10-22 by Sean
+Updated: 2026-10-29 by Sean
 
 ## Current state
 
 - Canonical project: this repository root.
 - Versions `0.3.0` through `0.4.8` are withdrawn. Do not install or resend
   them. Their receipts remain historical evidence only.
-- `0.4.9` is a source and Chrome Web Store package candidate. It is **not
-  released or approved for upload** until the exact Arc/Dia native proof and
-  renewed-grant real-mail smoke pass.
+- `0.4.9` remains a source and Chrome Web Store package candidate. It is **not
+  released or approved for upload** until exact Arc/Dia native and visible
+  pilot proof pass. The October 29 classifier repair supersedes the October 22
+  package candidate; its old ZIP must not be uploaded.
 - Public Git provenance is live at `https://github.com/clawSean/inbox-island`.
-  The candidate source is commit `c83aca30dfa1129c5e6788643191ea448683d8c7`,
-  with its package receipt committed as `fadb371`. The final release tag still
-  waits for the native and real-mail gates.
+  The prior candidate source was commit `c83aca30dfa1129c5e6788643191ea448683d8c7`,
+  with its package receipt committed as `fadb371`. A replacement candidate is
+  being prepared; the final release tag still waits for native/live-pilot proof.
 - Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
 ## What 0.4.9 changes
@@ -36,8 +37,17 @@ Updated: 2026-10-22 by Sean
 
 ## Verified now
 
-- Full source/unit/development/synthetic/browser/build/validator/UI gate:
-  **157/157 tests passed**.
+- Full source/unit/development/synthetic/browser/build/validator/UI gate passes
+  on the October 29 source. It has 12 networkless browser-core modules; worker
+  and UI proofs had zero external requests or browser errors.
+- The inspected **42-case development corpus** now scores 40/42 exact,
+  12/14 reply-or-attention capture, zero false-important, zero unsafe-to-noise,
+  and 9 uncertain. This is in-sample calibration, **not** real-mail
+  generalization proof.
+- The repair gives completed records and bulk mail exact classification
+  evidence, distinguishes active pickup/bid/calendar cues, and prevents
+  ordinary bank-account mentions and negated password advice from becoming
+  credential-request alarms.
 - The package builds with Manifest V3, no npm dependencies, no remote code,
   no telemetry, no content scripts, no Gmail mutation code, no client secret,
   and a Gmail-only `connect-src`.
@@ -52,21 +62,21 @@ Updated: 2026-10-22 by Sean
   `DESKTOP_SESSION_LOCKED: Unlock the macOS desktop before native popup proof`.
   No false Arc/Dia success is claimed.
 
-## Real-mail smoke state
+## Real-mail quality state
 
-- The original smoke discovered ten recent message IDs without exposing prose,
-  then five screened reads failed before content release with the obsolete
-  caller/model authorization error
-  `SUMMARIZER_UPSTREAM_LLM_COMPLETION_NOT_AUTHORIZED`.
-- Mailreef `0.11.5` / broker `1.7.1` now maps the real condition to stable
-  `BROKER_REAUTHORIZATION_REQUIRED`; the repair is published at commit
-  `d8fc99319da098d1bf9abae8d9e8365357a4eeb7` with 37/37 Python checks and a
-  22-check live preflight.
-- JPop's existing Google refresh grant is expired or revoked (`invalid_grant`).
-  A new five-minute private authorization handoff was sent but expired before
-  completion. No new token was stored.
-- The real-mail classifier comparison therefore remains pending a fresh
-  read-only grant completed by JPop on his own Tailscale-connected device.
+- Mailreef `0.11.5` is live. Fresh read-only grants for JPop and Sean passed
+  their 22-check preflights and bounded list/body canaries on October 24;
+  the earlier `invalid_grant` blocker is resolved.
+- On October 29, a 100-message discovery slice supplied 40 selected screened
+  summaries for provisional label review: 29 bulk/noise, 6 completed records,
+  and 5 live-attention items. Mailreef withheld or blocked some reads at its
+  safety gates. No raw body, OAuth token, active link, or attachment was
+  written into this project.
+- This sample exposed overlarge Review and false credential attention, driving
+  the source regressions above. The labels describe screened summaries, not
+  the exact raw-body input the extension sees. **No live-extension real-mail
+  accuracy score or claim of 100/100 inspection is justified.** A visible
+  JPop-device pilot and corrections remain the acceptance gate.
 
 ## Browser/OAuth boundary
 
@@ -89,11 +99,11 @@ Prepared under `webstore/`:
 
 - 128×128 icon and two 1280×800 synthetic-only screenshots with SHA receipts;
 - listing copy, privacy-form answers, public privacy policy, reviewer steps,
-  and a Halloween submission checklist;
+  and a submission checklist;
 - a disconnected reviewer path requiring no Google account or credentials;
 - a reproducible root-manifest upload packager that strips only the
   development `key`, extracts, byte-compares, revalidates, scans, and hashes.
-- candidate ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`, 38 files,
+- superseded October 22 ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`, 38 files,
   SHA-256 `d9cf942bbc036b78cbfbf9e90e7a6a984df2038d9d6fad66ba3d0a070ce11ae3`,
   package-tree SHA-256
   `fa98f0b62b5819ddb3927f6473728b358266aaf596a464b994028920818dd8f6`;
@@ -104,8 +114,9 @@ Prepared under `webstore/`:
   `https://inboxisland.jpop.cloud/privacy/`, byte-matched to committed website
   source and browser-proved at 390px and 1440px.
 
-The candidate package is mechanical proof only. It is not the final upload
-until native/browser and real-mail gates pass unchanged.
+The October 22 package is historical mechanical proof only. A new package and
+hash must follow the October 29 source; neither is the final upload until
+native and live-pilot gates pass unchanged.
 
 Remaining public-release decisions:
 
@@ -118,12 +129,15 @@ Remaining public-release decisions:
 ## Blockers before 0.4.9 handoff
 
 1. Unlock ClawPop and close Arc for the Arc proof; close Dia for the Dia proof.
+   October 29 preflight still returns `DESKTOP_SESSION_LOCKED` before launch.
 2. Run both proofs against the exact unchanged build.
-3. Renew Mailreef's read-only Google grant through a fresh private five-minute
-   handoff and run the screened real-mail sample.
-4. Turn repeatable real-mail misses into regressions, rerun all gates, then
+3. Have JPop run the visible Arc/Dia pilot on his own device/profile and
+   confirm the popup, full page, demo, account choice, bounded sync, direct
+   Gmail links, disconnect, and reconnect.
+4. Turn repeatable pilot misses into regressions, rerun all gates, then
    freeze, regenerate the package from the final release commit, revalidate,
-   hash, tag, push, and deliver.
+   hash, tag, push, and deliver. Public Gmail launch additionally requires
+   brand and production OAuth decisions plus Google's verification.
 
 ## Product boundary
 
@@ -134,6 +148,7 @@ Remaining public-release decisions:
   state.
 - The classifier is advisory, uncertain mail remains visible, and Gmail remains
   authoritative.
-- No personal Google login, consent, token, or mailbox data is used on ClawPop.
+- Inbox Island uses no personal Google login, consent, token, or raw mailbox
+  data on ClawPop; Mailreef exposes only screened summaries for this audit.
 
 Sequencing: `ROADMAP.md`

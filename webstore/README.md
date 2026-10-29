@@ -45,8 +45,8 @@ byte-compares, revalidates, scans, and hashes the result.
 ## Current boundary
 
 The candidate Store package and public submission materials are prepared. The
-final upload waits for native Arc/Dia proof and a fresh-grant real-mail smoke,
-but can still be submitted for Chrome review before Halloween. Public Gmail
+October 22 ZIP is superseded by the October 29 classifier repair; the final
+upload waits for exact native Arc/Dia and visible live-pilot proof. Public Gmail
 authorization is a separate Google review: the sole
 `gmail.readonly` scope is restricted, and Google currently estimates about six
 weeks for restricted-scope verification. The current private-pilot Web-client

@@ -23,6 +23,7 @@ function classifyIdentityFailure(error) {
 function authUrl({ clientId, redirectUri, state }) {
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.search = new URLSearchParams({
+    access_type: "online",
     client_id: clientId,
     include_granted_scopes: "false",
     prompt: "select_account",
@@ -43,9 +44,15 @@ function parseRedirect(value, { redirectUri, state }) {
     fail("GMAIL_AUTH_RESPONSE_INVALID");
   }
   const values = new URLSearchParams(result.hash.slice(1));
-  if (values.get("error")) fail("GMAIL_AUTH_ACCESS_DENIED");
+  for (const name of ["access_token", "error", "expires_in", "scope", "state", "token_type"]) {
+    if (values.getAll(name).length > 1) fail("GMAIL_AUTH_RESPONSE_INVALID");
+  }
+  if (values.has("error")) fail("GMAIL_AUTH_ACCESS_DENIED");
   const expiresIn = Number(values.get("expires_in"));
-  const scopes = (values.get("scope") || "").split(/\s+/u).filter(Boolean);
+  const returnedScope = values.get("scope");
+  const scopes = returnedScope === null
+    ? [GMAIL_READONLY_SCOPE]
+    : returnedScope.split(/\s+/u).filter(Boolean);
   if (values.get("state") !== state || values.get("token_type")?.toLowerCase() !== "bearer"
     || !validToken(values.get("access_token")) || !Number.isFinite(expiresIn) || expiresIn <= 0
     || scopes.length !== 1 || scopes[0] !== GMAIL_READONLY_SCOPE) {

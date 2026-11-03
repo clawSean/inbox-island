@@ -18,7 +18,7 @@ function pngSize(bytes) {
 
 test("Chrome Web Store kit matches the packaged privacy and release contract", async () => {
   const [manifest, packageScript, validator, disclosureSource, listing, privacy,
-    reviewer, checklist, assetReceipt, sbom] = await Promise.all([
+    reviewer, checklist, assetReceipt, sbom, packageJson] = await Promise.all([
     readFile(path.join(root, "extension/manifest.json"), "utf8").then(JSON.parse),
     readFile(path.join(root, "scripts/package-web-store.mjs"), "utf8"),
     readFile(path.join(root, "extension/scripts/validate.mjs"), "utf8"),
@@ -29,6 +29,7 @@ test("Chrome Web Store kit matches the packaged privacy and release contract", a
     readFile(path.join(root, "webstore/SUBMISSION-CHECKLIST.md"), "utf8"),
     readFile(path.join(root, "webstore/assets/ASSET-HASHES.json"), "utf8").then(JSON.parse),
     readFile(path.join(root, "webstore/SBOM.spdx.json"), "utf8").then(JSON.parse),
+    readFile(path.join(root, "package.json"), "utf8").then(JSON.parse),
   ]);
 
   assert.equal(manifest.version, "0.4.9");
@@ -44,8 +45,12 @@ test("Chrome Web Store kit matches the packaged privacy and release contract", a
   assert.match(listing, /Google classifies `gmail\.readonly` as a restricted scope/u);
   assert.match(privacy, /does not send that data to an Inbox Island server or\s+>\s+cloud AI/u);
   assert.match(reviewer, /No credentials or Google account are required/u);
+  assert.match(checklist, /\*\*deferred publishing\*\*/u);
   assert.match(checklist,
-    /Chrome review and Google restricted-scope\s+verification will continue on their own timelines/u);
+    /Chrome review, Arc\/Dia pilot work, and Google restricted-scope\s+verification continue on separate timelines/u);
+  assert.match(checklist, /none authorizes manual public\s+publication by itself/u);
+  assert.equal(packageJson.scripts["build:seed"], "sh extension/scripts/build-webstore-seed.sh");
+  assert.match(packageJson.scripts["validate:extension"], /npm run build:seed/u);
 
   assert.equal(assetReceipt.syntheticDataOnly, true);
   assert.equal(assetReceipt.externalRequests, 0);

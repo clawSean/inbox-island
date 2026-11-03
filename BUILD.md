@@ -43,5 +43,7 @@ Store transform, scans for private-key/secret-shaped content, and writes
 `webstore/PACKAGE-RECEIPT.json`. The Store item supplies the canonical extension
 identity.
 
-Do not treat a package as releasable until its exact source commit, native proof
-receipts, archive SHA-256, public tag, and Store submission record agree.
+For deferred Store review, require the exact source commit, archive SHA-256,
+public tag, reviewer instructions, and Store submission record to agree. Do not
+manually publish Gmail access until production OAuth/Google verification and
+the applicable native live-account pilot gates also pass.

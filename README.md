@@ -4,9 +4,9 @@ Inbox Island is a local-first Gmail triage extension for Chromium-family
 browsers, including Arc and Dia. It reads a bounded recent Inbox/Sent slice,
 classifies it in the browser, and leaves Gmail unchanged.
 
-> **Current state:** `0.4.9` is a verified source/Store-package candidate, not
-> an approved release. Versions `0.3.0` through `0.4.8` are withdrawn. Do not
-> install or resend an older archive.
+> **Current state:** `0.4.9` is being frozen for Chrome Web Store review with
+> **deferred publishing**. It is not approved for manual public publication.
+> Versions `0.3.0` through `0.4.8` are withdrawn.
 
 ## Product contract
 
@@ -69,11 +69,16 @@ npm run native:proof:portable -- --browser arc
 npm run native:proof:portable -- --browser dia
 ```
 
-The full source/unit/browser/build/validator/UI gate passes. The
-native runner now parses Arc's loopback DevTools endpoint, targets a disposable
-browser window, and refuses to run on a locked desktop. Exact `0.4.9` Arc/Dia
-proof is still pending an unlocked ClawPop desktop with the corresponding
-personal browser closed.
+The full source/unit/browser/build/validator/UI gate passes with `162/162`
+tests. Two blind release reviews found and drove repairs for the exact OAuth
+launch parameter set, Google's optional unchanged callback scope, and
+clean-checkout seed validation.
+
+Native preflight passes on the unlocked Sean desktop. A disposable Arc run
+proved the extension surfaces and exact Google OAuth request but exposed the
+chooser only as a hidden browser target, so the strict chooser cancellation
+gate remains red. Arc/Dia live-account portability is a pilot/publication gate,
+not a blocker for credential-free Chrome Store review.
 
 The inspected 42-case development corpus is in-sample calibration evidence:
 `40/42` exact, `12/14` reply-or-attention capture, and zero observed
@@ -87,10 +92,10 @@ only JPop's visible Arc/Dia pilot can validate the exact real-mail experience.
 reviewer instructions, and a submission checklist for item
 `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
-The Store package can be submitted for Chrome review after its exact native and
-pilot gates pass. Google restricted-scope verification is a separate process
-whose published estimate is about six weeks; Store review alone does not make
-public Gmail authorization ready.
+The exact package can be submitted for Chrome review using the disconnected
+demo and **deferred publishing**. Google restricted-scope verification,
+production OAuth, brand clearance, and live-account pilot acceptance remain
+separate blockers before manual public publication.
 
 Public project pages:
 
@@ -107,4 +112,4 @@ Public project pages:
 - Publication controls: `resources/PUBLICATION-TRUST-PLAN.md`
 - Store kit: `webstore/README.md`
 
-Updated: 2026-10-29 by Sean
+Updated: 2026-11-02 by Sean

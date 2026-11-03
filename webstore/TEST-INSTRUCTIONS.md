@@ -18,10 +18,11 @@ and requires no test credentials.
 
 ## Gmail path
 
-The production feature begins only after the in-product disclosure and a user
-click on **Choose Google account**, followed by Google's account selection and
+The Gmail feature begins only after the in-product disclosure and a user click
+on **Choose Google account**, followed by Google's account selection and
 read-only consent. The current Google project is in Testing with an explicit
-test-user list. Do not place a shared Google password, token, or mailbox in the
-Store's test-instructions fields. If Google or Chrome review requires a live
-Gmail account, add the reviewer's Google identity as a temporary test user
+test-user list; public Gmail authorization is not part of this deferred-
+publishing submission. Do not place a shared Google password, token, or mailbox
+in the Store's test-instructions fields. If Google or Chrome review requires a
+live Gmail account, add the reviewer's Google identity as a temporary test user
 through the official review channel and remove it afterward.

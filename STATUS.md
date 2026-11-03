@@ -1,155 +1,151 @@
 # STATUS
 
-Updated: 2026-10-29 by Sean
+Updated: 2026-11-02 by Sean
 
 ## Current state
 
 - Canonical project: this repository root.
-- Versions `0.3.0` through `0.4.8` are withdrawn. Do not install or resend
-  them. Their receipts remain historical evidence only.
-- `0.4.9` remains a source and Chrome Web Store package candidate. It is **not
-  released or approved for upload** until exact Arc/Dia native and visible
-  pilot proof pass. The October 29 classifier repair supersedes the October 22
-  package candidate; its old ZIP must not be uploaded.
-- Public Git provenance is live at `https://github.com/clawSean/inbox-island`.
-  The current candidate source is commit
-  `39c6b69a078828d3eb0d9f56a783d4d3cb419d01`. The final release tag still
-  waits for native/live-pilot proof.
+- Versions `0.3.0` through `0.4.8` are withdrawn. Their receipts are historical
+  evidence only.
+- `0.4.9` source is ready to freeze for a **Chrome Web Store deferred-publishing
+  submission**. The final ZIP is being regenerated from the clean release
+  source; the October 29 ZIP must not be uploaded.
+- A Store upload is not approval to publish publicly. Manual publication stays
+  blocked on the public OAuth/Google verification decision, brand decision, and
+  an acceptable live-account pilot.
+- Public source: `https://github.com/clawSean/inbox-island`.
 - Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
-## What 0.4.9 changes
+## Release decision
 
-- Removes the disproved side-panel and compact companion-window paths.
-- Uses a browser-owned popup for quick Needs you, Waiting, Filed, and Low
-  signal counts, with one **Open full triage** persistent-workspace action.
-- Invalidates stale classifier snapshots from earlier engines.
-- Demotes optional surveys, contests, entertainment recommendations,
-  browse/book campaigns, loan offers, weekly suggestions, fundraising/history
-  solicitations, and course promotions.
-- Removes user-facing “security” framing. Parser/injection diagnostics cannot
-  create a reply obligation or scary badge.
-- Keeps account-bound **Open in Gmail** links for real Gmail threads.
-- Adds a disconnected synthetic demo and clearly removes Gmail actions from
-  synthetic cards.
-- Shows the Gmail data disclosure before account selection.
-- Reduces the manifest to `identity` plus the Gmail API host; `sidePanel` is
-  gone.
+Chrome reviewers have a credential-free, disconnected synthetic demo. The
+extension can therefore enter Chrome review with **deferred publishing** while
+public Gmail authorization proceeds on its separate Google timeline. This is a
+Store-review decision, not a claim that Gmail authorization is public-ready.
 
-## Verified now
+Arc/Dia private-pilot portability is also separate from Chrome Store upload.
+Those browsers remain supported targets, but their exact live-account flow must
+pass before they are advertised as release-proved.
 
-- Full source/unit/development/synthetic/browser/build/validator/UI gate passes
-  on the October 29 source. It has 12 networkless browser-core modules; worker
-  and UI proofs had zero external requests or browser errors.
-- The inspected **42-case development corpus** now scores 40/42 exact,
-  12/14 reply-or-attention capture, zero false-important, zero unsafe-to-noise,
-  and 9 uncertain. This is in-sample calibration, **not** real-mail
-  generalization proof.
-- The repair gives completed records and bulk mail exact classification
-  evidence, distinguishes active pickup/bid/calendar cues, and prevents
-  ordinary bank-account mentions and negated password advice from becoming
-  credential-request alarms.
-- The package builds with Manifest V3, no npm dependencies, no remote code,
-  no telemetry, no content scripts, no Gmail mutation code, no client secret,
-  and a Gmail-only `connect-src`.
-- Synthetic demo and Store screenshots run with zero external requests.
-- The native harness now:
-  - parses Arc's loopback DevTools stderr endpoint when
-    `DevToolsActivePort` is absent;
-  - targets and focuses its own disposable normal browser window;
-  - applies the personal-browser guard only to the browser under proof; and
-  - fails before launch with `DESKTOP_SESSION_LOCKED` on a locked Mac.
-- Current native preflight produces exactly
-  `DESKTOP_SESSION_LOCKED: Unlock the macOS desktop before native popup proof`.
-  No false Arc/Dia success is claimed.
+## Verified source
+
+- The complete source/unit/development/synthetic/browser/build/validator/UI
+  gate passes with `162/162` tests.
+- Browser and UI proofs report zero external post-ready requests, WebSockets,
+  page errors, or console errors.
+- The inspected 42-case development corpus remains `40/42` exact, `12/14`
+  reply-or-attention capture, zero false-important, zero unsafe-to-noise, and 9
+  uncertain. This is in-sample calibration, not real-mail generalization proof.
+- Manifest V3 uses only extension permission `identity` and host access to
+  `https://gmail.googleapis.com/*`.
+- The extension has no npm dependencies, remote code, telemetry, content
+  scripts, Gmail mutation code, refresh token, client secret, or Inbox Island
+  application backend.
+- Synthetic demo and Store screenshots use synthetic data and make no external
+  requests.
+- Clean-checkout validation now rebuilds its immutable seed before validating
+  it; the gate no longer depends on an ignored local ZIP.
+
+## Blind review results
+
+On November 2, a blind release-risk seat and a separate exact-head technical
+review both found the same OAuth integration mismatch: production omitted
+`access_type=online` while the native contract required it. The repair adds the
+exact parameter and regression coverage.
+
+The reviews also found and drove two additional repairs:
+
+- accept Google's documented omission of an unchanged callback `scope` while
+  rejecting duplicate or changed sensitive fields; and
+- rebuild the ignored seed archive during extension validation so a clean clone
+  can reproduce the gate.
+
+No P0 finding or additional action-changing privacy/listing blocker was found.
+The old Store receipt is intentionally superseded and will be regenerated from
+the clean release source.
+
+## Native browser evidence
+
+- Native preflight passes on the unlocked Sean desktop for installed Arc
+  `1.171.0` and Dia `1.55.1` against extension `0.4.9`.
+- A fresh disposable Arc run proved the real popup, persistent full page,
+  trusted connect click, exact Google OAuth request, accepted Google sign-in
+  response, zero Gmail API requests, and disposable cleanup.
+- Arc exposed the Google chooser only as a hidden browser-owned target in this
+  automation environment. The exact chooser-close/cancellation gate therefore
+  failed honestly; no account was selected, no consent was granted, and no
+  mailbox was accessed.
+- Dia's exact native run is not claimed as passing. Arc/Dia live-account proof
+  remains a private-pilot/publication gate, not a disconnected Chrome Store
+  review gate.
 
 ## Real-mail quality state
 
-- Mailreef `0.11.5` is live. Fresh read-only grants for JPop and Sean passed
-  their 22-check preflights and bounded list/body canaries on October 24;
-  the earlier `invalid_grant` blocker is resolved.
-- On October 29, a 100-message discovery slice supplied 40 selected screened
-  summaries for provisional label review: 29 bulk/noise, 6 completed records,
-  and 5 live-attention items. Mailreef withheld or blocked some reads at its
-  safety gates. No raw body, OAuth token, active link, or attachment was
-  written into this project.
-- This sample exposed overlarge Review and false credential attention, driving
-  the source regressions above. The labels describe screened summaries, not
-  the exact raw-body input the extension sees. **No live-extension real-mail
-  accuracy score or claim of 100/100 inspection is justified.** A visible
-  JPop-device pilot and corrections remain the acceptance gate.
+- Mailreef `0.11.5` read-only grants for JPop and Sean passed their 22-check
+  preflights and bounded list/body canaries on October 24.
+- An October 29 discovery slice supplied 40 selected screened summaries for
+  provisional review: 29 bulk/noise, 6 completed records, and 5 attention.
+  Safety gates withheld some reads. No raw body, token, active link, or
+  attachment was written into this project.
+- That sample informed classifier regressions but is not the extension's exact
+  raw-body input. No live-extension accuracy score is claimed.
 
-## Browser/OAuth boundary
+## OAuth boundary
 
-- Extension permission: `identity` only.
-- Host permission: `https://gmail.googleapis.com/*` only.
-- Google scope: `https://www.googleapis.com/auth/gmail.readonly` only.
-- Current private-pilot auth: explicit account selection through
+- Scope: `https://www.googleapis.com/auth/gmail.readonly` only.
+- Private-pilot auth: explicit account selection through
   `launchWebAuthFlow()` with a Web application client and exact fixed-ID
   callback. Token leases are short-lived, memory-only, and never refreshed.
-- Public auth is not frozen. The current implicit Web-client path works for the
-  private browser-neutral pilot but is Google's discouraged legacy flow;
-  Google's documented extension path uses a Chrome Extension client with
-  `getAuthToken()`.
-- `gmail.readonly` is restricted. Google currently publishes an approximately
-  six-week verification estimate, separate from Chrome Web Store review.
+- Public auth is not frozen. The current implicit Web-client path is a private
+  pilot, while Google's documented published-extension path uses a Chrome
+  Extension client with `getAuthToken()`.
+- `gmail.readonly` is restricted. Google verification is separate from Chrome
+  Web Store review and is expected to take weeks, not days.
 
-## Store readiness
+## Store kit
 
 Prepared under `webstore/`:
 
-- 128×128 icon and two 1280×800 synthetic-only screenshots with SHA receipts;
-- listing copy, privacy-form answers, public privacy policy, reviewer steps,
-  and a submission checklist;
+- 128×128 icon and two 1280×800 synthetic screenshots with SHA receipts;
+- listing, privacy answers/policy, reviewer instructions, and submission
+  checklist;
 - a disconnected reviewer path requiring no Google account or credentials;
-- a reproducible root-manifest upload packager that strips only the
-  development `key`, extracts, byte-compares, revalidates, scans, and hashes.
-- current candidate ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`,
-  39 files, SHA-256
-  `876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138`,
-  package-tree SHA-256
-  `28a816c188afa2694fa5a56d125e7f65f94c27a07643456580f3f2d7275a1c28`;
-  receipt: `webstore/PACKAGE-RECEIPT.json`. The old 38-file ZIP is retained
-  only under `artifacts/superseded/`.
-- public source, build instructions, release status, SBOM, support Issues, and
-  private vulnerability reporting at `https://github.com/clawSean/inbox-island`;
-- live homepage and final policy at `https://inboxisland.jpop.cloud/` and
-  `https://inboxisland.jpop.cloud/privacy/`, byte-matched to committed website
-  source and browser-proved at 390px and 1440px.
+- public homepage, privacy policy, source, support, SBOM, and security contact;
+- a reproducible packager that strips only the development manifest key and
+  internal build marker, then extracts, byte-compares, revalidates, scans, and
+  hashes the exact Store ZIP.
 
-The October 29 package passed mechanical proof, but it is **not the final
-upload** until native and live-pilot gates pass unchanged.
+The final package commit, file count, package-tree hash, and ZIP SHA-256 will be
+recorded here and in `webstore/PACKAGE-RECEIPT.json` after the clean source
+commit is frozen.
 
-Remaining public-release decisions:
+## Remaining before Store upload
 
-- final brand clearance: another active paid privacy-email training product
-  uses “Inbox Island”; no current Store listing or verified exact USPTO result
-  was found, but that is not legal clearance;
-- production OAuth architecture and Google verification submission;
-- final release tag/artifact and Verified CRX key custody.
+1. Commit and push the reviewed release source.
+2. Regenerate the exact `0.4.9` Store ZIP from that clean commit.
+3. Revalidate extraction, byte parity, manifest, secrets, and hashes.
+4. Tag/publish the release evidence and deliver the exact ZIP to JPop.
+5. JPop uploads it to the existing item, selects **deferred publishing**, and
+   submits for review from his own authenticated browser.
 
-## Blockers before 0.4.9 handoff
+## Remaining before manual public publication
 
-1. Unlock ClawPop and close Arc for the Arc proof; close Dia for the Dia proof.
-   October 29 preflight still returns `DESKTOP_SESSION_LOCKED` before launch.
-2. Run both proofs against the exact unchanged build.
-3. Have JPop run the visible Arc/Dia pilot on his own device/profile and
-   confirm the popup, full page, demo, account choice, bounded sync, direct
-   Gmail links, disconnect, and reconnect.
-4. Turn repeatable pilot misses into regressions, rerun all gates, then
-   freeze, regenerate the package from the final release commit, revalidate,
-   hash, tag, push, and deliver. Public Gmail launch additionally requires
-   brand and production OAuth decisions plus Google's verification.
+1. Freeze and implement the production OAuth architecture.
+2. Complete Google restricted-scope verification and any assessment Google
+   actually requires.
+3. Decide whether to retain the Inbox Island name publicly; an active paid
+   privacy-email training product uses the exact name, which is not legal
+   clearance.
+4. Pass an acceptable visible live-account pilot and validate the approved
+   Store package before manually publishing.
 
 ## Product boundary
 
-- Gmail discovery is bounded to recent Inbox/Sent mail from the last 30 days:
+- Gmail discovery is limited to recent Inbox/Sent mail from the last 30 days:
   100 messages by default, 200 maximum, four pages maximum.
 - Raw bodies, HTML, attachments, OAuth material, summaries, and active links
-  are never persisted. IndexedDB stores only account-scoped derived triage
-  state.
-- The classifier is advisory, uncertain mail remains visible, and Gmail remains
+  are never persisted. IndexedDB stores only account-scoped derived state.
+- The classifier is advisory; uncertain mail remains visible and Gmail remains
   authoritative.
-- Inbox Island uses no personal Google login, consent, token, or raw mailbox
-  data on ClawPop; Mailreef exposes only screened summaries for this audit.
 
 Sequencing: `ROADMAP.md`

@@ -44,14 +44,16 @@ byte-compares, revalidates, scans, and hashes the result.
 
 ## Current boundary
 
-The October 29 candidate Store package and public submission materials are
-prepared. Its exact source, package-tree, and ZIP hashes are in
-`PACKAGE-RECEIPT.json`; the October 22 ZIP is superseded. The final upload waits
-for exact native Arc/Dia and visible live-pilot proof. Public Gmail
-authorization is a separate Google review: the sole
-`gmail.readonly` scope is restricted, and Google currently estimates about six
-weeks for restricted-scope verification. The current private-pilot Web-client
-implicit flow must also be accepted or replaced before a public Gmail launch.
+The October 29 ZIP is superseded. The final `0.4.9` package is regenerated from
+the clean reviewed source and its exact source, package-tree, and ZIP hashes are
+recorded in `PACKAGE-RECEIPT.json`.
+
+It may be submitted for Chrome review with **deferred publishing** because the
+reviewer path is a disconnected synthetic demo. Public Gmail authorization is
+a separate Google review: `gmail.readonly` is restricted, and Google currently
+estimates weeks for restricted-scope verification. Production OAuth, brand
+clearance, and a visible live-account pilot remain blockers before manual
+public publication.
 
 ## Primary sources checked 2026-10-22
 

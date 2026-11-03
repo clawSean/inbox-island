@@ -1,8 +1,9 @@
 # Chrome Web Store submission checklist
 
-Submit the existing draft after exact native and live-pilot gates. The earlier
-October 26 target was missed; Chrome review and Google restricted-scope
-verification will continue on their own timelines.
+Submit the existing draft with **deferred publishing** after the exact package
+gate. Chrome review, Arc/Dia pilot work, and Google restricted-scope
+verification continue on separate timelines; none authorizes manual public
+publication by itself.
 
 ## Automated/source gates
 
@@ -19,18 +20,19 @@ verification will continue on their own timelines.
       are live at `https://github.com/clawSean/inbox-island`.
 - [x] Final privacy/support URLs are public, byte-matched to committed website
       source, and browser-proved at phone and desktop widths.
-- [x] Exact 0.4.9 source/unit/browser/build/validator/UI gate passes after the
-      final documentation and package changes.
+- [x] Exact 0.4.9 source/unit/browser/build/validator/UI gate passes with
+      `162/162` tests after the release repairs.
+- [x] Blind release-risk and exact-head technical reviews completed; their
+      OAuth-contract, optional callback-scope, and clean-checkout validation
+      findings were repaired and regression-tested.
 - [x] Superseded October 22 upload ZIP was root-manifest, extracted,
       byte-diffed, revalidated, hashed, scanned, and tied to source commit
       `c83aca30dfa1129c5e6788643191ea448683d8c7`.
 - [x] Replacement candidate rebuilt and validated from October 29 source
       `39c6b69a078828d3eb0d9f56a783d4d3cb419d01`; the 39-file ZIP hash is
       `876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138`.
-- [ ] Exact native Arc and Dia proof passes on an unlocked Mac with both
-      personal browsers closed.
-- [ ] Regenerate the final upload ZIP after the native and real-mail gates and
-      tie its unchanged bytes to the release commit/tag.
+- [ ] Regenerate the final upload ZIP from the clean reviewed source and tie
+      its exact bytes to the package receipt and release tag.
 
 ## Product/quality gates
 
@@ -38,6 +40,9 @@ verification will continue on their own timelines.
       bounded list/body canaries.
 - [x] A bounded screened-summary sample informed source regressions; it is not
       an exact live-extension real-mail accuracy score.
+- [ ] Exact native Arc and Dia live-account proof passes before those browser
+      targets are advertised as release-proved. Current Arc automation exposes
+      the Google chooser only as a hidden browser-owned target.
 - [ ] JPop performs the visible 0.4.9 Arc/Dia pilot and confirms the popup,
       full page, demo, direct Gmail links, account selection, and fresh sync.
 - [ ] Decide whether to retain **Inbox Island** publicly. An active paid

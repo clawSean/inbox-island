@@ -54,6 +54,18 @@ test("web chooser requests only gmail.readonly and explicit account choice", asy
   const launch = calls.find(([kind]) => kind === "launch")[1];
   const url = new URL(launch.url);
   assert.equal(launch.interactive, true);
+  assert.deepEqual([...new Set(url.searchParams.keys())].sort(), [
+    "access_type",
+    "client_id",
+    "include_granted_scopes",
+    "prompt",
+    "redirect_uri",
+    "response_type",
+    "scope",
+    "state",
+  ]);
+  for (const name of url.searchParams.keys()) assert.equal(url.searchParams.getAll(name).length, 1);
+  assert.equal(url.searchParams.get("access_type"), "online");
   assert.equal(url.origin, "https://accounts.google.com");
   assert.equal(url.pathname, "/o/oauth2/v2/auth");
   assert.equal(url.searchParams.get("client_id"), PILOT_OAUTH_CLIENT_ID);
@@ -80,11 +92,29 @@ test("redirect state, origin, token type, scope, and expiry fail closed", async 
     (url) => redirect(url, { scope: `${GMAIL_READONLY_SCOPE} openid` }),
     (url) => redirect(url, { token_type: "MAC" }),
     (url) => redirect(url, { expires_in: "0" }),
+    (url) => {
+      const result = new URL(redirect(url));
+      const values = new URLSearchParams(result.hash.slice(1));
+      values.append("scope", GMAIL_READONLY_SCOPE);
+      result.hash = values;
+      return result.href;
+    },
     (url) => redirect(url).replace("chromiumapp.org", "example.com"),
   ]) {
     const { auth } = harness({ launch: ({ url }) => Promise.resolve(mutate(url)) });
     await assert.rejects(auth.connectFromUserGesture(), { message: "GMAIL_AUTH_RESPONSE_INVALID" });
   }
+});
+
+test("unchanged omitted callback scope is accepted as the sole requested scope", async () => {
+  const { auth } = harness({ launch: ({ url }) => {
+    const result = new URL(redirect(url));
+    const values = new URLSearchParams(result.hash.slice(1));
+    values.delete("scope");
+    result.hash = values;
+    return Promise.resolve(result.href);
+  } });
+  assert.equal((await auth.connectFromUserGesture()).token, TOKEN);
 });
 
 test("provider denial becomes an actionable code", async () => {

@@ -413,8 +413,15 @@ async function inspectBrowserInstall(config) {
   });
 }
 
+export function processIdQueryArgs(processName, uid = process.getuid()) {
+  if (!Number.isSafeInteger(uid) || uid < 0) {
+    fail("PROCESS_CHECK_FAILED", "Could not determine the proof user's numeric uid");
+  }
+  return ["-U", String(uid), "-x", processName];
+}
+
 function processIds(processName) {
-  const result = spawnSync("/usr/bin/pgrep", ["-x", processName], { encoding: "utf8" });
+  const result = spawnSync("/usr/bin/pgrep", processIdQueryArgs(processName), { encoding: "utf8" });
   if (result.status === 1) return [];
   if (result.status !== 0) fail("PROCESS_CHECK_FAILED", `Could not check whether ${processName} is running`);
   return result.stdout.trim().split(/\s+/u).filter(Boolean).map(Number).filter(Number.isSafeInteger);

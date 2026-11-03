@@ -22,6 +22,7 @@ import {
   inspectOAuthLaunchUrl,
   parseCli,
   parseProcessTable,
+  processIdQueryArgs,
   receiptFailure,
   sanitizeError,
   updateProviderEvidence,
@@ -92,6 +93,12 @@ test("native proof detects a locked macOS desktop before browser launch", () => 
   assert.equal(desktopSessionLockedFromIoreg(
     '"CGSSessionScreenIsLocked"=No,"kCGSessionLoginDoneKey"=Yes',
   ), false);
+});
+
+test("personal-browser guard is scoped to the proof user's uid", () => {
+  assert.deepEqual(processIdQueryArgs("Arc", 502), ["-U", "502", "-x", "Arc"]);
+  assert.throws(() => processIdQueryArgs("Arc", -1), (error) =>
+    error.code === "PROCESS_CHECK_FAILED");
 });
 
 test("manifest key derives the permanent extension ID", async () => {

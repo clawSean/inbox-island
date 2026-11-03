@@ -44,7 +44,8 @@ test("Chrome Web Store kit matches the packaged privacy and release contract", a
   assert.match(listing, /Google classifies `gmail\.readonly` as a restricted scope/u);
   assert.match(privacy, /does not send that data to an Inbox Island server or\s+>\s+cloud AI/u);
   assert.match(reviewer, /No credentials or Google account are required/u);
-  assert.match(checklist, /Google OAuth restricted-scope verification will continue separately/u);
+  assert.match(checklist,
+    /Chrome review and Google restricted-scope\s+verification will continue on their own timelines/u);
 
   assert.equal(assetReceipt.syntheticDataOnly, true);
   assert.equal(assetReceipt.externalRequests, 0);

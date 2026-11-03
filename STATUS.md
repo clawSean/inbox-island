@@ -14,6 +14,7 @@ Updated: 2026-11-02 by Sean
   blocked on the public OAuth/Google verification decision, brand decision, and
   an acceptable live-account pilot.
 - Public source: `https://github.com/clawSean/inbox-island`.
+- Published release: `https://github.com/clawSean/inbox-island/releases/tag/v0.4.9`.
 - Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
 ## Release decision
@@ -126,6 +127,9 @@ Final Store ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`:
 
 Canonical receipt: `webstore/PACKAGE-RECEIPT.json`. The October 29 ZIP is
 preserved only under `artifacts/superseded/` and must not be uploaded.
+
+The GitHub-hosted `v0.4.9` asset was downloaded after publication and matched
+the canonical 81,933-byte size and SHA-256 above exactly.
 
 ## Store dashboard handoff
 

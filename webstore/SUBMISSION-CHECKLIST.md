@@ -31,8 +31,10 @@ publication by itself.
 - [x] Replacement candidate rebuilt and validated from October 29 source
       `39c6b69a078828d3eb0d9f56a783d4d3cb419d01`; the 39-file ZIP hash is
       `876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138`.
-- [ ] Regenerate the final upload ZIP from the clean reviewed source and tie
-      its exact bytes to the package receipt and release tag.
+- [x] Final 39-file upload ZIP was regenerated from clean source
+      `29a2301748913d7185e0d03775a54a77f3cc2dcf`, extracted, byte-compared,
+      revalidated, scanned, and recorded at SHA-256
+      `b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`.
 
 ## Product/quality gates
 

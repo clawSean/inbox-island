@@ -44,9 +44,10 @@ byte-compares, revalidates, scans, and hashes the result.
 
 ## Current boundary
 
-The October 29 ZIP is superseded. The final `0.4.9` package is regenerated from
-the clean reviewed source and its exact source, package-tree, and ZIP hashes are
-recorded in `PACKAGE-RECEIPT.json`.
+The October 29 ZIP is superseded. The final 39-file `0.4.9` package was built
+from clean source `29a2301748913d7185e0d03775a54a77f3cc2dcf`; its ZIP SHA-256 is
+`b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`.
+Exact source, package-tree, and ZIP evidence is in `PACKAGE-RECEIPT.json`.
 
 It may be submitted for Chrome review with **deferred publishing** because the
 reviewer path is a disconnected synthetic demo. Public Gmail authorization is

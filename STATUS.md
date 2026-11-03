@@ -7,9 +7,9 @@ Updated: 2026-11-02 by Sean
 - Canonical project: this repository root.
 - Versions `0.3.0` through `0.4.8` are withdrawn. Their receipts are historical
   evidence only.
-- `0.4.9` source is ready to freeze for a **Chrome Web Store deferred-publishing
-  submission**. The final ZIP is being regenerated from the clean release
-  source; the October 29 ZIP must not be uploaded.
+- `0.4.9` is **approved for upload to the existing Chrome Web Store draft with
+  deferred publishing**. Packaged source commit:
+  `29a2301748913d7185e0d03775a54a77f3cc2dcf`.
 - A Store upload is not approval to publish publicly. Manual publication stays
   blocked on the public OAuth/Google verification decision, brand decision, and
   an acceptable live-account pilot.
@@ -115,18 +115,29 @@ Prepared under `webstore/`:
   internal build marker, then extracts, byte-compares, revalidates, scans, and
   hashes the exact Store ZIP.
 
-The final package commit, file count, package-tree hash, and ZIP SHA-256 will be
-recorded here and in `webstore/PACKAGE-RECEIPT.json` after the clean source
-commit is frozen.
+Final Store ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`:
 
-## Remaining before Store upload
+- 39 files, 81,933 bytes;
+- SHA-256 `b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`;
+- package-tree SHA-256
+  `4aa3eea740288e1d784fc14ada40d2a0fe082f8c1b9881a9087140e283b3417b`;
+- root manifest, development key removed, extraction byte parity, independent
+  package revalidation, zero private-key files, and zero secret-shaped files.
 
-1. Commit and push the reviewed release source.
-2. Regenerate the exact `0.4.9` Store ZIP from that clean commit.
-3. Revalidate extraction, byte parity, manifest, secrets, and hashes.
-4. Tag/publish the release evidence and deliver the exact ZIP to JPop.
-5. JPop uploads it to the existing item, selects **deferred publishing**, and
-   submits for review from his own authenticated browser.
+Canonical receipt: `webstore/PACKAGE-RECEIPT.json`. The October 29 ZIP is
+preserved only under `artifacts/superseded/` and must not be uploaded.
+
+## Store dashboard handoff
+
+The code-side upload artifact is complete. JPop's authenticated own-device
+steps are:
+
+1. Upload the exact ZIP above to the existing draft item.
+2. Apply `webstore/LISTING.md`, `PRIVACY-PRACTICES.md`, assets, policy/support
+   URLs, and `TEST-INSTRUCTIONS.md`.
+3. Select **deferred publishing** and submit for review.
+4. Do not manually publish after approval until the public-publication gates
+   below pass.
 
 ## Remaining before manual public publication
 

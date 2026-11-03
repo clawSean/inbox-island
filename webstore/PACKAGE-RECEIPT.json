@@ -2,15 +2,15 @@
   "schemaVersion": "inbox-island-webstore-package-v1",
   "version": "0.4.9",
   "itemId": "jeemdbgakejlmmmbngpihndfkjiddbhl",
-  "sourceCommit": "39c6b69a078828d3eb0d9f56a783d4d3cb419d01",
-  "sourceCommitTime": "2026-10-29T03:04:21-07:00",
+  "sourceCommit": "29a2301748913d7185e0d03775a54a77f3cc2dcf",
+  "sourceCommitTime": "2026-11-02T22:51:47-08:00",
   "archive": {
     "file": "extension/dist/inbox-island-web-store-0.4.9.zip",
-    "sha256": "876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138",
-    "size": 81840
+    "sha256": "b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e",
+    "size": 81933
   },
   "packageTree": {
-    "compositeSha256": "28a816c188afa2694fa5a56d125e7f65f94c27a07643456580f3f2d7275a1c28",
+    "compositeSha256": "4aa3eea740288e1d784fc14ada40d2a0fe082f8c1b9881a9087140e283b3417b",
     "fileCount": 39
   },
   "checks": {

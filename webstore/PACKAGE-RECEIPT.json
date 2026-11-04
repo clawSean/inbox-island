@@ -2,8 +2,8 @@
   "schemaVersion": "inbox-island-webstore-package-v1",
   "version": "0.5.0",
   "itemId": "jeemdbgakejlmmmbngpihndfkjiddbhl",
-  "sourceCommit": "972b8b1618725aefddc2fdab44f002cbb97ae6a0",
-  "sourceCommitTime": "2026-11-03T20:49:53-08:00",
+  "sourceCommit": "167300ab581cfb336fcd0fb9e58dae6c02fd60f3",
+  "sourceCommitTime": "2026-11-03T21:05:27-08:00",
   "archive": {
     "file": "extension/dist/inbox-island-web-store-0.5.0.zip",
     "sha256": "7dd54e1586f35c59d93a0dfdbaf171c3287a33a0f9d26d1d9ff6a1123dcd464c",

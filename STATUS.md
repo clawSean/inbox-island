@@ -14,7 +14,7 @@ Updated: 2026-11-03 by Sean
   evidence only. They use a private-pilot Web OAuth architecture and must not
   be uploaded or made public.
 - `0.5.0` source commit:
-  `972b8b1618725aefddc2fdab44f002cbb97ae6a0` (pushed to `origin/main`).
+  `167300ab581cfb336fcd0fb9e58dae6c02fd60f3` (pushed to `origin/main`).
 - Chrome Web Store item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 - Public source: `https://github.com/clawSean/inbox-island`.
 
@@ -36,7 +36,7 @@ Completed on the current `0.5.0` source candidate:
   client secret, authorization code, refresh token, or Gmail mutation
   permission exists.
 
-The clean-tree Store package was generated from that exact source commit and
+The clean-tree Store package was regenerated from that exact source commit and
 reproved against Google's real chooser in Chrome 156:
 
 - file: `extension/dist/inbox-island-web-store-0.5.0.zip`;

@@ -1,72 +1,34 @@
 #!/usr/bin/env node
 
-import { spawn, spawnSync } from "node:child_process";
-import { cp, mkdir, readFile, rename } from "node:fs/promises";
-import { createRequire } from "node:module";
+import { spawn } from "node:child_process";
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  assertNotRunning,
+  browserConfigs,
+  chromium,
+  moveToTrash,
+  sleep,
+  waitFor,
+} from "./oauth-probe-support.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const extensionId = "jeemdbgakejlmmmbngpihndfkjiddbhl";
 const probeSource = path.join(root, "experiments", "profile-free-oauth-probe");
-const configs = {
-  chrome: {
-    allowExisting: true,
-    name: "Google Chrome",
-    executable: path.join(os.homedir(), "Applications", "Google Chrome.app", "Contents", "MacOS", "Google Chrome"),
-  },
-  arc: { name: "Arc", executable: "/Applications/Arc.app/Contents/MacOS/Arc" },
-  dia: { name: "Dia", executable: "/Applications/Dia.app/Contents/MacOS/Dia" },
-};
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-function chromium() {
-  const require = createRequire(import.meta.url);
-  return require(process.env.PLAYWRIGHT_CORE_PACKAGE || "playwright-core").chromium;
-}
-
-async function waitFor(fn, timeout = 30_000) {
-  const end = Date.now() + timeout;
-  let last;
-  while (Date.now() < end) {
-    try {
-      const value = await fn();
-      if (value) return value;
-    } catch (error) {
-      last = error;
-    }
-    await sleep(100);
-  }
-  throw last || new Error("Timed out");
-}
-
-function assertNotRunning(name) {
-  const uid = process.getuid();
-  if (!Number.isSafeInteger(uid) || uid < 0) {
-    throw new Error("Could not determine the probe user's numeric uid");
-  }
-  const result = spawnSync("/usr/bin/pgrep", ["-U", String(uid), "-x", name], {
-    encoding: "utf8",
-  });
-  if (result.status === 0) throw new Error(`${name} is already running; refusing to touch a personal session`);
-  if (result.status !== 1) throw new Error(`Could not inspect ${name} process state`);
-}
-
-async function moveToTrash(directory) {
-  const destination = path.join(os.homedir(), ".Trash", `${path.basename(directory)}-${Date.now()}`);
-  await rename(directory, destination);
-  return destination;
-}
-
 async function run(browserId, {
   exactBuild = false,
   panelProbe = false,
   holdMilliseconds = 0,
+  livePilot = false,
   visualMarker = false,
 } = {}) {
-  const config = configs[browserId];
+  const config = browserConfigs[browserId];
   if (!config) throw new Error("Use --browser chrome, arc, or dia");
+  if (livePilot && (browserId !== "chrome" || !exactBuild || panelProbe)) {
+    throw new Error("Live pilot requires --browser chrome --exact-build");
+  }
   if (!config.allowExisting) assertNotRunning(config.name);
 
   const temp = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(os.tmpdir(), `inbox-island-${browserId}-oauth-probe-`)));
@@ -83,7 +45,7 @@ async function run(browserId, {
     "--remote-debugging-address=127.0.0.1",
     "--remote-debugging-port=0",
     "--remote-allow-origins=*",
-    "--enable-automation",
+    ...(livePilot ? [] : ["--enable-automation"]),
     "--disable-features=Translate,MediaRouter,DisableDisableExtensionsExceptCommandLineSwitch",
     `--disable-extensions-except=${extension}`,
     `--load-extension=${extension}`,
@@ -131,11 +93,14 @@ async function run(browserId, {
     const context = browser.contexts()[0];
     const page = await context.newPage();
     const observed = [];
-    let gmailRequestCount = 0;
+    const gmailRequests = [];
     context.on("page", (opened) => observed.push(opened.url()));
     context.on("request", (request) => {
       try {
-        if (new URL(request.url()).hostname === "gmail.googleapis.com") gmailRequestCount += 1;
+        const url = new URL(request.url());
+        if (url.hostname === "gmail.googleapis.com") {
+          gmailRequests.push({ method: request.method(), path: url.pathname });
+        }
       } catch {}
     });
     await page.bringToFront();
@@ -199,6 +164,10 @@ async function run(browserId, {
         trusted: document.documentElement.dataset.trusted,
         activation: document.documentElement.dataset.activation,
       }));
+    const liveResult = livePilot
+      ? await import("./live-chrome-pilot.mjs").then(({ runLiveChromePilot }) =>
+        runLiveChromePilot({ context, gmailRequests, page }))
+      : null;
     if (visualMarker && panelProbe) {
       await page.setContent("<title>Panel visibility marker</title><main style=\"font:700 42px system-ui;color:white;background:#b00020;position:fixed;inset:0;padding:48px\">MAIN TAB — SIDE PANEL MUST APPEAR BESIDE THIS RED MARKER</main>");
       await page.bringToFront();
@@ -208,7 +177,8 @@ async function run(browserId, {
       browser: browserId,
       exactBuild,
       panelProbe,
-      gmailRequestCount,
+      gmailRequestCount: gmailRequests.length,
+      livePilot: liveResult,
       outcome,
       trusted,
       browserIdentity,
@@ -218,16 +188,30 @@ async function run(browserId, {
     await browser?.close().catch(() => {});
     if (child.exitCode === null) child.kill("SIGTERM");
     await waitFor(() => child.exitCode !== null, 5_000).catch(() => child.kill("SIGKILL"));
-    await moveToTrash(temp);
+    if (livePilot) {
+      const prefix = `${os.tmpdir()}${path.sep}inbox-island-${browserId}-oauth-probe-`;
+      if (!temp.startsWith(prefix)) throw new Error("REFUSED_UNSAFE_LIVE_PROFILE_CLEANUP");
+      await rm(temp, { force: true, recursive: true });
+    } else await moveToTrash(temp);
   }
 }
 
 const index = process.argv.indexOf("--browser");
 const browserId = index >= 0 ? process.argv[index + 1] : null;
-const result = await run(browserId, {
-  exactBuild: process.argv.includes("--exact-build"),
-  panelProbe: process.argv.includes("--panel"),
-  holdMilliseconds: Number(process.argv.find((argument) => argument.startsWith("--hold-ms="))?.split("=")[1] || 0),
-  visualMarker: process.argv.includes("--visual-marker"),
-});
-console.log(JSON.stringify(result, null, 2));
+const livePilot = process.argv.includes("--live-pilot-wait");
+try {
+  const result = await run(browserId, {
+    exactBuild: process.argv.includes("--exact-build"),
+    panelProbe: process.argv.includes("--panel"),
+    holdMilliseconds: Number(process.argv.find((argument) => argument.startsWith("--hold-ms="))?.split("=")[1] || 0),
+    livePilot,
+    visualMarker: process.argv.includes("--visual-marker"),
+  });
+  console.log(JSON.stringify(result, null, 2));
+} catch (error) {
+  if (!livePilot) throw error;
+  const code = typeof error?.code === "string" && /^LIVE_PILOT_[A-Z0-9_]+$/u.test(error.code)
+    ? error.code : "LIVE_PILOT_FAILED_SAFELY";
+  console.error(JSON.stringify({ passed: false, code }, null, 2));
+  process.exitCode = 1;
+}

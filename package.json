@@ -16,6 +16,7 @@
     "probe:oauth:arc": "node scripts/run-profile-free-oauth-probe.mjs --browser arc",
     "probe:oauth:dia": "node scripts/run-profile-free-oauth-probe.mjs --browser dia",
     "proof:oauth:chrome": "node scripts/run-profile-free-oauth-probe.mjs --browser chrome --exact-build",
+    "proof:live:chrome": "node scripts/run-profile-free-oauth-probe.mjs --browser chrome --exact-build --live-pilot-wait",
     "proof:oauth:arc": "node scripts/run-profile-free-oauth-probe.mjs --browser arc --exact-build",
     "proof:oauth:dia": "node scripts/run-profile-free-oauth-probe.mjs --browser dia --exact-build",
     "build:extension": "node extension/scripts/build-pilot.mjs",

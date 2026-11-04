@@ -10,9 +10,10 @@ a historical deferred-review artifact with a different OAuth architecture.
 - The installed extension ID is `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 - The pilot Google account is authorized for the `inbox-island` project while
   the app remains in Testing, or the app is already In Production.
-- The pilot occurs in a disposable Chrome profile with no unrelated tabs or
-  extensions and with screen recording disabled unless recording the approved
-  Google verification video.
+- The pilot occurs in the dedicated disposable Chrome profile opened by
+  `npm run proof:live:chrome`, with no unrelated tabs or extensions and with
+  screen recording disabled unless recording the approved Google verification
+  video.
 - Do not use JPop's personal Google account on ClawPop. A Sean-owned Google
   account may be used there after JPop adds it as a test user.
 
@@ -58,8 +59,9 @@ server, cloud model, analytics, telemetry, or other origin is expected.
 1. Choose **Disconnect Gmail** and confirm derived triage clears.
 2. Choose **Clear local data** and confirm no account-scoped derived state
    remains.
-3. Reconnect once and confirm Google's chooser appears again. The extension
-   must not silently reuse a stale token or selected address.
+3. Reconnect once and confirm a new Chrome authorization request begins and the
+   returned account must be confirmed again. Google may reuse an existing grant;
+   the extension must not reuse a stale in-memory token or selected address.
 4. Disconnect again. Inbox Island clears Chrome's cached access token; the
    Google-side grant can be revoked separately in Google Account settings.
 

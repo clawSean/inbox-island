@@ -50,6 +50,15 @@ reproved against Google's real chooser in Chrome 156:
 
 Canonical receipt: `webstore/PACKAGE-RECEIPT.json`.
 
+An automated sign-in attempt using Sean's own 1Password-backed Google login
+was rejected by Google at the provider boundary before the password step. No
+consent was granted and no Gmail request occurred. The production-safe
+`proof:live:chrome` harness now opens the same disposable exact-build path
+without Chrome's automation-identifying launch flag and waits for a human to
+complete sign-in/read-only consent. It then verifies only the expected account
+hash, sanitized counts, GET-only Gmail traffic, thread navigation, Disconnect,
+and local-data cleanup before deleting the temporary authenticated profile.
+
 ## Public OAuth configuration
 
 The dedicated Google Cloud project `inbox-island` already has:
@@ -97,7 +106,9 @@ Prepared under `webstore/`:
 
 ## Remaining public-launch gates
 
-1. Run the exact-package live-account Chrome pilot: consent, returned-address
+1. Add Sean's Google identity as a project test user while the app remains in
+   Testing, then run the exact-package human-completed Chrome pilot: consent,
+   returned-address
    confirmation, bounded sync, Gmail thread link, token cleanup, Disconnect,
    and local-data clear.
 2. Approve the final public brand. “Inbox Island” overlaps an active paid

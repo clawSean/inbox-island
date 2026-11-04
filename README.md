@@ -5,9 +5,10 @@ reads a bounded recent Inbox/Sent slice, classifies it in the browser, and
 leaves Gmail unchanged.
 
 > **Current state:** `0.5.0` is the Chrome-first public-release candidate.
-> Source proof is in progress; do not upload it until `STATUS.md` records the
-> final package receipt. The published `0.4.9` artifact remains suitable only
-> for deferred Store review and must not be made public.
+> The complete source gate and clean-tree package receipt pass. The exact ZIP
+> remains held for a human-completed live Chrome pilot, final brand approval,
+> and authenticated Google/Store submission. The published `0.4.9` artifact is
+> historical only and must not be uploaded or made public.
 
 ## Product contract
 
@@ -67,13 +68,15 @@ Chrome path as documented in `BUILD.md`.
 npm run verify
 npm run webstore:assets
 npm run proof:oauth:chrome
+npm run proof:live:chrome
 ```
 
 The Chrome-first auth probe uses a disposable profile and proves that a trusted
 click on the exact build reaches Google's real sign-in chooser with zero Gmail
-requests. A live-account pilot still requires an authorized test account and
-must prove the complete consent, profile confirmation, bounded sync, token
-cleanup, and disconnect path.
+requests. The live harness uses another disposable profile, pauses for a human
+to complete Google sign-in/consent, hashes the returned account for comparison,
+then records only sanitized counts and pass/fail facts while proving bounded
+sync, a Gmail thread link, token cleanup, Disconnect, and local-data clear.
 
 The inspected 42-case development corpus is in-sample calibration evidence:
 `40/42` exact, `12/14` reply-or-attention capture, and zero observed

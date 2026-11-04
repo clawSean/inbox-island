@@ -30,6 +30,22 @@ export PLAYWRIGHT_CORE_PACKAGE=/absolute/path/to/playwright-core
 npm run proof:oauth:chrome
 ```
 
+The final live-account proof uses the same disposable Chrome/extension path but
+waits for a human to complete Google sign-in and read-only consent. Supply only
+the SHA-256 of the authorized pilot address; the harness never prints or stores
+the address and records no mailbox prose:
+
+```sh
+export INBOX_ISLAND_PILOT_ACCOUNT_SHA256=<64-hex-address-hash>
+export PLAYWRIGHT_CORE_PACKAGE=/absolute/path/to/playwright-core
+npm run proof:live:chrome
+```
+
+The harness confirms the returned account hash before message discovery,
+records only counts and pass/fail facts, checks all Gmail requests are GET,
+opens one thread link without reading page content, disconnects, clears local
+data, and deletes the disposable authenticated Chrome profile.
+
 After all release changes are committed and the working tree is clean:
 
 ```sh

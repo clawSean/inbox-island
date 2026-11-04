@@ -14,7 +14,7 @@ Updated: 2026-11-03 by Sean
   evidence only. They use a private-pilot Web OAuth architecture and must not
   be uploaded or made public.
 - `0.5.0` source commit:
-  `167300ab581cfb336fcd0fb9e58dae6c02fd60f3` (pushed to `origin/main`).
+  `6387e10574919ead47585313ddd3497483b1a03b` (pushed to `origin/main`).
 - Chrome Web Store item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 - Public source: `https://github.com/clawSean/inbox-island`.
 - The public name is frozen as **Inbox Island** for the `0.5.0` submission.

@@ -17,6 +17,10 @@ Updated: 2026-11-03 by Sean
   `167300ab581cfb336fcd0fb9e58dae6c02fd60f3` (pushed to `origin/main`).
 - Chrome Web Store item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 - Public source: `https://github.com/clawSean/inbox-island`.
+- The public name is frozen as **Inbox Island** for the `0.5.0` submission.
+  An adjacent paid email-privacy training product uses the same words; no legal
+  clearance or exclusivity claim is made, but that overlap is not treated as a
+  technical launch blocker.
 
 ## Candidate verification state
 
@@ -111,15 +115,13 @@ Prepared under `webstore/`:
    returned-address
    confirmation, bounded sync, Gmail thread link, token cleanup, Disconnect,
    and local-data clear.
-2. Approve the final public brand. “Inbox Island” overlaps an active paid
-   email-privacy training product; no legal clearance is claimed.
-3. In JPop's own authenticated Google browser: remove the unused Web client,
+2. In JPop's own authenticated Google browser: remove the unused Web client,
    finalize branding/domain/contact fields, promote Audience to Production,
    record the demonstration video, and submit restricted-scope verification.
-4. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
+3. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
    the prepared listing/privacy/reviewer copy, select deferred publishing, and
    submit for review.
-5. Resolve every Google/Store follow-up, revalidate the approved package, rerun
+4. Resolve every Google/Store follow-up, revalidate the approved package, rerun
    the live pilot, then manually publish.
 
 Personal Google authentication, consent, and Store/GCP owner actions must occur

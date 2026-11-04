@@ -6,8 +6,8 @@ leaves Gmail unchanged.
 
 > **Current state:** `0.5.0` is the Chrome-first public-release candidate.
 > The complete source gate and clean-tree package receipt pass. The exact ZIP
-> remains held for a human-completed live Chrome pilot, final brand approval,
-> and authenticated Google/Store submission. The published `0.4.9` artifact is
+> remains held for a human-completed live Chrome pilot and authenticated
+> Google/Store submission. The published `0.4.9` artifact is
 > historical only and must not be uploaded or made public.
 
 ## Product contract

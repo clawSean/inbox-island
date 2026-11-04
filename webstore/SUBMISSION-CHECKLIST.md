@@ -33,8 +33,9 @@ before manual public publication.
 - [ ] An authorized live-account Chrome pilot proves disclosure, consent,
       returned-address confirmation, bounded sync, Gmail link, token cleanup,
       Disconnect, and local-data clear on the exact package.
-- [ ] Final public brand is approved. The current Inbox Island name overlaps an
-      active paid email-privacy training product; no legal clearance is claimed.
+- [x] Public name is frozen as **Inbox Island** for `0.5.0`. An adjacent paid
+      email-privacy training product uses the same words; no legal clearance or
+      exclusivity claim is made.
 
 ## Google OAuth gates
 

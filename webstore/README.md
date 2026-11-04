@@ -53,8 +53,8 @@ after the complete clean-tree release gate passes.
 Public Gmail authorization remains a separate Google review:
 `gmail.readonly` is restricted. The first release supports Google Chrome only;
 Arc and Dia are excluded from the support claim because their fresh-profile
-OAuth probes reach Google's provider-error page. Brand approval, live-account
-Chrome proof, Store submission, Google verification, and Google's assessment
+OAuth probes reach Google's provider-error page. Live-account Chrome proof,
+Store submission, Google verification, and Google's assessment
 determination remain before manual publication.
 
 ## Primary sources checked 2026-11-03

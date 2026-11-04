@@ -2,7 +2,7 @@
 
 ## Product details
 
-- **Name:** Inbox Island — pending final public-brand clearance
+- **Name:** Inbox Island
 - **Category:** Productivity
 - **Language:** English (United States)
 - **Manifest description (132 characters maximum):**

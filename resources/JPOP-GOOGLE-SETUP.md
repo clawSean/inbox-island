@@ -25,7 +25,7 @@ supported by the first public release.
 1. Open the `inbox-island` project and confirm Gmail API is enabled.
 2. Delete the unused Web application client named **Inbox Island Browser
    OAuth**. Keep the exact Chrome Extension client above.
-3. In Branding, use the final approved public name, support email, logo,
+3. In Branding, use **Inbox Island**, the support email, logo,
    homepage, privacy policy, and authorized domain `jpop.cloud`.
 4. In Data Access, retain only `gmail.readonly` and use the justification in
    `GOOGLE-OAUTH-VERIFICATION.md`.

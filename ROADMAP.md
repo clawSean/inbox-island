@@ -33,8 +33,8 @@ without raw-data persistence, unexpected network traffic, or account drift.
 
 ## 3. Submit Chrome and Google reviews
 
-- Finalize the public name and use it consistently in the manifest, Store,
-  website, OAuth branding, privacy policy, and video.
+- Use the frozen **Inbox Island** public name consistently in the manifest,
+  Store, website, OAuth branding, privacy policy, and video.
 - On JPop's authenticated device, upload the exact ZIP to Store item
   `jeemdbgakejlmmmbngpihndfkjiddbhl`, complete listing/privacy/test fields,
   choose deferred publishing, and submit.

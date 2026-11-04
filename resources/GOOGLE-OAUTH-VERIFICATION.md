@@ -18,6 +18,9 @@ the withdrawn Web-client/private-pilot language from `0.4.9`.
 - Runtime: Google Chrome only for the first public release. Arc and Dia are not
   advertised as supported because fresh-profile proof reaches Google's
   provider-error page in both browsers.
+- Public product name: **Inbox Island**. This name is frozen for the `0.5.0`
+  submission and must be used consistently across Google, the Store, the
+  package, and the public pages.
 - Auth API: `chrome.identity.getAuthToken()` after an explicit user click.
 - Token handling: short-lived access token only; no refresh token, client
   secret, authorization code, application backend, or token persistence.
@@ -112,7 +115,7 @@ personal Google session on ClawPop.
    enabled.
 2. Remove the unused Web application OAuth client. Keep the exact Chrome
    Extension client above.
-3. Update Branding with the final public name, support email, logo, homepage,
+3. Update Branding with **Inbox Island**, the support email, logo, homepage,
    privacy policy, and authorized domain `jpop.cloud`.
 4. Confirm Data Access contains only `gmail.readonly` and paste the scope
    justification above.

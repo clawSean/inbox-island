@@ -13,6 +13,8 @@ Updated: 2026-11-03 by Sean
 - The published `0.4.9` ZIP and GitHub release are historical deferred-review
   evidence only. They use a private-pilot Web OAuth architecture and must not
   be uploaded or made public.
+- `0.5.0` source commit:
+  `972b8b1618725aefddc2fdab44f002cbb97ae6a0` (pushed to `origin/main`).
 - Chrome Web Store item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 - Public source: `https://github.com/clawSean/inbox-island`.
 
@@ -34,9 +36,19 @@ Completed on the current `0.5.0` source candidate:
   client secret, authorization code, refresh token, or Gmail mutation
   permission exists.
 
-The final clean-tree Store package is still in progress. No `0.5.0` public
-package hash is claimed until source is committed and
-`webstore/PACKAGE-RECEIPT.json` is regenerated.
+The clean-tree Store package was generated from that exact source commit and
+reproved against Google's real chooser in Chrome 156:
+
+- file: `extension/dist/inbox-island-web-store-0.5.0.zip`;
+- 39 files, 81,486 bytes;
+- ZIP SHA-256:
+  `7dd54e1586f35c59d93a0dfdbaf171c3287a33a0f9d26d1d9ff6a1123dcd464c`;
+- package-tree SHA-256:
+  `8216688301890ba32e7d48f28111c8b80b159ee6a1fd713e0e5c8c48d414ed28`;
+- root manifest, development key removed, extraction byte parity, exact package
+  revalidation, zero private-key files, and zero secret-shaped files.
+
+Canonical receipt: `webstore/PACKAGE-RECEIPT.json`.
 
 ## Public OAuth configuration
 
@@ -85,20 +97,18 @@ Prepared under `webstore/`:
 
 ## Remaining public-launch gates
 
-1. Pass the complete `0.5.0` release suite, commit and push exact source, build
-   the clean-tree Store ZIP, regenerate the receipt, and verify exact bytes.
-2. Run the exact-package live-account Chrome pilot: consent, returned-address
+1. Run the exact-package live-account Chrome pilot: consent, returned-address
    confirmation, bounded sync, Gmail thread link, token cleanup, Disconnect,
    and local-data clear.
-3. Approve the final public brand. “Inbox Island” overlaps an active paid
+2. Approve the final public brand. “Inbox Island” overlaps an active paid
    email-privacy training product; no legal clearance is claimed.
-4. In JPop's own authenticated Google browser: remove the unused Web client,
+3. In JPop's own authenticated Google browser: remove the unused Web client,
    finalize branding/domain/contact fields, promote Audience to Production,
    record the demonstration video, and submit restricted-scope verification.
-5. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
+4. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
    the prepared listing/privacy/reviewer copy, select deferred publishing, and
    submit for review.
-6. Resolve every Google/Store follow-up, revalidate the approved package, rerun
+5. Resolve every Google/Store follow-up, revalidate the approved package, rerun
    the live pilot, then manually publish.
 
 Personal Google authentication, consent, and Store/GCP owner actions must occur

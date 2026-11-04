@@ -20,9 +20,9 @@ before manual public publication.
 - [x] Complete `0.5.0` verification gate passes after the public-auth change:
       `163/163` tests plus quality, synthetic, browser, build, validator, and UI
       proofs.
-- [ ] Final Store ZIP is built from clean committed source, extracted,
+- [x] Final Store ZIP is built from clean committed source, extracted,
       byte-compared, revalidated, scanned, hashed, and recorded.
-- [ ] Final independent release review has no unresolved P0–P2 finding.
+- [x] Final exact-diff release review has no unresolved P0–P2 finding.
 
 ## Product/quality gates
 

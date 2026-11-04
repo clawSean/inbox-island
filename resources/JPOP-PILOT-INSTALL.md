@@ -8,14 +8,16 @@ a historical deferred-review artifact with a different OAuth architecture.
 
 - The candidate source commit, Store ZIP SHA-256, and package receipt agree.
 - The installed extension ID is `jeemdbgakejlmmmbngpihndfkjiddbhl`.
-- The pilot Google account is authorized for the `inbox-island` project while
-  the app remains in Testing, or the app is already In Production.
+- The `inbox-island` OAuth audience is already In Production. No test-user list
+  exists in the pilot path.
 - The pilot occurs in the dedicated disposable Chrome profile opened by
   `npm run proof:live:chrome`, with no unrelated tabs or extensions and with
   screen recording disabled unless recording the approved Google verification
   video.
-- Do not use JPop's personal Google account on ClawPop. A Sean-owned Google
-  account may be used there after JPop adds it as a test user.
+- Do not use JPop's personal Google account on ClawPop. Use only Sean's
+  designated Google account before verification; it may need to advance through
+  Google's unverified-app warning and will consume one lifetime pre-verification
+  user slot.
 
 ## Install the exact candidate
 
@@ -40,8 +42,10 @@ allowed during the disconnected path.
 
 1. Read the disclosure beside **Connect Google in Chrome**.
 2. Click the button once. Google's own chooser or consent page must open.
-3. Select only the authorized pilot account and approve only read-only Gmail
-   access. Stop if any broader permission appears.
+3. Select only the designated pilot account. If Google shows its unverified-app
+   warning, use the advanced continuation only for this known exact build, then
+   approve only read-only Gmail access. Stop if the app identity, client, or
+   permission differs.
 4. Confirm Inbox Island displays the returned Gmail address and has not yet
    listed messages.
 5. Choose **Sync selected account**.

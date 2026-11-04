@@ -18,9 +18,15 @@ Future sequencing only. Current truth and blockers live in `STATUS.md`.
 **Advance when:** the exact `0.5.0` package is clean, reproducible, and tied to
 the Chrome chooser proof with zero pre-consent Gmail requests.
 
-## 2. Complete the live-account pilot and verification video
+## 2. Promote once, then complete the live-account pilot and video
 
-- Add a dedicated test account through Google Auth Platform on JPop's device.
+- In one JPop-authenticated action, grant Sean's Google identity the
+  project-scoped Editor role on the dedicated `inbox-island` project.
+- Remove the unused Web OAuth client, finish Branding/Data Access, verify the
+  domain, and promote Audience from Testing to In Production before consent.
+- Do not create or maintain test users. Before verification, allow only Sean's
+  designated pilot identity through Google's unverified-app warning; this uses
+  one slot under Google's 100-new-user lifetime cap.
 - Run the submitted build in Google Chrome: disclosure, authorization,
   returned-address confirmation, bounded sync, Gmail thread open, token cleanup,
   Disconnect, and local-data clear.
@@ -38,9 +44,8 @@ without raw-data persistence, unexpected network traffic, or account drift.
 - On JPop's authenticated device, upload the exact ZIP to Store item
   `jeemdbgakejlmmmbngpihndfkjiddbhl`, complete listing/privacy/test fields,
   choose deferred publishing, and submit.
-- In the dedicated `inbox-island` GCP project, remove the unused Web OAuth
-  client, finalize Branding/Data Access, switch to In Production, and submit the
-  restricted-scope verification packet and video.
+- In the dedicated `inbox-island` GCP project, submit the restricted-scope
+  verification packet and video from Sean's delegated project access.
 - Follow Google's official channel for assessment determination and questions.
 
 **Advance when:** Chrome review and Google's branding/data-access review are

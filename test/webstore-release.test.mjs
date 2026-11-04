@@ -18,7 +18,8 @@ function pngSize(bytes) {
 
 test("Chrome Web Store kit matches the packaged Chrome-first public-release contract", async () => {
   const [manifest, packageScript, validator, disclosureSource, listing, privacy,
-    reviewer, checklist, assetReceipt, sbom, packageJson] = await Promise.all([
+    reviewer, checklist, assetReceipt, sbom, packageJson, status, roadmap,
+    setup, pilot, verification] = await Promise.all([
     readFile(path.join(root, "extension/manifest.json"), "utf8").then(JSON.parse),
     readFile(path.join(root, "scripts/package-web-store.mjs"), "utf8"),
     readFile(path.join(root, "extension/scripts/validate.mjs"), "utf8"),
@@ -30,6 +31,11 @@ test("Chrome Web Store kit matches the packaged Chrome-first public-release cont
     readFile(path.join(root, "webstore/assets/ASSET-HASHES.json"), "utf8").then(JSON.parse),
     readFile(path.join(root, "webstore/SBOM.spdx.json"), "utf8").then(JSON.parse),
     readFile(path.join(root, "package.json"), "utf8").then(JSON.parse),
+    readFile(path.join(root, "STATUS.md"), "utf8"),
+    readFile(path.join(root, "ROADMAP.md"), "utf8"),
+    readFile(path.join(root, "resources/JPOP-GOOGLE-SETUP.md"), "utf8"),
+    readFile(path.join(root, "resources/JPOP-PILOT-INSTALL.md"), "utf8"),
+    readFile(path.join(root, "resources/GOOGLE-OAUTH-VERIFICATION.md"), "utf8"),
   ]);
 
   assert.equal(manifest.version, "0.5.0");
@@ -54,6 +60,17 @@ test("Chrome Web Store kit matches the packaged Chrome-first public-release cont
   assert.match(checklist, /Google restricted-scope verification/u);
   assert.match(checklist, /live-account Chrome pilot/u);
   assert.match(checklist, /Do not manually publish/u);
+  assert.match(reviewer, /project is In Production and has no test-user dependency/u);
+  assert.match(setup, /Basic → Editor/u);
+  assert.match(setup, /Do not add Sean as\s+ a test user/iu);
+  assert.match(status, /Do not add any test user/u);
+  assert.match(roadmap, /Do not create or maintain test users/u);
+  assert.match(pilot, /No test-user list\s+ exists in the pilot path/u);
+  assert.match(verification, /No test users are added or\s+removed/u);
+  assert.doesNotMatch(reviewer, /temporary test user/iu);
+  assert.doesNotMatch(status, /Add Sean's Google identity as a project test user/iu);
+  assert.doesNotMatch(roadmap, /Add a dedicated test account/iu);
+  assert.doesNotMatch(pilot, /after JPop adds it as a test user/iu);
   assert.equal(packageJson.scripts["build:seed"], "sh extension/scripts/build-webstore-seed.sh");
   assert.match(packageJson.scripts["validate:extension"], /npm run build:seed/u);
 

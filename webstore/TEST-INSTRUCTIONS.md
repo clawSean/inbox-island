@@ -21,9 +21,11 @@ and requires no test credentials.
 The Gmail feature begins only after the in-product disclosure and a user click
 on **Connect Google in Chrome**, followed by Google's read-only authorization.
 Inbox Island then displays the Gmail address returned by Google and requires a
-second **Sync selected account** click before message discovery. The current
-Google project remains in Testing until its restricted-scope submission. Do
-not place a shared Google password, token, or mailbox in the Store's test-
-instructions fields. If review requires a live Gmail account, add the
-reviewer's Google identity as a temporary test user through the official review
-channel and remove it afterward.
+second **Sync selected account** click before message discovery. The External
+Google project is In Production and has no test-user dependency. Until its
+restricted scope is approved, Google may show its standard unverified-app
+warning and enforce its pre-verification user cap. Do not place a shared Google
+password, token, or mailbox in the Store's test-instructions fields. If review
+requires a live Gmail account, the reviewer can use its own Google identity
+through Google's normal authorization flow; the disconnected demo remains the
+credential-free review path.

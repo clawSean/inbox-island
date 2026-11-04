@@ -1,6 +1,6 @@
 # STATUS
 
-Updated: 2026-11-03 by Sean
+Updated: 2026-11-04 by Sean
 
 ## Current decision
 
@@ -68,16 +68,26 @@ and local-data cleanup before deleting the temporary authenticated profile.
 The dedicated Google Cloud project `inbox-island` already has:
 
 - Gmail API enabled;
-- External / Testing audience;
+- External / Testing audience, pending one-time promotion to In Production;
 - scope `https://www.googleapis.com/auth/gmail.readonly` only;
 - Chrome Extension OAuth client
   `270655843779-4gktio587oago4rsgh3609te7h4eoe6r.apps.googleusercontent.com`;
 - the canonical Store extension ID above.
 
-The existing dedicated project will be promoted to Production. Before Google
-submission, the unused Web application client should be removed. The full
-scope justification, data-flow statement, assessment posture, public URLs,
-video script, and authenticated console checklist are frozen in
+The existing dedicated project will be promoted to Production before the live
+pilot. That removes the test-user list entirely: any Google Account may
+authorize, while Google shows its unverified-app warning and enforces the
+100-new-user lifetime cap until restricted-scope verification succeeds. Only
+Sean's designated pilot identity will use that pre-verification path.
+
+To avoid a second JPop owner session, JPop will make one project-scoped IAM
+handoff: grant `seancrustacean@gmail.com` the **Editor** role on this dedicated
+project. Sean can then remove the unused Web application client, finish the
+OAuth configuration, promote the audience, verify the domain, submit and
+answer verification follow-ups, and run the live pilot without JPop sharing
+credentials or returning to maintain a temporary tester list. The full scope
+justification, data-flow statement, assessment posture, public URLs, video
+script, and authenticated console checklist are frozen in
 `resources/GOOGLE-OAUTH-VERIFICATION.md`.
 
 `gmail.readonly` is a restricted scope. Chrome Web Store approval does not
@@ -110,23 +120,26 @@ Prepared under `webstore/`:
 
 ## Remaining public-launch gates
 
-1. Add Sean's Google identity as a project test user while the app remains in
-   Testing, then run the exact-package human-completed Chrome pilot: consent,
-   returned-address
-   confirmation, bounded sync, Gmail thread link, token cleanup, Disconnect,
-   and local-data clear.
-2. In JPop's own authenticated Google browser: remove the unused Web client,
-   finalize branding/domain/contact fields, promote Audience to Production,
-   record the demonstration video, and submit restricted-scope verification.
-3. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
+1. In one JPop-authenticated owner action, grant
+   `seancrustacean@gmail.com` the project-scoped **Editor** role on the
+   dedicated `inbox-island` project. Do not add any test user.
+2. Through Sean's own Google identity, remove the unused Web client, finalize
+   branding/domain/contact fields, promote Audience to In Production, then run
+   the exact-package human-completed Chrome pilot and record the demonstration
+   video: consent, returned-address confirmation, bounded sync, Gmail thread
+   link, token cleanup, Disconnect, and local-data clear.
+3. Submit Branding and restricted-scope verification, answer every Google
+   follow-up, and retain the no-server security-assessment determination.
+4. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
    the prepared listing/privacy/reviewer copy, select deferred publishing, and
    submit for review.
-4. Resolve every Google/Store follow-up, revalidate the approved package, rerun
+5. Resolve every Store follow-up, revalidate the approved package, rerun
    the live pilot, then manually publish.
 
-Personal Google authentication, consent, and Store/GCP owner actions must occur
-on a JPop-controlled device/browser, never in JPop's personal Google session on
-ClawPop. Sean's own Google account may be used for the live pilot after it is
-authorized as a test user.
+JPop's personal Google authentication, consent, and Store actions must occur on
+a JPop-controlled device/browser, never in JPop's personal Google session on
+ClawPop. After the one-time IAM grant, Sean's own Google account may manage the
+dedicated GCP project and run the live pilot on ClawPop. It must not be added as
+a test user.
 
 Sequencing: `ROADMAP.md`

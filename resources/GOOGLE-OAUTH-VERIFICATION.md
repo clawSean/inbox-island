@@ -1,6 +1,6 @@
 # Google OAuth verification packet
 
-Updated: 2026-11-03
+Updated: 2026-11-04
 
 This is the canonical submission copy for Inbox Island's public Google OAuth
 review. It describes the Chrome-first `0.5.0` architecture exactly. Do not use
@@ -34,6 +34,12 @@ Google recommends separate development and production projects, but does not
 require them. This project has no unrelated app or OAuth client that belongs in
 the production review. Remove the unused Web application client before
 submission so every remaining client is production-ready.
+
+Production promotion happens before the live pilot. No test users are added or
+removed. Google documents that an External app in production is available to
+any Google Account; before verification, its unverified-app warning and
+100-new-user lifetime cap still apply. Only Sean's designated pilot identity is
+authorized before approval.
 
 ## Scope justification
 
@@ -108,8 +114,14 @@ form or official review correspondence.
 
 ## Authenticated console checklist
 
-These steps must be completed in JPop's own authenticated browser, never in a
-personal Google session on ClawPop.
+JPop first grants `seancrustacean@gmail.com` the project-scoped **Editor** role
+on the dedicated `inbox-island` project. Google documents that the Editor role
+includes OAuth verification submission/update permissions; it also makes Sean
+an eligible project account to verify the authorized domain in Search Console,
+where site control must still be proved. JPop's personal Google session never
+moves to ClawPop, and no test user is created.
+
+Sean then completes these steps through Sean's own Google identity:
 
 1. Confirm the dedicated `inbox-island` project is selected and Gmail API is
    enabled.
@@ -120,10 +132,12 @@ personal Google session on ClawPop.
 4. Confirm Data Access contains only `gmail.readonly` and paste the scope
    justification above.
 5. Confirm developer contact email and domain verification.
-6. Change Audience from Testing to In Production.
-7. Open Verification Center, prepare the data-access request, add the video,
+6. Change Audience from Testing to In Production before the live pilot.
+7. Run the exact-package live pilot and record the video above through the
+   designated Sean account. Do not authorize any other pre-verification user.
+8. Open Verification Center, prepare the data-access request, add the video,
    paste the data-use and assessment statements, and submit.
-8. Save the submission receipt/status and forward only non-secret status or
+9. Save the submission receipt/status and forward only non-secret status or
    Google review questions back to the project.
 
 ## Completion criteria

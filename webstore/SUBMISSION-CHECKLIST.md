@@ -42,11 +42,13 @@ before manual public publication.
 - [x] Verification packet, scope justification, no-server data-flow statement,
       assessment posture, and video script are complete in
       `resources/GOOGLE-OAUTH-VERIFICATION.md`.
+- [ ] Grant Sean's Google identity project-scoped Editor access once; do not
+      create a test user.
 - [ ] Remove the unused Web application OAuth client from the dedicated
       `inbox-island` project.
 - [ ] Finalize branding/support contacts and verify `jpop.cloud`.
 - [ ] Confirm Data Access contains only `gmail.readonly` and switch Audience to
-      In Production.
+      In Production before the live pilot.
 - [ ] Record the complete consent/use video with the exact candidate.
 - [ ] Submit Branding and restricted-scope verification.
 - [ ] Obtain Google's security-assessment determination and resolve every

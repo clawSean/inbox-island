@@ -1,6 +1,6 @@
 # Build and verify
 
-Requirements: Node.js 22+, a Chromium browser, `zip`, `unzip`, and standard
+Requirements: Node.js 22+, Google Chrome, `zip`, `unzip`, and standard
 macOS/Linux command-line tools. The extension has no npm package dependencies,
 package lock, remote build step, or generated runtime code. Browser proof uses
 an existing `playwright-core` installation supplied explicitly so this
@@ -21,13 +21,13 @@ contracts, development-quality invariants, synthetic triage, browser behavior,
 the exact extension build, manifest/OAuth boundaries, and network-isolated UI
 proof.
 
-Native Arc/Dia proof is deliberately separate because it needs an unlocked
-macOS desktop and a closed personal target browser:
+The public OAuth proof is deliberately separate because it opens Google's real
+account chooser in a fresh disposable Chrome profile. It requires an unlocked
+macOS desktop, stops before account selection, and asserts zero Gmail requests:
 
 ```sh
 export PLAYWRIGHT_CORE_PACKAGE=/absolute/path/to/playwright-core
-npm run native:proof:portable -- --browser arc
-npm run native:proof:portable -- --browser dia
+npm run proof:oauth:chrome
 ```
 
 After all release changes are committed and the working tree is clean:
@@ -43,7 +43,8 @@ Store transform, scans for private-key/secret-shaped content, and writes
 `webstore/PACKAGE-RECEIPT.json`. The Store item supplies the canonical extension
 identity.
 
-For deferred Store review, require the exact source commit, archive SHA-256,
-public tag, reviewer instructions, and Store submission record to agree. Do not
-manually publish Gmail access until production OAuth/Google verification and
-the applicable native live-account pilot gates also pass.
+For public release, require the exact source commit, archive SHA-256, public
+tag, reviewer instructions, Store submission record, Chrome OAuth proof, Google
+restricted-scope verification, and a Chrome live-account pilot to agree. Do not
+advertise Arc or Dia support for `0.5.0`; their fresh-profile probes reach
+Google's provider-error page for the Chrome Extension OAuth client.

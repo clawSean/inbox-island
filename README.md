@@ -1,12 +1,13 @@
 # Inbox Island
 
-Inbox Island is a local-first Gmail triage extension for Chromium-family
-browsers, including Arc and Dia. It reads a bounded recent Inbox/Sent slice,
-classifies it in the browser, and leaves Gmail unchanged.
+Inbox Island is a local-first Gmail triage extension for Google Chrome. It
+reads a bounded recent Inbox/Sent slice, classifies it in the browser, and
+leaves Gmail unchanged.
 
-> **Current state:** `0.4.9` is ready to upload for Chrome Web Store review with
-> **deferred publishing**. It is not approved for manual public publication.
-> Versions `0.3.0` through `0.4.8` are withdrawn.
+> **Current state:** `0.5.0` is the Chrome-first public-release candidate.
+> Source proof is in progress; do not upload it until `STATUS.md` records the
+> final package receipt. The published `0.4.9` artifact remains suitable only
+> for deferred Store review and must not be made public.
 
 ## Product contract
 
@@ -19,13 +20,11 @@ classifies it in the browser, and leaves Gmail unchanged.
 
 ## Surfaces
 
-- The browser-owned toolbar popup shows quick Needs you, Waiting, Filed, and
-  Low signal counts.
+- The toolbar popup shows quick Needs you, Waiting, Filed, and Low signal
+  counts.
 - **Open full triage** launches the persistent workspace.
 - **Try demo** runs bundled synthetic `.example.test` messages without Google,
   Gmail, or external requests.
-- The former side-panel and compact-window paths are removed. Arc can report a
-  hidden side panel and clamps requested compact windows to a large minimum.
 
 ## Permission and network boundary
 
@@ -35,16 +34,18 @@ The Manifest V3 package requests exactly:
 - host access `https://gmail.googleapis.com/*`;
 - Google OAuth scope `https://www.googleapis.com/auth/gmail.readonly`.
 
-It has no content scripts, remote code, telemetry, analytics, Gmail mutations,
-refresh token, client secret, or application backend.
+The public candidate uses Google's documented Chrome Extension OAuth client
+through `chrome.identity.getAuthToken()` after an explicit user click. It
+displays the Gmail address returned by the Gmail profile endpoint and requires
+a second confirmation before message discovery. The access token is kept only
+in memory for the bounded run; the Chrome token cache is cleared afterward and
+again on Disconnect. No refresh token or client secret exists in the package.
 
-The current private-pilot flow uses an explicit Google account chooser through
-`chrome.identity.launchWebAuthFlow()`, displays the selected address after a
-profile-only read, and requires a second click before message discovery. Its
-short-lived token is held only in page memory and forgotten after the bounded
-run. That Web-client implicit flow is **not yet the frozen public OAuth
-architecture**; Google documents Chrome Extension clients with `getAuthToken()`
-for published extensions, and `gmail.readonly` is a restricted scope.
+Arc and Dia are not supported for the first public release. Fresh-profile
+proof on their current builds reaches Google's provider-error page for the
+documented Chrome Extension OAuth path. The older browser-neutral Web-client
+flow is retired from the public candidate because Google labels direct implicit
+OAuth legacy.
 
 ## Gmail and classifier bounds
 
@@ -60,45 +61,35 @@ for published extensions, and `gmail.readonly` is a restricted scope.
 
 Requires Node.js 22 or newer. The extension has no npm package dependencies;
 browser proof uses an explicitly supplied existing `playwright-core` and
-Chromium path as documented in `BUILD.md`.
+Chrome path as documented in `BUILD.md`.
 
 ```sh
 npm run verify
 npm run webstore:assets
-npm run native:proof:portable -- --browser arc
-npm run native:proof:portable -- --browser dia
+npm run proof:oauth:chrome
 ```
 
-The full source/unit/browser/build/validator/UI gate passes with `162/162`
-tests. Two blind release reviews found and drove repairs for the exact OAuth
-launch parameter set, Google's optional unchanged callback scope, and
-clean-checkout seed validation.
-
-Native preflight passes on the unlocked Sean desktop. A disposable Arc run
-proved the extension surfaces and exact Google OAuth request but exposed the
-chooser only as a hidden browser target, so the strict chooser cancellation
-gate remains red. Arc/Dia live-account portability is a pilot/publication gate,
-not a blocker for credential-free Chrome Store review.
+The Chrome-first auth probe uses a disposable profile and proves that a trusted
+click on the exact build reaches Google's real sign-in chooser with zero Gmail
+requests. A live-account pilot still requires an authorized test account and
+must prove the complete consent, profile confirmation, bounded sync, token
+cleanup, and disconnect path.
 
 The inspected 42-case development corpus is in-sample calibration evidence:
 `40/42` exact, `12/14` reply-or-attention capture, and zero observed
-false-important results. It is not unseen or real-mail validation. A separate
-Mailreef review of 40 screened summaries informed the classifier repair, but
-only JPop's visible Arc/Dia pilot can validate the exact real-mail experience.
+false-important results. It is not unseen or real-mail validation.
 
-## Chrome Web Store
+## Chrome Web Store and Google review
 
 `webstore/` contains synthetic screenshots, listing copy, privacy disclosures,
-reviewer instructions, and a submission checklist for item
+reviewer instructions, and the submission checklist for item
 `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
-The exact package can be submitted for Chrome review using the disconnected
-demo and **deferred publishing**. Google restricted-scope verification,
-production OAuth, brand clearance, and live-account pilot acceptance remain
-separate blockers before manual public publication.
-
-Upload artifact: `extension/dist/inbox-island-web-store-0.4.9.zip`, SHA-256
-`b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`.
+Chrome Web Store review and Google OAuth verification are separate. Public
+Gmail authorization requires Google's restricted-scope approval for
+`gmail.readonly`. The exact submission answers, data-flow explanation, scope
+justification, and video script live in
+`resources/GOOGLE-OAUTH-VERIFICATION.md`.
 
 Public project pages:
 
@@ -111,8 +102,8 @@ Public project pages:
 - Current truth: `STATUS.md`
 - Sequencing: `ROADMAP.md`
 - Architecture: `resources/ARCHITECTURE.md`
-- Pilot handoff: `resources/JPOP-PILOT-INSTALL.md`
+- Google verification: `resources/GOOGLE-OAUTH-VERIFICATION.md`
 - Publication controls: `resources/PUBLICATION-TRUST-PLAN.md`
 - Store kit: `webstore/README.md`
 
-Updated: 2026-11-02 by Sean
+Updated: 2026-11-03 by Sean

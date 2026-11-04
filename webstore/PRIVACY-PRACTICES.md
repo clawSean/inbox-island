@@ -10,10 +10,11 @@
 
 ### `identity`
 
-> Opens the browser-owned Google authorization flow and receives the selected
-> account's short-lived OAuth result after an explicit user click. Inbox Island
-> keeps the resulting access token only in memory, for at most 45 minutes, and
-> does not persist or refresh it.
+> Uses Google Chrome's Identity API after an explicit user click to request only
+> read-only Gmail access for the Google account available to Chrome. Inbox
+> Island keeps the resulting access token only in memory for the bounded run,
+> does not persist or refresh it, and removes it from Chrome's token cache after
+> the run and on Disconnect.
 
 ### `https://gmail.googleapis.com/*`
 
@@ -72,10 +73,11 @@ Certify only while the shipped code and public policy retain all of these:
 
 This exact disclosure is shown beside the Connect action before authorization:
 
-> Choosing a Google account means you agree to let Inbox Island read addresses,
-> subjects, and message text from a bounded recent Inbox/Sent slice for
-> on-device triage. It does not send that data to an Inbox Island server or
+> Connecting Google in Chrome means you agree to let Inbox Island read
+> addresses, subjects, and message text from a bounded recent Inbox/Sent slice
+> for on-device triage. It does not send that data to an Inbox Island server or
 > cloud AI.
 
-The user's **Choose Google account** click is the affirmative action following
-that disclosure. The disconnected demo does not invoke OAuth or Gmail.
+The user's **Connect Google in Chrome** click is the affirmative action
+following that disclosure. The disconnected demo does not invoke OAuth or
+Gmail.

@@ -1,73 +1,85 @@
-# JPop private Gmail pilot — 0.4.9 handoff
+# Chrome live pilot — 0.5.0
 
-## Release state
+This runbook is for the exact public-release candidate in Google Chrome. Arc
+and Dia are not supported for `0.5.0`. Never reuse the public `0.4.9` ZIP: it is
+a historical deferred-review artifact with a different OAuth architecture.
 
-`0.4.9` is not delivered yet. Versions `0.3.0` through `0.4.8` are withdrawn;
-remove them and do not reinstall. Fill in the exact archive name, SHA-256, file
-count, and native-proof hashes here only after the final package passes.
+## Preconditions
 
-## Install
+- The candidate source commit, Store ZIP SHA-256, and package receipt agree.
+- The installed extension ID is `jeemdbgakejlmmmbngpihndfkjiddbhl`.
+- The pilot Google account is authorized for the `inbox-island` project while
+  the app remains in Testing, or the app is already In Production.
+- The pilot occurs in a disposable Chrome profile with no unrelated tabs or
+  extensions and with screen recording disabled unless recording the approved
+  Google verification video.
+- Do not use JPop's personal Google account on ClawPop. A Sean-owned Google
+  account may be used there after JPop adds it as a test user.
 
-1. Unzip the delivered `0.4.9` archive.
-2. Open the extension manager:
-   - Arc: `arc://extensions`
-   - Dia: `dia://extensions`
-3. Enable Developer mode.
-4. Choose **Load unpacked** and select the inner folder containing
-   `manifest.json` directly.
-5. Confirm:
-   - name `Inbox Island`;
-   - version `0.4.9`;
-   - ID `jeemdbgakejlmmmbngpihndfkjiddbhl`;
-   - no extension-card errors.
-6. Pin or expose the Inbox Island toolbar action.
+## Install the exact candidate
 
-## Launcher and demo acceptance
+1. Extract the final Store ZIP into an empty temporary directory.
+2. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**,
+   and select the extracted directory containing `manifest.json`.
+3. Confirm name `Inbox Island`, version `0.5.0`, extension ID
+   `jeemdbgakejlmmmbngpihndfkjiddbhl`, and no extension-card errors.
+4. Open the action popup, then choose **Open full triage**.
 
-Click the action once. It must show a browser-owned popup with category counts
-and one **Open full triage** action. There is no compact-window or side-panel
-control.
+## Disconnected acceptance
 
-1. Choose **Open full triage**.
-2. Choose **Try demo**.
-3. Confirm the page says **Synthetic demo** and **Gmail not connected**.
-4. Synthetic cards must say **Synthetic example · no Gmail connection** rather
-   than offering an Open in Gmail link.
-5. Choose **Clear local data** and confirm the demo clears.
+1. Choose **Try demo**.
+2. Confirm the page says **Synthetic demo** and **Gmail not connected**.
+3. Confirm every card is synthetic and no Gmail link is offered.
+4. Clear local data and confirm the demo disappears.
 
-If the popup is blank or no page opens, stop and send only a screenshot of the
-extension card/version/errors. Do not send browsing, account, or mailbox
-content.
+No Google, Gmail, Inbox Island server, telemetry, or other network request is
+allowed during the disconnected path.
 
-## Account selection and sync
+## Authorization and bounded sync
 
-1. Read the disclosure beside **Choose Google account**.
-2. Click **Choose Google account**. Google's own window must show an account
-   chooser; Inbox Island must not infer or require the browser-profile account.
-3. Choose the intended pilot test-user account and approve only read-only Gmail
-   access.
-4. Inbox Island reads only `users/me/profile`, displays the selected Gmail
-   address, and waits.
-5. Confirm the address, then click **Sync selected account**.
-6. Verify cards appear and ordinary Gmail still contains every message.
-7. Open one real result in Gmail and confirm it targets the exact thread.
+1. Read the disclosure beside **Connect Google in Chrome**.
+2. Click the button once. Google's own chooser or consent page must open.
+3. Select only the authorized pilot account and approve only read-only Gmail
+   access. Stop if any broader permission appears.
+4. Confirm Inbox Island displays the returned Gmail address and has not yet
+   listed messages.
+5. Choose **Sync selected account**.
+6. Confirm the bounded run completes, categories render, and Gmail still
+   contains every message unchanged.
+7. Open one result in Gmail and confirm it targets the intended thread without
+   mutating it.
 
-Expected network boundary: Google Accounts during selection, then
+Expected network boundary: Google Accounts during authorization, then
 `gmail.googleapis.com` during the confirmed foreground sync. No Inbox Island
-server, cloud model, telemetry, or other origin is expected.
+server, cloud model, analytics, telemetry, or other origin is expected.
 
-## Disconnect and account switching
+## Cleanup and account switching
 
-- **Disconnect Gmail** forgets the in-memory lease and clears derived local
-  triage. It does not claim to revoke Google Account permission.
-- **Choose another account** must reopen Google's chooser; switching Arc/Dia
-  profiles is not required.
-- Cancellation, expiry, mismatch, or stale selection must stop before message
-  discovery and require a fresh chooser.
+1. Choose **Disconnect Gmail** and confirm derived triage clears.
+2. Choose **Clear local data** and confirm no account-scoped derived state
+   remains.
+3. Reconnect once and confirm Google's chooser appears again. The extension
+   must not silently reuse a stale token or selected address.
+4. Disconnect again. Inbox Island clears Chrome's cached access token; the
+   Google-side grant can be revoked separately in Google Account settings.
 
-## Report failures safely
+## Evidence to record
 
-Send the visible error code, browser/version, extension version/ID, and the
-extension card's Errors section. Never send credentials, consent tokens,
-account lists, raw email, or mailbox screenshots unless deliberately redacted
-and explicitly needed.
+- Chrome version; source commit; Store ZIP filename, size, and SHA-256.
+- Extension version and ID.
+- Consent screen shows only read-only Gmail access.
+- Returned-address confirmation occurs before the first message-list request.
+- Bounded sync, one exact Gmail thread link, Disconnect, and clear-local-data
+  all pass.
+- No Gmail mutation request, third-party origin, extension error, page error,
+  or console error occurs.
+
+Record only sanitized pass/fail facts and hashes. Never save or send passwords,
+cookies, tokens, account lists, raw email, or mailbox screenshots.
+
+## Failure handling
+
+Stop on any broader scope, wrong extension ID, unexpected origin, Gmail
+mutation, account mismatch, stale-token reuse, unhandled extension error, or
+package/hash mismatch. Capture only the visible error code, Chrome/version,
+extension version/ID, and sanitized network origin/counts.

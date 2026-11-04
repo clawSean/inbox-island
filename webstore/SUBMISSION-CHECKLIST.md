@@ -1,90 +1,74 @@
-# Chrome Web Store submission checklist
+# Chrome Web Store and Google submission checklist
 
-Submit the existing draft with **deferred publishing** after the exact package
-gate. Chrome review, Arc/Dia pilot work, and Google restricted-scope
-verification continue on separate timelines; none authorizes manual public
-publication by itself.
+The first public release is Google Chrome-only. Chrome Web Store review and
+Google restricted-scope verification are separate processes; both must finish
+before manual public publication.
 
 ## Automated/source gates
 
-- [x] Canonical Web Store item ID and manifest key are pinned.
-- [x] Manifest V3 package uses only `identity` plus the Gmail API host.
-- [x] No side-panel, content-script, remote-code, telemetry, or broad-host
-      permission remains.
-- [x] Disconnected synthetic demo exists in the packaged extension.
-- [x] Required 128px icon and two 1280×800 synthetic screenshots exist with
-      hashes and zero external requests.
-- [x] Listing, privacy-form, policy, and reviewer-instruction copy are drafted.
-- [x] Public Git provenance, build instructions, release status, candidate
-      artifact hashes, SBOM, support Issues, and private vulnerability reporting
-      are live at `https://github.com/clawSean/inbox-island`.
-- [x] Final privacy/support URLs are public, byte-matched to committed website
-      source, and browser-proved at phone and desktop widths.
-- [x] Exact 0.4.9 source/unit/browser/build/validator/UI gate passes with
-      `162/162` tests after the release repairs.
-- [x] Blind release-risk and exact-head technical reviews completed; their
-      OAuth-contract, optional callback-scope, and clean-checkout validation
-      findings were repaired and regression-tested.
-- [x] Superseded October 22 upload ZIP was root-manifest, extracted,
-      byte-diffed, revalidated, hashed, scanned, and tied to source commit
-      `c83aca30dfa1129c5e6788643191ea448683d8c7`.
-- [x] Replacement candidate rebuilt and validated from October 29 source
-      `39c6b69a078828d3eb0d9f56a783d4d3cb419d01`; the 39-file ZIP hash is
-      `876f3df6a6644870fc0afac3135c7206394b53c2fa55cf24aefe160e045c9138`.
-- [x] Final 39-file upload ZIP was regenerated from clean source
-      `29a2301748913d7185e0d03775a54a77f3cc2dcf`, extracted, byte-compared,
-      revalidated, scanned, and recorded at SHA-256
-      `b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`.
+- [x] Canonical Store item ID and manifest key are pinned.
+- [x] Manifest V3 package uses only `identity`, the Gmail API host, the Chrome
+      Extension OAuth client, and `gmail.readonly`.
+- [x] No side panel, content script, remote code, telemetry, broad host,
+      refresh token, client secret, or Gmail mutation permission exists.
+- [x] Disconnected synthetic demo and synthetic Store assets exist.
+- [x] Public source, support, privacy, SBOM, and reproducible package tooling
+      exist.
+- [x] Public auth architecture is frozen on `getAuthToken()` for Google Chrome.
+- [x] Fresh Arc and Dia probes record Google provider errors, so neither browser
+      is advertised as supported.
+- [x] Complete `0.5.0` verification gate passes after the public-auth change:
+      `163/163` tests plus quality, synthetic, browser, build, validator, and UI
+      proofs.
+- [ ] Final Store ZIP is built from clean committed source, extracted,
+      byte-compared, revalidated, scanned, hashed, and recorded.
+- [ ] Final independent release review has no unresolved P0–P2 finding.
 
 ## Product/quality gates
 
-- [x] Mailreef's read-only grant was renewed on JPop's own device and passed
-      bounded list/body canaries.
-- [x] A bounded screened-summary sample informed source regressions; it is not
-      an exact live-extension real-mail accuracy score.
-- [ ] Exact native Arc and Dia live-account proof passes before those browser
-      targets are advertised as release-proved. Current Arc automation exposes
-      the Google chooser only as a hidden browser-owned target.
-- [ ] JPop performs the visible 0.4.9 Arc/Dia pilot and confirms the popup,
-      full page, demo, direct Gmail links, account selection, and fresh sync.
-- [ ] Decide whether to retain **Inbox Island** publicly. An active paid
-      privacy-email training product uses the exact name; no current Chrome Web
-      Store listing or verified exact USPTO result was found, but that is not a
-      clearance opinion.
+- [x] Screened Mailreef summaries informed conservative classifier regressions;
+      they are not presented as exact live-extension accuracy.
+- [x] Exact `0.5.0` disposable Chrome proof reaches Google's real chooser from
+      a trusted click with zero Gmail requests.
+- [ ] An authorized live-account Chrome pilot proves disclosure, consent,
+      returned-address confirmation, bounded sync, Gmail link, token cleanup,
+      Disconnect, and local-data clear on the exact package.
+- [ ] Final public brand is approved. The current Inbox Island name overlaps an
+      active paid email-privacy training product; no legal clearance is claimed.
 
 ## Google OAuth gates
 
-- [ ] Freeze the public auth architecture. Current `launchWebAuthFlow` with a
-      Web client works for the private Arc/Dia pilot but is Google's discouraged
-      legacy implicit flow; Google's documented extension path is a Chrome
-      Extension client with `getAuthToken()`.
-- [ ] Create/use the production Google Cloud project, verify domains, finalize
-      branding/support contacts, and switch the audience to In Production.
-- [ ] Submit brand + restricted `gmail.readonly` verification with scope
-      justification, privacy policy, architecture/data-flow explanation, and a
-      complete consent/use demonstration video.
-- [ ] Obtain Google's assessment determination. A client-only path with no
-      restricted data transmitted through developer servers should be described
-      exactly; Google decides whether any CASA/security assessment applies.
+- [x] Verification packet, scope justification, no-server data-flow statement,
+      assessment posture, and video script are complete in
+      `resources/GOOGLE-OAUTH-VERIFICATION.md`.
+- [ ] Remove the unused Web application OAuth client from the dedicated
+      `inbox-island` project.
+- [ ] Finalize branding/support contacts and verify `jpop.cloud`.
+- [ ] Confirm Data Access contains only `gmail.readonly` and switch Audience to
+      In Production.
+- [ ] Record the complete consent/use video with the exact candidate.
+- [ ] Submit Branding and restricted-scope verification.
+- [ ] Obtain Google's security-assessment determination and resolve every
+      review follow-up.
 
-Google's current published estimate for restricted-scope verification is about
-six weeks and is not guaranteed.
+## Authenticated Chrome Web Store steps
 
-## Authenticated JPop dashboard steps
-
-- [ ] Confirm Chrome Web Store developer account 2-Step Verification and
-      publisher contact details.
-- [ ] Upload the exact proven ZIP to the existing item.
-- [ ] Paste `LISTING.md`, upload `assets/`, choose Productivity/English, and set
-      the verified official/homepage/support URLs.
-- [ ] Paste `PRIVACY-PRACTICES.md`, link the live privacy policy, and complete
-      all Limited Use certifications truthfully.
+- [ ] Confirm developer-account 2-Step Verification and publisher contacts.
+- [ ] Upload the final exact ZIP to existing item
+      `jeemdbgakejlmmmbngpihndfkjiddbhl`.
+- [ ] Paste `LISTING.md`, upload `assets/`, select Productivity/English, and set
+      the verified homepage/support URLs.
+- [ ] Paste `PRIVACY-PRACTICES.md`, link the privacy policy, and complete all
+      User Data/Limited Use certifications truthfully.
 - [ ] Paste `TEST-INSTRUCTIONS.md`; provide no shared Google credentials.
 - [ ] Choose distribution and **deferred publishing**, then submit for review.
-- [ ] After approval, validate the approved package and public OAuth state
-      before manually publishing.
-- [ ] Opt into Verified CRX Uploads only after generating and securely backing
-      up its separate signing key; losing that key blocks future updates.
+- [ ] After both approvals, verify the approved package and repeat the live
+      Chrome pilot before manual publication.
+- [ ] Opt into Verified CRX Uploads only after its separate signing key is
+      generated, securely backed up, and recovery-owned.
 
-Authenticated Google/Store actions must occur in JPop's own browser, not on
-ClawPop.
+Authenticated Google and Store actions must occur in JPop's own browser, not in
+a personal Google session on ClawPop.
+
+Do not manually publish until Google verification, Store approval, exact-byte
+revalidation, and the final live-account Chrome pilot all pass.

@@ -1,45 +1,44 @@
-# JPop Google setup — current handoff
+# JPop Google setup — public verification handoff
 
 Use a JPop-controlled browser on JPop's device. Do not sign in, enter
-credentials, approve consent, or expose cookies in any browser on ClawPop.
+credentials, approve consent, or expose cookies in any personal Google browser
+on ClawPop.
 
-## Existing testing project
+## Frozen public architecture
 
-GCP project `inbox-island` already has:
+The dedicated GCP project `inbox-island` already has:
 
 - Gmail API enabled;
 - Google Auth Platform External / Testing;
-- JPop as the sole test user;
 - only `https://www.googleapis.com/auth/gmail.readonly` configured;
 - canonical extension ID `jeemdbgakejlmmmbngpihndfkjiddbhl`;
-- active Web application client `Inbox Island Browser OAuth` with exact
-  redirect
-  `https://jeemdbgakejlmmmbngpihndfkjiddbhl.chromiumapp.org/oauth2`.
+- Chrome Extension OAuth client
+  `270655843779-4gktio587oago4rsgh3609te7h4eoe6r.apps.googleusercontent.com`.
 
-The public client ID is pinned in source and independently hashed. Its issued
-client secret is unused and must never be sent, saved in this repository, or
-bundled in the extension.
+The `0.5.0` public candidate uses that Chrome Extension client through
+`chrome.identity.getAuthToken()`. It does not use a client secret, Web callback,
+authorization code, refresh token, or Inbox Island backend. Arc and Dia are not
+supported by the first public release.
 
-## Private-pilot action
+## Authenticated actions
 
-No GCP configuration change is required for JPop's next `0.4.9` pilot. Install
-the exact delivered build, choose the existing test-user account in Google's
-own window, approve only read-only Gmail access, confirm the selected address,
-then start the bounded sync.
+1. Open the `inbox-island` project and confirm Gmail API is enabled.
+2. Delete the unused Web application client named **Inbox Island Browser
+   OAuth**. Keep the exact Chrome Extension client above.
+3. In Branding, use the final approved public name, support email, logo,
+   homepage, privacy policy, and authorized domain `jpop.cloud`.
+4. In Data Access, retain only `gmail.readonly` and use the justification in
+   `GOOGLE-OAUTH-VERIFICATION.md`.
+5. Confirm developer contact email and verify the homepage domain in the same
+   Google account.
+6. Change Audience from Testing to In Production.
+7. Record the complete consent-and-use video described in the verification
+   packet.
+8. Submit Branding and restricted-scope Data Access through Verification
+   Center, including the data-flow and security-assessment statements.
 
-## Public-release work
+Return only non-secret public identifiers, receipt/status, or Google's review
+questions. Never send a client secret, password, 2FA code, token, cookie,
+callback URL, consent screenshot containing account data, or mailbox content.
 
-Do not switch the testing project to production by improvisation. First freeze
-the supported public auth architecture. Then, on JPop's device:
-
-1. create/use a separate production deployment project if required by Google's
-   current deployment-tier policy;
-2. verify the product domains and publisher/support contacts;
-3. configure only the approved production client and `gmail.readonly` scope;
-4. submit branding plus restricted-scope verification with the public privacy
-   policy, scope justification, data-flow explanation, and consent/use video;
-5. follow Google's assessment determination for the exact no-server design.
-
-Return only non-secret public identifiers or review status. Never send a client
-secret, password, 2FA code, token, cookie, consent screenshot containing account
-data, or mailbox content.
+Canonical submission copy: `resources/GOOGLE-OAUTH-VERIFICATION.md`.

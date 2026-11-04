@@ -36,8 +36,8 @@ function showCounts(counts) {
 async function refresh() {
   try {
     if (gmailPilot) {
-      document.querySelector(".summary-kicker").textContent = "Private Gmail pilot";
-      document.querySelector("#boundary-title").textContent = "Read-only Gmail pilot";
+      document.querySelector(".summary-kicker").textContent = "Local Gmail triage";
+      document.querySelector("#boundary-title").textContent = "Read-only Gmail access";
       document.querySelector("#boundary-copy").textContent =
         "Mail goes directly from Google to this browser. No telemetry or app server.";
       document.querySelector("#clear-saved").textContent = "Clear local data";
@@ -103,7 +103,7 @@ document.querySelector("#disconnect-gmail").addEventListener("click", async () =
     await pilot.disconnect();
     await clearAllSnapshots();
     announceGmailDisconnect();
-    status.textContent = "Disconnected; Google permission may remain";
+    status.textContent = "Disconnected; Chrome authorization cleared";
     await refresh();
   } catch {
     status.textContent = "Disconnect failed safely";

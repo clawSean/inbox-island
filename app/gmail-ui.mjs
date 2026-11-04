@@ -10,17 +10,18 @@ const GMAIL_SYNC_TIMEOUT_MS = 120_000;
 
 function gmailErrorMessage(code) {
   const messages = {
-    GMAIL_ACCOUNT_CONFIRMATION_REQUIRED: "Choose a Google account before syncing Gmail.",
+    GMAIL_ACCOUNT_CONFIRMATION_REQUIRED: "Connect and confirm the Google account available to Chrome before syncing Gmail.",
     GMAIL_ACCOUNT_MISMATCH: "Gmail returned a different account than the one you selected. No messages were fetched or saved. Choose the account again.",
-    GMAIL_AUTH_ACCESS_DENIED: "Google did not grant read-only access. Check that this address is on the pilot test-user list, then retry.",
-    GMAIL_AUTH_CANCELED: "The Google account chooser was canceled safely. No Gmail messages were read.",
-    GMAIL_AUTH_CLIENT_REJECTED: "Google rejected this pilot's OAuth client. Report this build to the developer; retrying will not fix its configuration.",
-    GMAIL_AUTH_FAILED: "This browser could not finish Google sign-in. Check the account on Google's consent screen and that it is a pilot test user, then retry.",
+    GMAIL_AUTH_ACCESS_DENIED: "Google did not grant read-only Gmail access. No messages were read; retry from Google Chrome when you are ready.",
+    GMAIL_AUTH_CACHE_CLEAR_FAILED: "Chrome could not clear the short-lived Gmail token. Close the extension, remove its Google Account access, and reconnect before syncing again.",
+    GMAIL_AUTH_CANCELED: "Google sign-in was canceled safely. No Gmail messages were read.",
+    GMAIL_AUTH_CLIENT_REJECTED: "Google rejected this extension's OAuth client. Report this build to the developer; retrying will not fix its configuration.",
+    GMAIL_AUTH_FAILED: "Google Chrome could not finish sign-in. Confirm that Chrome has a Google web account and retry.",
     GMAIL_AUTH_REQUIRED: "This Google selection expired or was cleared. Choose the account again before syncing.",
-    GMAIL_AUTH_CONFIGURATION_INVALID: "This pilot build's Google sign-in setup is invalid. Report the build to the developer.",
+    GMAIL_AUTH_CONFIGURATION_INVALID: "This build's Google sign-in setup is invalid. Report the build to the developer.",
     GMAIL_AUTH_RESPONSE_INVALID: "Google did not confirm exactly the requested read-only Gmail scope. No messages were fetched; report this sign-in failure to the developer.",
     GMAIL_AUTH_STATE_MISMATCH: "Google sign-in returned to the wrong browser request. Nothing was saved; close the chooser and retry.",
-    GMAIL_ACCESS_DENIED: "Gmail refused this account's read-only request. Check pilot test-user access and try again.",
+    GMAIL_ACCESS_DENIED: "Gmail refused this account's read-only request. Check Google Account access and try again.",
     GMAIL_NETWORK_FAILED: "Gmail could not be reached. Check your connection and try again.",
   };
   const safeCode = typeof code === "string" && /^[A-Z0-9_]{1,80}$/u.test(code)
@@ -59,7 +60,7 @@ export function createGmailUi({
     const button = root.querySelector("#run-button");
     button.disabled = true;
     setError();
-    setLive("Opening Google's account chooser.");
+    setLive("Opening Chrome's Google authorization.");
     try {
       const account = await gmailPilot.chooseGoogleAccount({ signal: controller.signal });
       if (epoch !== preparationEpoch) return;
@@ -68,18 +69,18 @@ export function createGmailUi({
       input.value = account.email;
       input.readOnly = true;
       root.querySelector("#gmail-account-check").hidden = false;
-      root.querySelector("#hero-title").textContent = "Confirm this Google account.";
+      root.querySelector("#hero-title").textContent = "Confirm Chrome's Google account.";
       root.querySelector("#hero-copy").textContent =
         `${account.email} granted Gmail read-only access. No messages have been listed yet.`;
       root.querySelector("#gmail-account-guidance").textContent =
-        "Choose Sync selected account to read the bounded recent slice, or choose another account.";
+        "Choose Sync selected account to read the bounded recent slice, or reconnect through Chrome.";
       setLive(`Confirm ${account.email} before reading recent messages.`);
       input.focus();
     } catch (error) {
       if (epoch !== preparationEpoch) return;
       clearAccountCheck();
       setError(gmailErrorMessage(error?.message));
-      setLive("Google account selection stopped safely.");
+      setLive("Google authorization stopped safely.");
     } finally {
       if (epoch === preparationEpoch) {
         preparationController = null;
@@ -189,7 +190,7 @@ export function createGmailUi({
     showCleared(message);
     root.querySelector("#hero-title").textContent = "Gmail disconnected.";
     root.querySelector("#hero-copy").textContent =
-      "Inbox Island forgot its in-memory access. Google Account permission may remain until you revoke it in Google settings.";
+      "Inbox Island cleared its in-memory access and Chrome token cache. Google Account permission may remain until you revoke it in Google settings.";
     setRunning(false);
   }
 
@@ -222,8 +223,14 @@ export function createGmailUi({
     }
   }
 
-  root.querySelector("#gmail-rechoose-button").addEventListener("click", () => {
+  root.querySelector("#gmail-rechoose-button").addEventListener("click", async () => {
     cancelPreparation();
+    try {
+      await gmailPilot.disconnect();
+    } catch (error) {
+      setError(gmailErrorMessage(error?.message));
+      return;
+    }
     void prepareAccount();
   });
 

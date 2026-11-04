@@ -1,88 +1,47 @@
 export const GMAIL_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
-export const PILOT_OAUTH_CLIENT_ID = "270655843779-er0c77n90u9up4oru4mm3ditkfmkphd0.apps.googleusercontent.com";
 export const TOKEN_LEASE_MILLISECONDS = 45 * 60 * 1_000;
 
 const ACCESS_TOKEN = /^[\u0021-\u007e]{1,4096}$/u;
-const CLIENT_ID = /^\d{6,32}-[a-z0-9]{16,128}\.apps\.googleusercontent\.com$/u;
-const EXTENSION_ID = /^[a-p]{32}$/u;
 const fail = (code) => { throw new Error(code); };
 const validToken = (value) => typeof value === "string" && ACCESS_TOKEN.test(value);
 
-function randomState(cryptoApi) {
-  const bytes = new Uint8Array(32);
-  cryptoApi.getRandomValues(bytes);
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 function classifyIdentityFailure(error) {
   const message = typeof error?.message === "string" ? error.message.toLowerCase() : "";
-  if (/cancel|closed|denied|did not approve|user.*interact/u.test(message)) return "GMAIL_AUTH_ACCESS_DENIED";
+  if (/cancel|closed|denied|did not approve|user.*interact/u.test(message)) {
+    return "GMAIL_AUTH_ACCESS_DENIED";
+  }
   return "GMAIL_AUTH_FAILED";
 }
 
-function authUrl({ clientId, redirectUri, state }) {
-  const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  url.search = new URLSearchParams({
-    access_type: "online",
-    client_id: clientId,
-    include_granted_scopes: "false",
-    prompt: "select_account",
-    redirect_uri: redirectUri,
-    response_type: "token",
-    scope: GMAIL_READONLY_SCOPE,
-    state,
-  }).toString();
-  return url.href;
-}
-
-function parseRedirect(value, { redirectUri, state }) {
-  let result;
-  try { result = new URL(value); } catch { fail("GMAIL_AUTH_RESPONSE_INVALID"); }
-  const expected = new URL(redirectUri);
-  if (result.origin !== expected.origin || result.pathname !== expected.pathname
-    || result.search !== "" || result.username !== "" || result.password !== "") {
+function tokenFromResult(result) {
+  if (!result || typeof result !== "object" || !validToken(result.token)
+    || !Array.isArray(result.grantedScopes)
+    || result.grantedScopes.length !== 1
+    || result.grantedScopes[0] !== GMAIL_READONLY_SCOPE) {
     fail("GMAIL_AUTH_RESPONSE_INVALID");
   }
-  const values = new URLSearchParams(result.hash.slice(1));
-  for (const name of ["access_token", "error", "expires_in", "scope", "state", "token_type"]) {
-    if (values.getAll(name).length > 1) fail("GMAIL_AUTH_RESPONSE_INVALID");
-  }
-  if (values.has("error")) fail("GMAIL_AUTH_ACCESS_DENIED");
-  const expiresIn = Number(values.get("expires_in"));
-  const returnedScope = values.get("scope");
-  const scopes = returnedScope === null
-    ? [GMAIL_READONLY_SCOPE]
-    : returnedScope.split(/\s+/u).filter(Boolean);
-  if (values.get("state") !== state || values.get("token_type")?.toLowerCase() !== "bearer"
-    || !validToken(values.get("access_token")) || !Number.isFinite(expiresIn) || expiresIn <= 0
-    || scopes.length !== 1 || scopes[0] !== GMAIL_READONLY_SCOPE) {
-    fail("GMAIL_AUTH_RESPONSE_INVALID");
-  }
-  return { expiresIn, token: values.get("access_token") };
+  return result.token;
 }
 
-export function createGmailAuth({ clientId, clock = Date.now, cryptoApi, identityApi, runtimeApi }) {
-  if (!CLIENT_ID.test(clientId || "") || !cryptoApi || typeof cryptoApi.getRandomValues !== "function"
-    || !identityApi || typeof identityApi.launchWebAuthFlow !== "function"
-    || typeof identityApi.getRedirectURL !== "function"
-    || !runtimeApi || !EXTENSION_ID.test(runtimeApi.id || "")) {
+export function createGmailAuth({ clock = Date.now, identityApi }) {
+  if (typeof clock !== "function" || !identityApi
+    || typeof identityApi.getAuthToken !== "function"
+    || typeof identityApi.removeCachedAuthToken !== "function"
+    || typeof identityApi.clearAllCachedAuthTokens !== "function") {
     throw new TypeError("GMAIL_AUTH_API_INVALID");
   }
-  if (typeof clock !== "function") throw new TypeError("GMAIL_AUTH_API_INVALID");
 
-  const redirectUri = identityApi.getRedirectURL("oauth2");
-  if (redirectUri !== `https://${runtimeApi.id}.chromiumapp.org/oauth2`) {
-    throw new TypeError("GMAIL_AUTH_API_INVALID");
-  }
   let memoryCredential = null;
   let expirationTimer = null;
   let authEpoch = 0;
   let nextLeaseId = 0;
+  let cacheCleanupFailed = false;
 
   function cancelExpirationTimer() {
     if (expirationTimer !== null) globalThis.clearTimeout(expirationTimer);
     expirationTimer = null;
   }
+
   function discardCredential(expected, { bumpEpoch = true } = {}) {
     if (memoryCredential !== expected) return false;
     cancelExpirationTimer();
@@ -90,89 +49,144 @@ export function createGmailAuth({ clientId, clock = Date.now, cryptoApi, identit
     if (bumpEpoch) authEpoch += 1;
     return true;
   }
+
+  async function clearBrowserToken(token) {
+    try {
+      await identityApi.removeCachedAuthToken({ token });
+    } catch {
+      cacheCleanupFailed = true;
+      fail("GMAIL_AUTH_CACHE_CLEAR_FAILED");
+    }
+  }
+
   function scheduleExpiration(credential) {
     cancelExpirationTimer();
-    expirationTimer = globalThis.setTimeout(() => discardCredential(credential),
-      Math.max(0, credential.expiresAt - clock()));
+    expirationTimer = globalThis.setTimeout(() => {
+      if (!discardCredential(credential)) return;
+      void clearBrowserToken(credential.token).catch(() => {});
+    }, Math.max(0, credential.expiresAt - clock()));
     expirationTimer?.unref?.();
   }
 
   async function connectFromUserGesture() {
+    if (cacheCleanupFailed) fail("GMAIL_AUTH_CACHE_CLEAR_FAILED");
     const epoch = ++authEpoch;
-    const state = randomState(cryptoApi);
     let completing;
     try {
-      completing = identityApi.launchWebAuthFlow({
+      completing = identityApi.getAuthToken({
+        enableGranularPermissions: true,
         interactive: true,
-        url: authUrl({ clientId, redirectUri, state }),
+        scopes: [GMAIL_READONLY_SCOPE],
       });
-    } catch (error) { fail(classifyIdentityFailure(error)); }
-    let redirect;
-    try { redirect = await completing; }
-    catch (error) { fail(classifyIdentityFailure(error)); }
-    const parsed = parseRedirect(redirect, { redirectUri, state });
-    if (epoch !== authEpoch) fail("GMAIL_AUTH_CANCELED");
+    } catch (error) {
+      fail(classifyIdentityFailure(error));
+    }
+    let result;
+    try {
+      result = await completing;
+    } catch (error) {
+      fail(classifyIdentityFailure(error));
+    }
+    const token = tokenFromResult(result);
+    if (epoch !== authEpoch) {
+      if (memoryCredential?.token !== token) await clearBrowserToken(token);
+      fail("GMAIL_AUTH_CANCELED");
+    }
     const issuedAt = clock();
     if (!Number.isFinite(issuedAt)) fail("GMAIL_AUTH_CONFIGURATION_INVALID");
     const credential = Object.freeze({
-      expiresAt: issuedAt + Math.min(TOKEN_LEASE_MILLISECONDS, parsed.expiresIn * 1_000),
+      expiresAt: issuedAt + TOKEN_LEASE_MILLISECONDS,
       leaseId: ++nextLeaseId,
-      token: parsed.token,
+      token,
     });
-    if (memoryCredential !== null) discardCredential(memoryCredential, { bumpEpoch: false });
+    if (memoryCredential !== null) await removeAccessToken(memoryCredential);
     memoryCredential = credential;
     scheduleExpiration(credential);
     return credential;
   }
 
   async function getCachedAccessToken() {
+    if (cacheCleanupFailed) fail("GMAIL_AUTH_CACHE_CLEAR_FAILED");
     if (memoryCredential === null) fail("GMAIL_AUTH_NOT_CONNECTED");
     if (clock() >= memoryCredential.expiresAt) {
       const expired = memoryCredential;
       discardCredential(expired);
+      await clearBrowserToken(expired.token);
       fail("GMAIL_AUTH_EXPIRED");
     }
     return memoryCredential;
   }
+
   async function removeAccessToken(credential, { clearMatchingMemory = true } = {}) {
     if (!credential || typeof credential !== "object" || !validToken(credential.token)
       || !Number.isSafeInteger(credential.leaseId) || !Number.isFinite(credential.expiresAt)) {
       fail("GMAIL_AUTH_RESPONSE_INVALID");
     }
     const matched = memoryCredential === credential;
+    if (!matched && memoryCredential?.token === credential.token) return false;
     if (clearMatchingMemory && matched) discardCredential(credential);
+    await clearBrowserToken(credential.token);
     return matched;
   }
+
   async function removeKnownToken() {
     if (memoryCredential === null) return false;
     return removeAccessToken(memoryCredential);
   }
+
   function invalidatePendingAuth() { authEpoch += 1; }
+
   function forgetMemoryToken() {
-    const forgotten = memoryCredential !== null;
-    if (memoryCredential !== null) discardCredential(memoryCredential, { bumpEpoch: false });
+    if (memoryCredential === null) {
+      authEpoch += 1;
+      return false;
+    }
+    const forgotten = memoryCredential;
+    discardCredential(forgotten, { bumpEpoch: false });
     authEpoch += 1;
-    return forgotten;
+    void clearBrowserToken(forgotten.token).catch(() => {});
+    return true;
   }
+
   function hasMemoryToken() {
-    if (memoryCredential === null) return false;
+    if (cacheCleanupFailed || memoryCredential === null) return false;
     const now = clock();
     if (!Number.isFinite(now) || now >= memoryCredential.expiresAt) {
-      const expired = memoryCredential;
-      discardCredential(expired);
+      forgetMemoryToken();
       return false;
     }
     return true;
   }
-  function ownsCredential(credential) { return memoryCredential === credential && hasMemoryToken(); }
-  function credentialForLease(leaseId) {
-    return Number.isSafeInteger(leaseId) && hasMemoryToken() && memoryCredential.leaseId === leaseId
-      ? memoryCredential : null;
+
+  function ownsCredential(credential) {
+    return memoryCredential === credential && hasMemoryToken();
   }
+
+  function credentialForLease(leaseId) {
+    return Number.isSafeInteger(leaseId) && hasMemoryToken()
+      && memoryCredential.leaseId === leaseId ? memoryCredential : null;
+  }
+
   async function disconnect() {
-    const forgottenFromMemory = await removeKnownToken();
-    invalidatePendingAuth();
-    return Object.freeze({ connectedInMemory: false, forgottenFromMemory, googleGrantRevoked: false });
+    const forgotten = memoryCredential;
+    if (forgotten === null) invalidatePendingAuth();
+    else {
+      discardCredential(forgotten);
+      try { await clearBrowserToken(forgotten.token); } catch {}
+    }
+    try {
+      await identityApi.clearAllCachedAuthTokens();
+      cacheCleanupFailed = false;
+    } catch {
+      cacheCleanupFailed = true;
+      fail("GMAIL_AUTH_CACHE_CLEAR_FAILED");
+    }
+    return Object.freeze({
+      browserAuthorizationCleared: true,
+      connectedInMemory: false,
+      forgottenFromMemory: forgotten !== null,
+      googleGrantRevoked: false,
+    });
   }
 
   return Object.freeze({

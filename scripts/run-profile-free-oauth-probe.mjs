@@ -11,6 +11,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const extensionId = "jeemdbgakejlmmmbngpihndfkjiddbhl";
 const probeSource = path.join(root, "experiments", "profile-free-oauth-probe");
 const configs = {
+  chrome: {
+    allowExisting: true,
+    name: "Google Chrome",
+    executable: path.join(os.homedir(), "Applications", "Google Chrome.app", "Contents", "MacOS", "Google Chrome"),
+  },
   arc: { name: "Arc", executable: "/Applications/Arc.app/Contents/MacOS/Arc" },
   dia: { name: "Dia", executable: "/Applications/Dia.app/Contents/MacOS/Dia" },
 };
@@ -37,7 +42,13 @@ async function waitFor(fn, timeout = 30_000) {
 }
 
 function assertNotRunning(name) {
-  const result = spawnSync("/usr/bin/pgrep", ["-x", name], { encoding: "utf8" });
+  const uid = process.getuid();
+  if (!Number.isSafeInteger(uid) || uid < 0) {
+    throw new Error("Could not determine the probe user's numeric uid");
+  }
+  const result = spawnSync("/usr/bin/pgrep", ["-U", String(uid), "-x", name], {
+    encoding: "utf8",
+  });
   if (result.status === 0) throw new Error(`${name} is already running; refusing to touch a personal session`);
   if (result.status !== 1) throw new Error(`Could not inspect ${name} process state`);
 }
@@ -55,8 +66,8 @@ async function run(browserId, {
   visualMarker = false,
 } = {}) {
   const config = configs[browserId];
-  if (!config) throw new Error("Use --browser arc or --browser dia");
-  assertNotRunning(config.name);
+  if (!config) throw new Error("Use --browser chrome, arc, or dia");
+  if (!config.allowExisting) assertNotRunning(config.name);
 
   const temp = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(os.tmpdir(), `inbox-island-${browserId}-oauth-probe-`)));
   const profile = path.join(temp, "profile");

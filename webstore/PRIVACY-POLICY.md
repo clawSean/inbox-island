@@ -1,6 +1,6 @@
 # Inbox Island Privacy Policy
 
-Effective: 2026-10-22
+Effective: 2026-11-03
 
 Inbox Island is designed so no Inbox Island-operated server receives a Gmail
 access token or mailbox content. This policy describes the data the extension
@@ -43,9 +43,13 @@ terms and privacy policies.
 
 ## Storage and retention
 
-OAuth access is held only in extension-page memory, for at most 45 minutes, and
-is not persisted or refreshed by Inbox Island. Raw message bodies, HTML,
-attachments, summaries, and OAuth material are not stored.
+Inbox Island holds the returned OAuth access token only in extension-page
+memory during a bounded run, for at most 45 minutes, and never writes it to
+extension storage or refreshes it. Chrome Identity may temporarily cache that
+token as part of browser authorization; Inbox Island requests token-cache
+removal after every run and clears Chrome's extension token cache on
+Disconnect. Raw message bodies, HTML, attachments, summaries, and OAuth
+material are not stored by Inbox Island.
 
 Inbox Island stores minimal account-scoped derived triage state locally in the
 browser, including account label, Gmail identifiers, timestamps, categories,
@@ -56,9 +60,10 @@ the user clears local data, or the extension/browser profile is removed.
 
 Users choose and confirm the Google account before Inbox Island lists messages.
 They may cancel a sync, disconnect Gmail, or clear all locally stored triage
-state in the extension. Disconnecting forgets the in-memory token and clears
-local derived state; it does not by itself revoke Google's grant. Google access
-can be revoked separately at https://myaccount.google.com/connections.
+state in the extension. Disconnecting forgets the in-memory token, clears
+Chrome's cached token for the extension, and clears local derived state; it
+does not by itself revoke Google's grant. Google access can be revoked
+separately at https://myaccount.google.com/connections.
 
 ## Security
 

@@ -89,7 +89,7 @@ function setRunning(running) {
   root.querySelector("#disconnect-button").disabled = running;
   const idle = gmailPilot
     ? (state.pendingAccount !== undefined ? "Sync selected account"
-      : "Choose Google account")
+      : "Connect Google in Chrome")
     : "Run demo";
   button.querySelector("span:last-child").textContent = running
     ? (gmailPilot ? "Cancel sync" : "Sorting…") : idle;
@@ -131,7 +131,7 @@ function showResults(mailbox, output, persisted, source) {
   const counts = deriveViewCounts(state.rows);
   root.querySelector("#hero-title").textContent = `${counts["needs-me"]} threads likely need you.`;
   if (source === "gmail") {
-    root.querySelector("#surface-badge").textContent = "Private Gmail pilot";
+    root.querySelector("#surface-badge").textContent = "Local Gmail triage";
     state.accountLabel = mailbox.profile.emailAddress;
     root.querySelector("#connection-label").textContent = mailbox.profile.emailAddress;
     root.querySelector("#hero-copy").textContent = persisted
@@ -233,7 +233,7 @@ bindInteractions({
 });
 paint();
 if (gmailPilot) {
-  root.querySelector("#surface-badge").textContent = "Private Gmail pilot";
+  root.querySelector("#surface-badge").textContent = "Local Gmail triage";
   root.querySelector("#connection-label").textContent = "Gmail not connected";
   root.querySelector("#privacy-title").textContent = "Local processing";
   root.querySelector("#privacy-copy").textContent =
@@ -243,7 +243,7 @@ if (gmailPilot) {
   root.querySelector("#disconnect-button").hidden = false;
   root.querySelector("#hero-title").textContent = "Connect your Gmail.";
   root.querySelector("#hero-copy").textContent =
-    "Choose any Google account in this browser, approve read-only access, then confirm before Inbox Island reads recent messages.";
+    "Connect the Google account available to Chrome, approve read-only access, then confirm it before Inbox Island reads recent messages.";
   root.querySelector("#gmail-disclosure").hidden = false;
   setRunning(false);
   gmailUi.restore();

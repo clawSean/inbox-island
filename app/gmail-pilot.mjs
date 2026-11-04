@@ -1,5 +1,5 @@
 import { createGmailApiClient, GMAIL_PILOT_LIMITS } from "./gmail-api.mjs";
-import { createGmailAuth, PILOT_OAUTH_CLIENT_ID } from "./gmail-auth.mjs";
+import { createGmailAuth } from "./gmail-auth.mjs";
 
 const DEFAULT_MESSAGE_LIMIT = 100;
 
@@ -40,8 +40,9 @@ async function connectWithSignal(auth, signal) {
 
 export function isGmailPilotRuntime(scope = globalThis) {
   return scope.location?.protocol === "chrome-extension:"
-    && typeof scope.chrome?.identity?.launchWebAuthFlow === "function"
-    && typeof scope.chrome?.identity?.getRedirectURL === "function"
+    && typeof scope.chrome?.identity?.getAuthToken === "function"
+    && typeof scope.chrome?.identity?.removeCachedAuthToken === "function"
+    && typeof scope.chrome?.identity?.clearAllCachedAuthTokens === "function"
     && typeof scope.chrome?.runtime?.id === "string";
 }
 
@@ -50,11 +51,8 @@ export function createGmailPilot(scope = globalThis, options = {}) {
     throw new Error("GMAIL_PILOT_RUNTIME_UNAVAILABLE");
   }
   const auth = createGmailAuth({
-    clientId: options.clientId ?? PILOT_OAUTH_CLIENT_ID,
     clock: options.clock,
-    cryptoApi: scope.crypto,
     identityApi: scope.chrome.identity,
-    runtimeApi: scope.chrome.runtime,
   });
   let pendingSelection = null;
 

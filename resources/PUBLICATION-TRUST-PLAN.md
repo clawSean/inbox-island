@@ -1,13 +1,13 @@
 # Publication Trust Plan
 
 Status: accepted product direction plus documented platform constraints.
-Updated: 2026-10-22.
+Updated: 2026-11-03.
 
 ## Goal
 
-Get JPop's Arc/Dia pilot working quickly, then publish as soon as the OAuth,
-privacy, package, and evidence paths are defensible. Preserve the core promise:
-no Inbox Island server receives a Gmail token or mailbox content.
+Ship the earliest defensible Chrome-first public release, complete Google's
+restricted-scope verification, and preserve the core promise: no Inbox Island
+server receives a Gmail token or mailbox content.
 
 ## Trust statement
 
@@ -31,7 +31,7 @@ The accurate public claims are:
   server, analytics service, or cloud model receives it.
 - Only account-scoped derived triage state is persisted locally; raw bodies,
   HTML, attachments, summaries, and OAuth material are not persisted.
-- Account selection, selected-address confirmation, sync, disconnect, local
+- Chrome authorization, returned-address confirmation, sync, disconnect, local
   deletion, and Google-side revocation remain distinct user actions.
 
 Do not advertise "extremely limited access" without qualification. The app's
@@ -104,7 +104,7 @@ hashes, and install path; verify the live bytes after deployment.
 
 ## Disconnected demo
 
-The `0.4.9` candidate now includes the built-in disconnected synthetic demo.
+The `0.5.0` candidate includes the built-in disconnected synthetic demo.
 It requests no OAuth grant, makes no Gmail request, labels the surface
 **Synthetic demo / Gmail not connected**, and replaces real-mail links with a
 non-action synthetic label. The Store screenshots use that same packaged
@@ -113,39 +113,29 @@ surface and contain `.example.test` data only.
 Local MBOX/Takeout import remains a later no-live-OAuth evaluation lane; it
 needs its own parser, deletion, hostile-content, and storage proof.
 
-## Arc/Dia OAuth decision
+## Browser and OAuth decision
 
-The browser-neutral private pilot now uses a Web application client with
-`launchWebAuthFlow()`. Exact prior Arc/Dia builds reached Google's account
-chooser without a browser-profile account, but the OAuth 2 implicit grant is a
-discouraged legacy flow and is not the public architecture by default.
+The first public release supports Google Chrome only. It uses the documented
+Chrome Extension OAuth client and interactive `getAuthToken()` path, verifies
+exactly `gmail.readonly`, requires returned-address confirmation, and removes
+the token from Chrome's cache after each bounded run.
 
-Before public Gmail authorization:
-
-1. Reconcile the documented Chrome Extension client / `getAuthToken()` path
-   with Arc and Dia without `getProfileUserInfo()`, `identity.email`, or a
-   profile-bound account.
-2. If that path cannot support the target browsers, obtain explicit Google
-   guidance before publishing the Web-client flow.
-3. Preserve explicit account choice, least privilege, memory-only access, no
-   refresh token, and no developer-server restricted-data path.
-4. If no compliant pure-extension route works, prefer a local installed-app
-   companion with PKCE over a hosted token broker. A broker would materially
-   expand breach, outage, and restricted-scope assessment exposure.
-
-This is a public OAuth blocker, not a blocker to the bounded one-person pilot
-or submitting the disconnected Store package for Chrome review.
+Fresh exact probes on current Arc and Dia builds reach Google's provider-error
+page for that client type. The previously working `launchWebAuthFlow()` Web
+client uses direct implicit OAuth, which Google now labels legacy and strongly
+discourages. Inbox Island therefore does not ship that workaround publicly or
+advertise Arc/Dia support. A future cross-browser lane needs an independently
+approved architecture and must not add a hosted token broker casually.
 
 ## Projects and ownership
 
-- Keep the current `inbox-island` GCP project as testing/staging.
-- Create the production project only when the production auth path is frozen
-  and verification submission begins. Google requires separate deployment-tier
-  projects; deferring the second project avoids present-day busywork without
-  creating verification debt.
-- JPop can remain the sole owner during the private pilot. Do not add Sean as an
-  owner by default; agent-controlled ownership adds another privileged account
-  and unclear governance without solving the human recovery problem.
+- Promote the existing dedicated `inbox-island` GCP project from Testing to
+  Production and remove its unused Web application client. Separate test and
+  production projects are a Google best practice, not a requirement; keeping
+  this product-only project preserves the pinned Store/client identity.
+- JPop remains the owner. Do not add Sean as an owner by default;
+  agent-controlled ownership adds another privileged account and unclear
+  governance without solving the human recovery problem.
 - Before public launch, add one deliberate backup under JPop's control or a
   trusted human/product identity, keep reachable OAuth contacts current, and
   use least-privilege Store publisher roles.

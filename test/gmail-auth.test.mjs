@@ -2,170 +2,178 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
-  createGmailAuth, GMAIL_READONLY_SCOPE, PILOT_OAUTH_CLIENT_ID, TOKEN_LEASE_MILLISECONDS,
+  createGmailAuth, GMAIL_READONLY_SCOPE, TOKEN_LEASE_MILLISECONDS,
 } from "../app/gmail-auth.mjs";
 
-const EXTENSION_ID = "jeemdbgakejlmmmbngpihndfkjiddbhl";
-const REDIRECT_URI = `https://${EXTENSION_ID}.chromiumapp.org/oauth2`;
-const TOKEN = "pilot-token-that-must-not-leak";
+const TOKEN = "chrome-extension-token-that-must-not-leak";
 
-function redirect(url, overrides = {}) {
-  const request = new URL(url);
-  const result = new URL(REDIRECT_URI);
-  result.hash = new URLSearchParams({
-    access_token: TOKEN,
-    expires_in: "3599",
-    scope: GMAIL_READONLY_SCOPE,
-    state: request.searchParams.get("state"),
-    token_type: "Bearer",
-    ...overrides,
-  });
-  return result.href;
+function result(token = TOKEN, scopes = [GMAIL_READONLY_SCOPE]) {
+  return { grantedScopes: scopes, token };
 }
 
-function harness({ clock = Date.now, launch } = {}) {
+function harness({ clearAll, clock = Date.now, getToken, removeToken } = {}) {
   const calls = [];
   const identityApi = {
-    getRedirectURL: (path) => {
-      calls.push(["redirect", path]);
-      return REDIRECT_URI;
+    clearAllCachedAuthTokens() {
+      calls.push(["clear-all"]);
+      return clearAll ? clearAll() : Promise.resolve();
     },
-    launchWebAuthFlow(options) {
-      calls.push(["launch", structuredClone(options)]);
-      return launch ? launch(options) : Promise.resolve(redirect(options.url));
+    getAuthToken(options) {
+      calls.push(["get", structuredClone(options)]);
+      return getToken ? getToken(options, calls.filter(([kind]) => kind === "get").length)
+        : Promise.resolve(result());
+    },
+    removeCachedAuthToken(options) {
+      calls.push(["remove", structuredClone(options)]);
+      return removeToken ? removeToken(options) : Promise.resolve();
     },
   };
-  return {
-    auth: createGmailAuth({
-      clientId: PILOT_OAUTH_CLIENT_ID,
-      clock,
-      cryptoApi: { getRandomValues: (bytes) => bytes.fill(7) },
-      identityApi,
-      runtimeApi: { id: EXTENSION_ID },
-    }),
-    calls,
-  };
+  return { auth: createGmailAuth({ clock, identityApi }), calls };
 }
 
-test("web chooser requests only gmail.readonly and explicit account choice", async () => {
+test("Chrome identity requests only gmail.readonly with granular interactive consent", async () => {
   const { auth, calls } = harness();
   const credential = await auth.connectFromUserGesture();
   assert.equal(credential.token, TOKEN);
-  const launch = calls.find(([kind]) => kind === "launch")[1];
-  const url = new URL(launch.url);
-  assert.equal(launch.interactive, true);
-  assert.deepEqual([...new Set(url.searchParams.keys())].sort(), [
-    "access_type",
-    "client_id",
-    "include_granted_scopes",
-    "prompt",
-    "redirect_uri",
-    "response_type",
-    "scope",
-    "state",
-  ]);
-  for (const name of url.searchParams.keys()) assert.equal(url.searchParams.getAll(name).length, 1);
-  assert.equal(url.searchParams.get("access_type"), "online");
-  assert.equal(url.origin, "https://accounts.google.com");
-  assert.equal(url.pathname, "/o/oauth2/v2/auth");
-  assert.equal(url.searchParams.get("client_id"), PILOT_OAUTH_CLIENT_ID);
-  assert.equal(url.searchParams.get("redirect_uri"), REDIRECT_URI);
-  assert.equal(url.searchParams.get("scope"), GMAIL_READONLY_SCOPE);
-  assert.equal(url.searchParams.get("prompt"), "select_account");
-  assert.equal(url.searchParams.get("response_type"), "token");
+  assert.deepEqual(calls[0], ["get", {
+    enableGranularPermissions: true,
+    interactive: true,
+    scopes: [GMAIL_READONLY_SCOPE],
+  }]);
 });
 
-test("launchWebAuthFlow starts synchronously in the user click turn", async () => {
+test("getAuthToken starts synchronously in the user click turn", async () => {
   let finish;
-  const { auth, calls } = harness({ launch: ({ url }) => new Promise((resolve) => {
-    finish = () => resolve(redirect(url));
-  }) });
+  const { auth, calls } = harness({
+    getToken: () => new Promise((resolve) => { finish = () => resolve(result()); }),
+  });
   const connecting = auth.connectFromUserGesture();
-  assert.equal(calls.filter(([kind]) => kind === "launch").length, 1);
+  assert.equal(calls.filter(([kind]) => kind === "get").length, 1);
   finish();
   await connecting;
 });
 
-test("redirect state, origin, token type, scope, and expiry fail closed", async () => {
-  for (const mutate of [
-    (url) => redirect(url, { state: "wrong" }),
-    (url) => redirect(url, { scope: `${GMAIL_READONLY_SCOPE} openid` }),
-    (url) => redirect(url, { token_type: "MAC" }),
-    (url) => redirect(url, { expires_in: "0" }),
-    (url) => {
-      const result = new URL(redirect(url));
-      const values = new URLSearchParams(result.hash.slice(1));
-      values.append("scope", GMAIL_READONLY_SCOPE);
-      result.hash = values;
-      return result.href;
-    },
-    (url) => redirect(url).replace("chromiumapp.org", "example.com"),
+test("missing, malformed, or overbroad token responses fail closed", async () => {
+  for (const response of [
+    undefined,
+    TOKEN,
+    { token: TOKEN },
+    result(""),
+    result(TOKEN, []),
+    result(TOKEN, [GMAIL_READONLY_SCOPE, "openid"]),
   ]) {
-    const { auth } = harness({ launch: ({ url }) => Promise.resolve(mutate(url)) });
-    await assert.rejects(auth.connectFromUserGesture(), { message: "GMAIL_AUTH_RESPONSE_INVALID" });
+    const { auth } = harness({ getToken: () => Promise.resolve(response) });
+    await assert.rejects(auth.connectFromUserGesture(), {
+      message: "GMAIL_AUTH_RESPONSE_INVALID",
+    });
   }
 });
 
-test("unchanged omitted callback scope is accepted as the sole requested scope", async () => {
-  const { auth } = harness({ launch: ({ url }) => {
-    const result = new URL(redirect(url));
-    const values = new URLSearchParams(result.hash.slice(1));
-    values.delete("scope");
-    result.hash = values;
-    return Promise.resolve(result.href);
-  } });
-  assert.equal((await auth.connectFromUserGesture()).token, TOKEN);
-});
-
 test("provider denial becomes an actionable code", async () => {
-  const { auth } = harness({ launch: () => Promise.reject(new Error("The user closed the window")) });
-  await assert.rejects(auth.connectFromUserGesture(), { message: "GMAIL_AUTH_ACCESS_DENIED" });
+  const { auth } = harness({
+    getToken: () => Promise.reject(new Error("The user closed the window")),
+  });
+  await assert.rejects(auth.connectFromUserGesture(), {
+    message: "GMAIL_AUTH_ACCESS_DENIED",
+  });
 });
 
-test("canceling an in-flight chooser rejects a late callback", async () => {
+test("canceling an in-flight request removes a distinct late browser token", async () => {
   let finish;
-  const { auth } = harness({ launch: ({ url }) => new Promise((resolve) => {
-    finish = () => resolve(redirect(url));
-  }) });
+  const { auth, calls } = harness({
+    getToken: () => new Promise((resolve) => { finish = () => resolve(result("late-token")); }),
+  });
   const connecting = auth.connectFromUserGesture();
   auth.invalidatePendingAuth();
   finish();
   await assert.rejects(connecting, { message: "GMAIL_AUTH_CANCELED" });
   assert.equal(auth.hasMemoryToken(), false);
+  assert.deepEqual(calls.filter(([kind]) => kind === "remove"), [
+    ["remove", { token: "late-token" }],
+  ]);
 });
 
-test("credentials use a conservative local lease and stale leases cannot clear new access", async () => {
+test("credentials use a conservative lease and stale leases cannot clear a reused token", async () => {
   let now = 10_000;
-  const { auth } = harness({ clock: () => now });
+  const { auth, calls } = harness({ clock: () => now });
   const first = await auth.connectFromUserGesture();
-  now += TOKEN_LEASE_MILLISECONDS;
-  await assert.rejects(auth.getCachedAccessToken(), { message: "GMAIL_AUTH_EXPIRED" });
+  auth.forgetMemoryToken();
+  await new Promise((resolve) => setImmediate(resolve));
   const second = await auth.connectFromUserGesture();
   assert.equal(await auth.removeAccessToken(first), false);
   assert.equal(auth.hasMemoryToken(), true);
-  assert.equal(await auth.removeAccessToken(second), true);
+  now += TOKEN_LEASE_MILLISECONDS;
+  await assert.rejects(auth.getCachedAccessToken(), { message: "GMAIL_AUTH_EXPIRED" });
+  assert.equal(auth.hasMemoryToken(), false);
+  assert.ok(calls.filter(([kind]) => kind === "remove").length >= 2);
+  assert.equal(second.token, TOKEN);
 });
 
-test("disconnect clears memory without claiming Google-grant revocation", async () => {
-  const { auth } = harness();
-  await auth.connectFromUserGesture();
-  assert.deepEqual(await auth.disconnect(), {
-    connectedInMemory: false, forgottenFromMemory: true, googleGrantRevoked: false,
+test("cache cleanup failure blocks reuse instead of hiding a standing token", async () => {
+  const { auth } = harness({
+    removeToken: () => Promise.reject(new Error("cache unavailable")),
+  });
+  const credential = await auth.connectFromUserGesture();
+  await assert.rejects(auth.removeAccessToken(credential), {
+    message: "GMAIL_AUTH_CACHE_CLEAR_FAILED",
+  });
+  assert.equal(auth.hasMemoryToken(), false);
+  await assert.rejects(auth.connectFromUserGesture(), {
+    message: "GMAIL_AUTH_CACHE_CLEAR_FAILED",
   });
 });
 
-test("compiled auth boundary matches the public Web client record", async () => {
-  const identity = JSON.parse(await readFile(new URL("../extension/identity.json", import.meta.url), "utf8"));
-  assert.equal(identity.oauth_client_type, "web-application");
-  assert.equal(identity.oauth_client_id, PILOT_OAUTH_CLIENT_ID);
-  assert.equal(identity.oauth_flow, "launchWebAuthFlow-implicit-private-pilot");
+test("Disconnect attempts broad Chrome cleanup after narrow token cleanup fails", async () => {
+  const { auth, calls } = harness({
+    removeToken: () => Promise.reject(new Error("narrow cache unavailable")),
+  });
+  await auth.connectFromUserGesture();
+  assert.deepEqual(await auth.disconnect(), {
+    browserAuthorizationCleared: true,
+    connectedInMemory: false,
+    forgottenFromMemory: true,
+    googleGrantRevoked: false,
+  });
+  assert.deepEqual(calls.slice(-2), [
+    ["remove", { token: TOKEN }],
+    ["clear-all"],
+  ]);
+  await auth.connectFromUserGesture();
+});
+
+test("disconnect clears extension auth state without claiming Google-grant revocation", async () => {
+  const { auth, calls } = harness();
+  await auth.connectFromUserGesture();
+  assert.deepEqual(await auth.disconnect(), {
+    browserAuthorizationCleared: true,
+    connectedInMemory: false,
+    forgottenFromMemory: true,
+    googleGrantRevoked: false,
+  });
+  assert.deepEqual(calls.slice(-2), [
+    ["remove", { token: TOKEN }],
+    ["clear-all"],
+  ]);
+});
+
+test("compiled auth boundary matches the Chrome Extension client record", async () => {
+  const [identity, manifest] = await Promise.all([
+    readFile(new URL("../extension/identity.json", import.meta.url), "utf8").then(JSON.parse),
+    readFile(new URL("../extension/manifest.json", import.meta.url), "utf8").then(JSON.parse),
+  ]);
+  assert.equal(identity.oauth_client_type, "chrome-extension");
+  assert.equal(identity.oauth_client_id, manifest.oauth2.client_id);
+  assert.equal(identity.oauth_flow, "getAuthToken-chrome-extension");
+  assert.deepEqual(manifest.oauth2.scopes, [GMAIL_READONLY_SCOPE]);
   assert.equal(Object.keys(identity).some((key) => /secret/iu.test(key)), false);
 });
 
-test("auth module has no persistence, profile lookup, logging, or secret surface", async () => {
+test("auth module has no persistence, profile lookup, Web flow, logging, or secret surface", async () => {
   const source = await readFile(new URL("../app/gmail-auth.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(source, /\b(?:localStorage|sessionStorage|indexedDB|chrome\.storage)\b/u);
-  assert.doesNotMatch(source, /getProfileUserInfo|getAuthToken/u);
+  assert.doesNotMatch(source, /getProfileUserInfo|launchWebAuthFlow/u);
+  assert.match(source, /getAuthToken/u);
+  assert.match(source, /removeCachedAuthToken/u);
   assert.doesNotMatch(source, /\bconsole\s*\./u);
   assert.doesNotMatch(source, /client_secret|<script|import\s*\(/iu);
 });

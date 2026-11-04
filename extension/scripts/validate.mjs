@@ -12,7 +12,7 @@ const manifestPath = path.join(extensionRoot, "manifest.json");
 const identityPath = path.join(extensionRoot, "identity.json");
 const iconSizes = [16, 32, 48, 128];
 const failures = [];
-const expectedVersion = "0.4.9";
+const expectedVersion = "0.5.0";
 const oauthClientId = /^\d{6,32}-[a-z0-9]{16,128}\.apps\.googleusercontent\.com$/u;
 
 function check(condition, message) {
@@ -74,8 +74,6 @@ async function validateUiSources() {
     ["app/gmail-api.mjs", new Set(["https://gmail.googleapis.com"])],
     ["app/render.mjs", new Set(["https://mail.google.com/mail/u/"])],
     ["app/gmail-auth.mjs", new Set([
-      "https://${runtimeApi.id}.chromiumapp.org/oauth2",
-      "https://accounts.google.com/o/oauth2/v2/auth",
       "https://www.googleapis.com/auth/gmail.readonly",
     ])],
   ]);
@@ -115,8 +113,11 @@ check(JSON.stringify(manifest.permissions) === JSON.stringify(["identity"]),
 check(JSON.stringify(manifest.host_permissions) === JSON.stringify([
   "https://gmail.googleapis.com/*",
 ]), "the only host permission must be the Gmail API origin");
-check(!Object.hasOwn(manifest, "oauth2"),
-  "Web-client pilot must not declare a manifest OAuth block");
+check(manifest.oauth2?.client_id === identity.oauth_client_id,
+  "manifest OAuth client must match the identity record");
+check(JSON.stringify(manifest.oauth2?.scopes) === JSON.stringify([
+  "https://www.googleapis.com/auth/gmail.readonly",
+]), "manifest OAuth scopes must contain only gmail.readonly");
 for (const forbidden of [
   "optional_permissions", "optional_host_permissions",
   "content_scripts", "externally_connectable", "web_accessible_resources",
@@ -154,11 +155,12 @@ check(derivedId === "jeemdbgakejlmmmbngpihndfkjiddbhl", "manifest key derives th
 check(identity.extension_id === derivedId && identity.web_store_item_id === derivedId,
   "identity record must match the manifest key");
 check(identity.google_cloud_project_id === "inbox-island", "identity must retain clean GCP project");
-check(identity.oauth_client_type === "web-application", "OAuth client must be Web application type");
-check(identity.oauth_client_name === "Inbox Island Browser OAuth", "OAuth label drifted");
-check(identity.oauth_flow === "launchWebAuthFlow-implicit-private-pilot", "OAuth flow drifted");
-check(identity.oauth_client_status === "active-private-pilot",
-  "private-pilot Web OAuth client is not active");
+check(identity.oauth_client_type === "chrome-extension",
+  "OAuth client must be Chrome Extension type");
+check(identity.oauth_client_name === "Inbox Island Chrome Extension", "OAuth label drifted");
+check(identity.oauth_flow === "getAuthToken-chrome-extension", "OAuth flow drifted");
+check(identity.oauth_client_status === "active-production-candidate",
+  "production-candidate Chrome OAuth client is not active");
 check(oauthClientId.test(identity.oauth_client_id || ""),
   "canonical extension OAuth client ID is missing or invalid");
 check(identity.gmail_scope === "https://www.googleapis.com/auth/gmail.readonly",
@@ -166,11 +168,13 @@ check(identity.gmail_scope === "https://www.googleapis.com/auth/gmail.readonly",
 check(!Object.keys(identity).some((key) => /secret/iu.test(key)),
   "identity record must never contain a secret-bearing field");
 const authSource = await readFile(path.join(projectRoot, "app", "gmail-auth.mjs"), "utf8");
-check(/launchWebAuthFlow/u.test(authSource)
-  && /prompt:\s*["']select_account["']/u.test(authSource)
+check(/getAuthToken/u.test(authSource)
+  && /removeCachedAuthToken/u.test(authSource)
+  && /clearAllCachedAuthTokens/u.test(authSource)
+  && /enableGranularPermissions:\s*true/u.test(authSource)
   && /interactive:\s*true/u.test(authSource)
-  && !/getAuthToken|getProfileUserInfo/u.test(authSource),
-"auth source must use explicit browser Web OAuth without profile binding");
+  && !/launchWebAuthFlow|getProfileUserInfo/u.test(authSource),
+"auth source must use Chrome Extension OAuth with bounded token cleanup");
 
 for (const size of iconSizes) {
   const relative = `icons/icon${size}.png`;
@@ -218,10 +222,11 @@ if (unpackedFlag >= 0 || webstoreFlag >= 0) {
         "Web Store package must omit the development-only manifest key");
       if (!isWebStore) {
         const marker = await json(path.join(unpacked, ".inbox-island-build.json"));
-        check(marker.artifact === "gmail-pilot-unpacked" && marker.gmailOauthEnabled === true
-          && marker.gmailConnected === false && marker.browserPortable === true
-          && marker.oauthClientType === "web-application"
-          && marker.oauthMode === "launchWebAuthFlow-implicit-private-pilot"
+        check(marker.artifact === "gmail-public-candidate-unpacked"
+          && marker.gmailOauthEnabled === true && marker.gmailConnected === false
+          && marker.browserPortable === false && marker.chromeFirst === true
+          && marker.oauthClientType === "chrome-extension"
+          && marker.oauthMode === "getAuthToken-chrome-extension"
           && marker.extensionVersion === expectedVersion,
           "unpacked build marker is invalid");
       }
@@ -234,4 +239,4 @@ if (failures.length) {
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
-console.log(`Validated portable private Gmail pilot ${expectedVersion}: exact read-only OAuth, ID ${derivedId}.`);
+console.log(`Validated Chrome-first Gmail release candidate ${expectedVersion}: exact read-only OAuth, ID ${derivedId}.`);

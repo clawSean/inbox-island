@@ -1,166 +1,109 @@
 # STATUS
 
-Updated: 2026-11-02 by Sean
+Updated: 2026-11-03 by Sean
 
-## Current state
+## Current decision
 
-- Canonical project: this repository root.
-- Versions `0.3.0` through `0.4.8` are withdrawn. Their receipts are historical
-  evidence only.
-- `0.4.9` is **approved for upload to the existing Chrome Web Store draft with
-  deferred publishing**. Packaged source commit:
-  `29a2301748913d7185e0d03775a54a77f3cc2dcf`.
-- A Store upload is not approval to publish publicly. Manual publication stays
-  blocked on the public OAuth/Google verification decision, brand decision, and
-  an acceptable live-account pilot.
+- `0.5.0` is the active **Google Chrome-only public-release candidate**.
+- It uses Google's documented Chrome Extension OAuth client through
+  `chrome.identity.getAuthToken()` with only `gmail.readonly`.
+- Arc and Dia are not supported or advertised for the first public release.
+  Fresh-profile probes on both reach Google's provider-error page for the
+  Chrome Extension OAuth client.
+- The published `0.4.9` ZIP and GitHub release are historical deferred-review
+  evidence only. They use a private-pilot Web OAuth architecture and must not
+  be uploaded or made public.
+- Chrome Web Store item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 - Public source: `https://github.com/clawSean/inbox-island`.
-- Published release: `https://github.com/clawSean/inbox-island/releases/tag/v0.4.9`.
-- Chrome Web Store draft item ID: `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
-## Release decision
+## Candidate verification state
 
-Chrome reviewers have a credential-free, disconnected synthetic demo. The
-extension can therefore enter Chrome review with **deferred publishing** while
-public Gmail authorization proceeds on its separate Google timeline. This is a
-Store-review decision, not a claim that Gmail authorization is public-ready.
+Completed on the current `0.5.0` source candidate:
 
-Arc/Dia private-pilot portability is also separate from Chrome Store upload.
-Those browsers remain supported targets, but their exact live-account flow must
-pass before they are advertised as release-proved.
+- complete source/unit/development/synthetic/browser/build/validator/UI gate:
+  `163/163` tests pass;
+- exact unpacked build and manifest/OAuth validation pass;
+- a trusted click in a fresh disposable Google Chrome 156 profile reaches
+  Google's real account chooser with zero Gmail API requests;
+- the manifest contains only `identity`, the Gmail API host, the exact Chrome
+  Extension client, and `gmail.readonly`;
+- tokens are never written to extension storage or refreshed; the returned
+  token is removed from Chrome's cache after each bounded run, and Disconnect
+  clears all cached extension tokens;
+- no Inbox Island backend, cloud model, analytics, telemetry, remote code,
+  client secret, authorization code, refresh token, or Gmail mutation
+  permission exists.
 
-## Verified source
+The final clean-tree Store package is still in progress. No `0.5.0` public
+package hash is claimed until source is committed and
+`webstore/PACKAGE-RECEIPT.json` is regenerated.
 
-- The complete source/unit/development/synthetic/browser/build/validator/UI
-  gate passes with `162/162` tests.
-- Browser and UI proofs report zero external post-ready requests, WebSockets,
-  page errors, or console errors.
-- The inspected 42-case development corpus remains `40/42` exact, `12/14`
-  reply-or-attention capture, zero false-important, zero unsafe-to-noise, and 9
-  uncertain. This is in-sample calibration, not real-mail generalization proof.
-- Manifest V3 uses only extension permission `identity` and host access to
-  `https://gmail.googleapis.com/*`.
-- The extension has no npm dependencies, remote code, telemetry, content
-  scripts, Gmail mutation code, refresh token, client secret, or Inbox Island
-  application backend.
-- Synthetic demo and Store screenshots use synthetic data and make no external
-  requests.
-- Clean-checkout validation now rebuilds its immutable seed before validating
-  it; the gate no longer depends on an ignored local ZIP.
+## Public OAuth configuration
 
-## Blind review results
+The dedicated Google Cloud project `inbox-island` already has:
 
-On November 2, a blind release-risk seat and a separate exact-head technical
-review both found the same OAuth integration mismatch: production omitted
-`access_type=online` while the native contract required it. The repair adds the
-exact parameter and regression coverage.
+- Gmail API enabled;
+- External / Testing audience;
+- scope `https://www.googleapis.com/auth/gmail.readonly` only;
+- Chrome Extension OAuth client
+  `270655843779-4gktio587oago4rsgh3609te7h4eoe6r.apps.googleusercontent.com`;
+- the canonical Store extension ID above.
 
-The reviews also found and drove two additional repairs:
+The existing dedicated project will be promoted to Production. Before Google
+submission, the unused Web application client should be removed. The full
+scope justification, data-flow statement, assessment posture, public URLs,
+video script, and authenticated console checklist are frozen in
+`resources/GOOGLE-OAUTH-VERIFICATION.md`.
 
-- accept Google's documented omission of an unchanged callback `scope` while
-  rejecting duplicate or changed sensitive fields; and
-- rebuild the ignored seed archive during extension validation so a clean clone
-  can reproduce the gate.
-
-No P0 finding or additional action-changing privacy/listing blocker was found.
-The old Store receipt is intentionally superseded and will be regenerated from
-the clean release source.
-
-## Native browser evidence
-
-- Native preflight passes on the unlocked Sean desktop for installed Arc
-  `1.171.0` and Dia `1.55.1` against extension `0.4.9`.
-- A fresh disposable Arc run proved the real popup, persistent full page,
-  trusted connect click, exact Google OAuth request, accepted Google sign-in
-  response, zero Gmail API requests, and disposable cleanup.
-- Arc exposed the Google chooser only as a hidden browser-owned target in this
-  automation environment. The exact chooser-close/cancellation gate therefore
-  failed honestly; no account was selected, no consent was granted, and no
-  mailbox was accessed.
-- Dia's exact native run is not claimed as passing. Arc/Dia live-account proof
-  remains a private-pilot/publication gate, not a disconnected Chrome Store
-  review gate.
+`gmail.readonly` is a restricted scope. Chrome Web Store approval does not
+replace Google OAuth verification. Google, not this project, determines whether
+the local-only/no-server architecture requires a security assessment.
 
 ## Real-mail quality state
 
 - Mailreef `0.11.5` read-only grants for JPop and Sean passed their 22-check
-  preflights and bounded list/body canaries on October 24.
-- An October 29 discovery slice supplied 40 selected screened summaries for
-  provisional review: 29 bulk/noise, 6 completed records, and 5 attention.
-  Safety gates withheld some reads. No raw body, token, active link, or
-  attachment was written into this project.
-- That sample informed classifier regressions but is not the extension's exact
-  raw-body input. No live-extension accuracy score is claimed.
+  preflights and bounded list/body canaries on 2026-10-24.
+- A screened 40-summary development slice informed conservative classifier
+  regressions. It is not the extension's exact raw-body input and is not
+  presented as a live-mail accuracy score.
+- The last 42-case development corpus result was `40/42` exact, `12/14`
+  reply-or-attention capture, zero false-important, zero unsafe-to-noise, and 9
+  uncertain. This is in-sample calibration, not generalization proof.
 
-## OAuth boundary
-
-- Scope: `https://www.googleapis.com/auth/gmail.readonly` only.
-- Private-pilot auth: explicit account selection through
-  `launchWebAuthFlow()` with a Web application client and exact fixed-ID
-  callback. Token leases are short-lived, memory-only, and never refreshed.
-- Public auth is not frozen. The current implicit Web-client path is a private
-  pilot, while Google's documented published-extension path uses a Chrome
-  Extension client with `getAuthToken()`.
-- `gmail.readonly` is restricted. Google verification is separate from Chrome
-  Web Store review and is expected to take weeks, not days.
-
-## Store kit
+## Store and privacy kit
 
 Prepared under `webstore/`:
 
-- 128×128 icon and two 1280×800 synthetic screenshots with SHA receipts;
-- listing, privacy answers/policy, reviewer instructions, and submission
-  checklist;
-- a disconnected reviewer path requiring no Google account or credentials;
+- Chrome-first listing, privacy answers/policy, reviewer instructions, and
+  submission checklist;
+- a disconnected synthetic reviewer path requiring no Google account;
+- synthetic-only 128px icon and two 1280×800 screenshots with hash receipts;
 - public homepage, privacy policy, source, support, SBOM, and security contact;
-- a reproducible packager that strips only the development manifest key and
+- a reproducible packager that removes only the development manifest key and
   internal build marker, then extracts, byte-compares, revalidates, scans, and
   hashes the exact Store ZIP.
 
-Final Store ZIP: `extension/dist/inbox-island-web-store-0.4.9.zip`:
+## Remaining public-launch gates
 
-- 39 files, 81,933 bytes;
-- SHA-256 `b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`;
-- package-tree SHA-256
-  `4aa3eea740288e1d784fc14ada40d2a0fe082f8c1b9881a9087140e283b3417b`;
-- root manifest, development key removed, extraction byte parity, independent
-  package revalidation, zero private-key files, and zero secret-shaped files.
+1. Pass the complete `0.5.0` release suite, commit and push exact source, build
+   the clean-tree Store ZIP, regenerate the receipt, and verify exact bytes.
+2. Run the exact-package live-account Chrome pilot: consent, returned-address
+   confirmation, bounded sync, Gmail thread link, token cleanup, Disconnect,
+   and local-data clear.
+3. Approve the final public brand. “Inbox Island” overlaps an active paid
+   email-privacy training product; no legal clearance is claimed.
+4. In JPop's own authenticated Google browser: remove the unused Web client,
+   finalize branding/domain/contact fields, promote Audience to Production,
+   record the demonstration video, and submit restricted-scope verification.
+5. In JPop's own Chrome Web Store dashboard: upload the exact final ZIP, apply
+   the prepared listing/privacy/reviewer copy, select deferred publishing, and
+   submit for review.
+6. Resolve every Google/Store follow-up, revalidate the approved package, rerun
+   the live pilot, then manually publish.
 
-Canonical receipt: `webstore/PACKAGE-RECEIPT.json`. The October 29 ZIP is
-preserved only under `artifacts/superseded/` and must not be uploaded.
-
-The GitHub-hosted `v0.4.9` asset was downloaded after publication and matched
-the canonical 81,933-byte size and SHA-256 above exactly.
-
-## Store dashboard handoff
-
-The code-side upload artifact is complete. JPop's authenticated own-device
-steps are:
-
-1. Upload the exact ZIP above to the existing draft item.
-2. Apply `webstore/LISTING.md`, `PRIVACY-PRACTICES.md`, assets, policy/support
-   URLs, and `TEST-INSTRUCTIONS.md`.
-3. Select **deferred publishing** and submit for review.
-4. Do not manually publish after approval until the public-publication gates
-   below pass.
-
-## Remaining before manual public publication
-
-1. Freeze and implement the production OAuth architecture.
-2. Complete Google restricted-scope verification and any assessment Google
-   actually requires.
-3. Decide whether to retain the Inbox Island name publicly; an active paid
-   privacy-email training product uses the exact name, which is not legal
-   clearance.
-4. Pass an acceptable visible live-account pilot and validate the approved
-   Store package before manually publishing.
-
-## Product boundary
-
-- Gmail discovery is limited to recent Inbox/Sent mail from the last 30 days:
-  100 messages by default, 200 maximum, four pages maximum.
-- Raw bodies, HTML, attachments, OAuth material, summaries, and active links
-  are never persisted. IndexedDB stores only account-scoped derived state.
-- The classifier is advisory; uncertain mail remains visible and Gmail remains
-  authoritative.
+Personal Google authentication, consent, and Store/GCP owner actions must occur
+on a JPop-controlled device/browser, never in JPop's personal Google session on
+ClawPop. Sean's own Google account may be used for the live pilot after it is
+authorized as a test user.
 
 Sequencing: `ROADMAP.md`

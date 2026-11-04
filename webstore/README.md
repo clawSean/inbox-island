@@ -1,6 +1,6 @@
 # Chrome Web Store submission kit
 
-Prepared 2026-10-22 for canonical item ID
+Updated 2026-11-03 for canonical item ID
 `jeemdbgakejlmmmbngpihndfkjiddbhl`.
 
 This directory contains copy and synthetic-only assets for the existing Web
@@ -44,19 +44,20 @@ byte-compares, revalidates, scans, and hashes the result.
 
 ## Current boundary
 
-The October 29 ZIP is superseded. The final 39-file `0.4.9` package was built
-from clean source `29a2301748913d7185e0d03775a54a77f3cc2dcf`; its ZIP SHA-256 is
-`b840c38c634092d7d1c0fde07312ac0362556cd61f708a4d5059be2aa171e20e`.
-Exact source, package-tree, and ZIP evidence is in `PACKAGE-RECEIPT.json`.
+The published `0.4.9` ZIP is a historical deferred-review artifact and must not
+be made public. `0.5.0` replaces its private Web OAuth flow with the documented
+Chrome Extension client and is the only public-release candidate. Its final
+source, package-tree, and ZIP receipt will replace `PACKAGE-RECEIPT.json` only
+after the complete clean-tree release gate passes.
 
-It may be submitted for Chrome review with **deferred publishing** because the
-reviewer path is a disconnected synthetic demo. Public Gmail authorization is
-a separate Google review: `gmail.readonly` is restricted, and Google currently
-estimates weeks for restricted-scope verification. Production OAuth, brand
-clearance, and a visible live-account pilot remain blockers before manual
-public publication.
+Public Gmail authorization remains a separate Google review:
+`gmail.readonly` is restricted. The first release supports Google Chrome only;
+Arc and Dia are excluded from the support claim because their fresh-profile
+OAuth probes reach Google's provider-error page. Brand approval, live-account
+Chrome proof, Store submission, Google verification, and Google's assessment
+determination remain before manual publication.
 
-## Primary sources checked 2026-10-22
+## Primary sources checked 2026-11-03
 
 - Package preparation: https://developer.chrome.com/docs/webstore/prepare
 - Listing fields/assets: https://developer.chrome.com/docs/webstore/cws-dashboard-listing

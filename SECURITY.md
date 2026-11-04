@@ -2,9 +2,10 @@
 
 ## Supported version
 
-Only the latest published release is supported. Versions `0.3.0` through
-`0.4.8` are withdrawn. `0.4.9` is not supported until it is explicitly tagged
-and published.
+Only the latest publicly published release is supported. Versions `0.3.0`
+through `0.4.8` are withdrawn. `0.4.9` is a historical deferred-review artifact
+and must not be made public. `0.5.0` becomes supported only after its exact
+package is tagged, Google-approved, live-pilot-proved, and publicly published.
 
 ## Report a vulnerability privately
 

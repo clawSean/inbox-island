@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+// Historical 0.4.9 Web-client proof harness retained for reproducible release
+// evidence. It is not a 0.5.0 release gate and must not be used to claim public
+// Arc or Dia support. The active public proof is run-profile-free-oauth-probe.
+
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import crypto from "node:crypto";

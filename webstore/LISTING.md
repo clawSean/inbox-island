@@ -14,7 +14,8 @@
 > Inbox Island helps you find recent Gmail threads that likely need a reply or
 > attention, while leaving Gmail unchanged.
 >
-> You choose the Google account and start each sync. Inbox Island reads a
+> You connect the Google account available through Chrome and start each sync.
+> Inbox Island supports Google Chrome for this first public release. It reads a
 > bounded recent Inbox/Sent slice, classifies it in your browser, and groups
 > threads into Needs me, Review, Waiting, Records, Low signal, and All mail.
 > Every real result can open the exact thread in Gmail.

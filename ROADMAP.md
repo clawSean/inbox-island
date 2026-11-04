@@ -2,73 +2,69 @@
 
 Future sequencing only. Current truth and blockers live in `STATUS.md`.
 
-## 1. Finish the 0.4.9 pilot candidate
+## 1. Freeze the Chrome-first 0.5.0 candidate
 
-- On an unlocked ClawPop desktop, close the personal target browser and run the
-  exact-build native proof in Arc and Dia.
-- Require the real toolbar popup, **Open full triage**, disconnected demo,
-  explicit account-selection entry, safe cancellation, zero Gmail requests
-  before consent, exact build hashes, and clean disposable-profile teardown.
-- Use the restored Mailreef read-only grant to review bounded screened samples;
-  keep screened-summary labels distinct from the raw-body browser pilot.
-- Add regressions only for repeatable classifier failures; rerun the full gate.
+- Use Google's documented Chrome Extension OAuth client and
+  `chrome.identity.getAuthToken()` with only `gmail.readonly`.
+- Keep access tokens in memory only and remove them from Chrome's Identity
+  cache after each bounded run and on Disconnect.
+- Remove Arc/Dia from initial public support claims; retain their provider-error
+  receipts as the reason for the boundary.
+- Run the complete source, unit, classifier, synthetic, browser, build,
+  validator, UI, and disposable exact-build Chrome OAuth gates.
+- Build, extract, byte-compare, scan, hash, and independently revalidate the
+  exact Store ZIP.
 
-**Advance when:** both browsers pass unchanged bytes and the screened real-mail
-sample is useful enough to hand back to JPop without known junk inflation.
+**Advance when:** the exact `0.5.0` package is clean, reproducible, and tied to
+the Chrome chooser proof with zero pre-consent Gmail requests.
 
-## 2. Freeze and deliver 0.4.9
+## 2. Complete the live-account pilot and verification video
 
-- Commit the exact source and documentation.
-- Build the extension once and preserve the build-tree digest.
-- Create the private-pilot archive and Chrome Web Store root-manifest archive
-  through reproducible scripts.
-- Extract independently, byte-compare, revalidate, scan, and record SHA-256.
-- Tag and push source and release receipts to the public repository.
-- Deliver only the exact proven pilot archive with the current install runbook.
+- Add a dedicated test account through Google Auth Platform on JPop's device.
+- Run the submitted build in Google Chrome: disclosure, authorization,
+  returned-address confirmation, bounded sync, Gmail thread open, token cleanup,
+  Disconnect, and local-data clear.
+- Record one continuous English verification video using the script in
+  `resources/GOOGLE-OAUTH-VERIFICATION.md`.
+- Add regressions only for repeatable product failures; rebuild if bytes change.
 
-**Advance when:** the delivered archive is byte-identical to the native-proved
-tree and JPop confirms the visible Arc/Dia popup, full page, demo, Gmail link,
-account choice, bounded sync, disconnect, and reconnect behavior.
+**Advance when:** the exact package completes a visible authorized-account run
+without raw-data persistence, unexpected network traffic, or account drift.
 
-## 3. Submit the Chrome Web Store draft
+## 3. Submit Chrome and Google reviews
 
-Submit as soon as the exact package and native/live-pilot gates pass. The prior
-October 26 target was missed; neither Store review nor Google OAuth verification
-can now be promised by Halloween.
+- Finalize the public name and use it consistently in the manifest, Store,
+  website, OAuth branding, privacy policy, and video.
+- On JPop's authenticated device, upload the exact ZIP to Store item
+  `jeemdbgakejlmmmbngpihndfkjiddbhl`, complete listing/privacy/test fields,
+  choose deferred publishing, and submit.
+- In the dedicated `inbox-island` GCP project, remove the unused Web OAuth
+  client, finalize Branding/Data Access, switch to In Production, and submit the
+  restricted-scope verification packet and video.
+- Follow Google's official channel for assessment determination and questions.
 
-- Publish final source, policy, support, release notes, hashes, SBOM, and
-  reviewer instructions.
-- Finish the dashboard listing/privacy/distribution fields on JPop's device.
-- Upload the exact proven Store ZIP to item
-  `jeemdbgakejlmmmbngpihndfkjiddbhl`.
-- Use deferred publishing, complete truthful Limited Use certifications, and
-  provide no shared Google credentials.
-- Opt into Verified CRX Uploads only after secure key generation and backup.
+**Advance when:** Chrome review and Google's branding/data-access review are
+both submitted with receipts and no paused follow-up.
 
-**Advance when:** Chrome accepts the draft for review and all public links match
-the exact submitted version. Store review is not Google OAuth approval.
+## 4. Publish deliberately
 
-## 4. Freeze production OAuth and verification
+- After approvals, download or inspect the Store-approved package and verify it
+  against the frozen receipt.
+- Repeat the visible live-account smoke on the approved version.
+- Enable Verified CRX Uploads only after the separate signing key is generated,
+  backed up, and recovery-owned.
+- Manually publish, preferably with partial rollout if available, then verify
+  the listing, install, auth, sync, privacy, support, and source links.
 
-- Resolve whether the public Arc/Dia build can use Google's documented Chrome
-  Extension client path without browser-profile coupling.
-- If not, obtain explicit Google guidance before treating the private-pilot Web
-  client implicit flow as public architecture.
-- Create/use a separate production Google Cloud project, verify domains and
-  contacts, finalize branding, and submit brand plus restricted-scope review.
-- Provide the privacy policy, scope justification, data-flow explanation, and
-  complete consent/use video. Describe the no-server restricted-data path
-  exactly; Google decides whether an assessment applies.
+**Advance when:** the public listing and installed extension are live, exact,
+usable, and supported by the approved Google OAuth project.
 
-**Advance when:** Google approves the actual production client/scope and the
-approved Store package has been revalidated before manual publication.
-
-## 5. Post-pilot quality
+## 5. Post-launch quality
 
 - Collect explicit user corrections; never silently capture mailbox content.
 - Measure Needs-you capture, false-important rate, uncertainty, and latency on
   natural cases.
 - Add incremental `history.list`, storage stress, multi-account, update,
-  downgrade, and uninstall proof only after the core pilot is trustworthy.
-- Consider local MBOX/Takeout import as a no-live-OAuth evaluation lane after
-  its parser, hostile-content, deletion, and storage boundaries are proved.
+  downgrade, and uninstall proof after the core release is stable.
+- Revisit Arc/Dia only through a Google-approved cross-browser authorization
+  architecture; do not restore direct legacy implicit OAuth by convenience.

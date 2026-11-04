@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+
+// These tests preserve the historical 0.4.9 Web-client proof harness. They do
+// not establish 0.5.0 Arc/Dia support; the current Chrome OAuth contract is
+// enforced by gmail-auth, extension validation, and profile-free probe tests.
 import crypto from "node:crypto";
 import os from "node:os";
 import path from "node:path";

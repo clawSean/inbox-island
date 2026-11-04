@@ -4,8 +4,6 @@ import { GMAIL_READONLY_SCOPE } from "../app/gmail-auth.mjs";
 import { createGmailPilot, isGmailPilotRuntime } from "../app/gmail-pilot.mjs";
 
 const EXTENSION_ID = "jeemdbgakejlmmmbngpihndfkjiddbhl";
-const REDIRECT_URI = `https://${EXTENSION_ID}.chromiumapp.org/oauth2`;
-const CLIENT_ID = "270655843779-abcdefghijklmnop.apps.googleusercontent.com";
 const ACCESS_TOKEN = "portable-pilot-access-token";
 
 function reply(value, init = {}) {
@@ -34,22 +32,15 @@ function message() {
   };
 }
 
-function successfulRedirect(authUrl, { state, token = ACCESS_TOKEN } = {}) {
-  const requested = new URL(authUrl);
-  const response = new URL(REDIRECT_URI);
-  response.hash = new URLSearchParams({
-    access_token: token,
-    expires_in: "3599",
-    scope: GMAIL_READONLY_SCOPE,
-    state: state ?? requested.searchParams.get("state"),
-    token_type: "Bearer",
-  }).toString();
-  return response.href;
+function successfulToken(token = ACCESS_TOKEN) {
+  return { grantedScopes: [GMAIL_READONLY_SCOPE], token };
 }
 
-function pilotScope({ fetchOverride, launchWebAuthFlow } = {}) {
+function pilotScope({ fetchOverride, getAuthToken } = {}) {
   const fetchCalls = [];
   const launchCalls = [];
+  const removedTokens = [];
+  let clearAllCalls = 0;
   const scope = {
     crypto: {
       getRandomValues(bytes) {
@@ -60,13 +51,20 @@ function pilotScope({ fetchOverride, launchWebAuthFlow } = {}) {
     location: { protocol: "chrome-extension:" },
     chrome: {
       identity: {
-        getRedirectURL: () => REDIRECT_URI,
-        launchWebAuthFlow(details) {
+        clearAllCachedAuthTokens() {
+          clearAllCalls += 1;
+          return Promise.resolve();
+        },
+        getAuthToken(details) {
           launchCalls.push(details);
-          const result = launchWebAuthFlow
-            ? launchWebAuthFlow(details, launchCalls.length)
-            : Promise.resolve(successfulRedirect(details.url));
+          const result = getAuthToken
+            ? getAuthToken(details, launchCalls.length)
+            : Promise.resolve(successfulToken());
           return Promise.resolve(result);
+        },
+        removeCachedAuthToken({ token }) {
+          removedTokens.push(token);
+          return Promise.resolve();
         },
       },
       runtime: {
@@ -84,28 +82,30 @@ function pilotScope({ fetchOverride, launchWebAuthFlow } = {}) {
       return reply(message());
     },
   };
-  return { fetchCalls, launchCalls, scope };
+  return {
+    clearAllCalls: () => clearAllCalls, fetchCalls, launchCalls, removedTokens, scope,
+  };
 }
 
 function createPilot(harness, options = {}) {
-  return createGmailPilot(harness.scope, { clientId: CLIENT_ID, ...options });
+  return createGmailPilot(harness.scope, options);
 }
 
-test("pilot runtime requires an extension page and profile-free identity APIs", () => {
+test("pilot runtime requires an extension page and Chrome identity token APIs", () => {
   const harness = pilotScope();
   assert.equal(isGmailPilotRuntime(harness.scope), true);
   assert.equal(isGmailPilotRuntime({ ...harness.scope, location: { protocol: "https:" } }), false);
   assert.equal(isGmailPilotRuntime({
     ...harness.scope,
-    chrome: { ...harness.scope.chrome, identity: { launchWebAuthFlow() {} } },
+    chrome: { ...harness.scope.chrome, identity: { getAuthToken() {} } },
   }), false);
 });
 
 test("account selection opens the browser chooser synchronously before yielding", async () => {
   let finish;
   const harness = pilotScope({
-    launchWebAuthFlow: ({ url }) => new Promise((resolve) => {
-      finish = () => resolve(successfulRedirect(url));
+    getAuthToken: () => new Promise((resolve) => {
+      finish = () => resolve(successfulToken());
     }),
   });
   const pilot = createPilot(harness);
@@ -174,8 +174,8 @@ test("an expired selection is purged before sync and a new chooser can start", a
 test("cancel invalidates a deferred chooser and ignores its late token", async () => {
   let finish;
   const harness = pilotScope({
-    launchWebAuthFlow: ({ url }) => new Promise((resolve) => {
-      finish = () => resolve(successfulRedirect(url, { token: "late-token" }));
+    getAuthToken: () => new Promise((resolve) => {
+      finish = () => resolve(successfulToken("late-token"));
     }),
   });
   const pilot = createPilot(harness);
@@ -193,8 +193,8 @@ test("cancel invalidates a deferred chooser and ignores its late token", async (
 test("same-task chooser completion and abort cannot strand a credential", async () => {
   let finish;
   const harness = pilotScope({
-    launchWebAuthFlow: ({ url }) => new Promise((resolve) => {
-      finish = () => resolve(successfulRedirect(url));
+    getAuthToken: () => new Promise((resolve) => {
+      finish = () => resolve(successfulToken());
     }),
   });
   const pilot = createPilot(harness);
@@ -211,8 +211,8 @@ test("same-task chooser completion and abort cannot strand a credential", async 
 test("a late chooser A cannot clear the token selected by newer chooser B", async () => {
   const finishes = [];
   const harness = pilotScope({
-    launchWebAuthFlow: ({ url }) => new Promise((resolve) => {
-      finishes.push(() => resolve(successfulRedirect(url)));
+    getAuthToken: () => new Promise((resolve) => {
+      finishes.push(() => resolve(successfulToken()));
     }),
   });
   const pilot = createPilot(harness);
@@ -258,9 +258,9 @@ test("late chooser A 401 rejects only A's lease and preserves newer B", async ()
   let finishProfileA;
   const profileA = new Promise((resolve) => { finishProfileA = resolve; });
   const harness = pilotScope({
-    launchWebAuthFlow: ({ url }, call) => Promise.resolve(successfulRedirect(url, {
-      token: call === 1 ? "token-a" : "token-b",
-    })),
+    getAuthToken: (_details, call) => Promise.resolve(successfulToken(
+      call === 1 ? "token-a" : "token-b",
+    )),
     fetchOverride: async (url, _init, call) => {
       if (call === 1) return profileA;
       const path = new URL(url).pathname;
@@ -287,9 +287,9 @@ test("disconnect blocks further old-account reads and never substitutes the new 
   const syncAProfile = new Promise((resolve) => { finishSyncAProfile = resolve; });
   const authorizations = [];
   const harness = pilotScope({
-    launchWebAuthFlow: ({ url }, call) => Promise.resolve(successfulRedirect(url, {
-      token: call === 1 ? "token-a" : "token-b",
-    })),
+    getAuthToken: (_details, call) => Promise.resolve(successfulToken(
+      call === 1 ? "token-a" : "token-b",
+    )),
     fetchOverride: async (url, init, call) => {
       authorizations.push(init.headers.Authorization);
       const path = new URL(url).pathname;

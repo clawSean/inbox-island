@@ -16,7 +16,7 @@ function pngSize(bytes) {
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
 }
 
-test("Chrome Web Store kit matches the packaged privacy and release contract", async () => {
+test("Chrome Web Store kit matches the packaged Chrome-first public-release contract", async () => {
   const [manifest, packageScript, validator, disclosureSource, listing, privacy,
     reviewer, checklist, assetReceipt, sbom, packageJson] = await Promise.all([
     readFile(path.join(root, "extension/manifest.json"), "utf8").then(JSON.parse),
@@ -32,9 +32,13 @@ test("Chrome Web Store kit matches the packaged privacy and release contract", a
     readFile(path.join(root, "package.json"), "utf8").then(JSON.parse),
   ]);
 
-  assert.equal(manifest.version, "0.4.9");
+  assert.equal(manifest.version, "0.5.0");
   assert.deepEqual(manifest.permissions, ["identity"]);
   assert.deepEqual(manifest.host_permissions, ["https://gmail.googleapis.com/*"]);
+  assert.deepEqual(manifest.oauth2, {
+    client_id: "270655843779-4gktio587oago4rsgh3609te7h4eoe6r.apps.googleusercontent.com",
+    scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+  });
   assert.ok(!Object.hasOwn(manifest, "side_panel"));
   assert.match(disclosureSource, /bounded recent Inbox\/Sent slice for on-device triage/u);
   assert.match(disclosureSource, /id="run-button"[^>]*aria-describedby="gmail-disclosure"/u);
@@ -45,10 +49,11 @@ test("Chrome Web Store kit matches the packaged privacy and release contract", a
   assert.match(listing, /Google classifies `gmail\.readonly` as a restricted scope/u);
   assert.match(privacy, /does not send that data to an Inbox Island server or\s+>\s+cloud AI/u);
   assert.match(reviewer, /No credentials or Google account are required/u);
-  assert.match(checklist, /\*\*deferred publishing\*\*/u);
-  assert.match(checklist,
-    /Chrome review, Arc\/Dia pilot work, and Google restricted-scope\s+verification continue on separate timelines/u);
-  assert.match(checklist, /none authorizes manual public\s+publication by itself/u);
+  assert.match(reviewer, /Google Chrome/u);
+  assert.match(checklist, /Google Chrome-only/u);
+  assert.match(checklist, /Google restricted-scope verification/u);
+  assert.match(checklist, /live-account Chrome pilot/u);
+  assert.match(checklist, /Do not manually publish/u);
   assert.equal(packageJson.scripts["build:seed"], "sh extension/scripts/build-webstore-seed.sh");
   assert.match(packageJson.scripts["validate:extension"], /npm run build:seed/u);
 
@@ -62,6 +67,6 @@ test("Chrome Web Store kit matches the packaged privacy and release contract", a
     assert.deepEqual(pngSize(bytes), expected);
   }
   assert.equal(sbom.spdxVersion, "SPDX-2.3");
-  assert.equal(sbom.packages[0].versionInfo, "0.4.9");
+  assert.equal(sbom.packages[0].versionInfo, "0.5.0");
   assert.match(sbom.packages[0].comment, /neither ships in the extension/iu);
 });

@@ -15,15 +15,17 @@ const oauthClientId = /^\d{6,32}-[a-z0-9]{16,128}\.apps\.googleusercontent\.com$
 if (buildRoot !== path.join(projectRoot, "extension", "build")) {
   throw new Error("UNSAFE_BUILD_PATH");
 }
-if (sourceManifest.version !== "0.4.9"
-  || identity.oauth_client_type !== "web-application"
-  || identity.oauth_client_status !== "active-private-pilot"
+if (sourceManifest.version !== "0.5.0"
+  || identity.oauth_client_type !== "chrome-extension"
+  || identity.oauth_client_status !== "active-production-candidate"
   || !oauthClientId.test(identity.oauth_client_id || "")
   || Object.keys(identity).some((key) => /secret/iu.test(key))
-  || Object.hasOwn(sourceManifest, "oauth2")
-  || !authSource.includes(`PILOT_OAUTH_CLIENT_ID = "${identity.oauth_client_id}"`)
-  || !authSource.includes("launchWebAuthFlow")) {
-  throw new Error("PORTABLE_OAUTH_CLIENT_NOT_FROZEN");
+  || sourceManifest.oauth2?.client_id !== identity.oauth_client_id
+  || JSON.stringify(sourceManifest.oauth2?.scopes) !== JSON.stringify([identity.gmail_scope])
+  || !authSource.includes("getAuthToken")
+  || !authSource.includes("removeCachedAuthToken")
+  || authSource.includes("launchWebAuthFlow")) {
+  throw new Error("PRODUCTION_OAUTH_CLIENT_NOT_FROZEN");
 }
 
 await rm(buildRoot, { force: true, recursive: true });
@@ -48,15 +50,16 @@ await cp(
 
 const manifest = JSON.parse(await readFile(path.join(buildRoot, "manifest.json"), "utf8"));
 const marker = {
-  artifact: "gmail-pilot-unpacked",
-  browserPortable: true,
+  artifact: "gmail-public-candidate-unpacked",
+  browserPortable: false,
+  chromeFirst: true,
   extensionVersion: manifest.version,
   gmailOauthEnabled: true,
   gmailConnected: false,
   generated: true,
-  oauthClientType: "web-application",
-  oauthMode: "launchWebAuthFlow-implicit-private-pilot",
+  oauthClientType: "chrome-extension",
+  oauthMode: "getAuthToken-chrome-extension",
 };
 await writeFile(path.join(buildRoot, ".inbox-island-build.json"), `${JSON.stringify(marker, null, 2)}\n`);
 
-console.log(`Built private Gmail pilot extension at ${buildRoot}`);
+console.log(`Built Chrome-first Gmail release candidate at ${buildRoot}`);

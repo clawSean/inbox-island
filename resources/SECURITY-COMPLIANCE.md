@@ -42,15 +42,19 @@ Target wording:
 
 ### Authorization
 
-- Separate Google Cloud project and OAuth client for this product.
+- Dedicated Google Cloud project and Chrome Extension OAuth client for this
+  product.
 - Exact granted-scope verification; reject unexpected additional scopes.
 - `gmail.readonly` only. No refresh token, client secret, authorization code,
   or token persistence in the extension, identity record, package, receipt, or
   application backend.
-- Private pilot only: explicit `launchWebAuthFlow()` account selection uses a
-  Web application client, one-use state, exact fixed-ID redirect, and a
-  short-lived fragment token. This legacy direct token flow is not preapproved
-  as the public OAuth architecture.
+- The public build uses interactive `chrome.identity.getAuthToken()` with the
+  manifest-pinned Chrome Extension client. It verifies that Google reports
+  exactly `gmail.readonly`, accepts no caller-supplied account ID, and does not
+  request `identity.email`.
+- Remove each access token from Chrome's Identity cache after the bounded run;
+  Disconnect also clears the extension's cached authorization state. Do not
+  claim this revokes the Google-side grant.
 - Pin each chooser/sync transaction to one in-memory credential lease. Recheck
   ownership immediately before every Gmail request so disconnect, expiry,
   stale 401s, late callbacks, or a newer account cannot substitute credentials
@@ -106,8 +110,9 @@ Target wording:
 - Synthetic fixtures only until the complete network and storage harness passes.
 - Exact permission/scope inspection from the packaged artifact.
 - Clean-profile install, first run, restart, update, downgrade refusal, clear,
-  revoke, and uninstall tests in every supported browser family. Arc and Dia
-  are explicit private-pilot gates; a Chrome-only receipt is insufficient.
+  revoke, and uninstall tests in Google Chrome, the sole browser supported by
+  the first public release. Arc and Dia provider-error receipts must remain
+  explicit so Store copy cannot imply broader compatibility.
 - Browser network capture proving only approved Google API and immutable model
   asset requests, with zero mailbox-derived egress.
 - Hostile-email suite: direct/indirect/encoded injection, HTML/MIME tricks,

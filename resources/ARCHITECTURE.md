@@ -1,8 +1,7 @@
 # Reference Architecture — Inbox Island
 
-Status: versions `0.3.0` through `0.4.8` are withdrawn. `0.4.9` is the current
-source and Store-package candidate; live consent, real-mail calibration, and
-exact Arc/Dia native proof remain pending.
+Status: `0.5.0` is the Chrome-first public-release candidate. `0.4.9` remains a
+published deferred-review artifact but is not approved for public Gmail access.
 
 ## Product shape
 
@@ -40,6 +39,9 @@ not a Gmail tab or page DOM, is canonical.
 - Native side panels are excluded because Arc can report API success while
   displaying nothing. Compact extension windows are excluded because Arc
   clamps them to a large browser-controlled minimum.
+- Google Chrome is the only supported browser for the first public release.
+  Arc and Dia fail the documented Chrome Extension OAuth path and are not
+  advertised as supported.
 - The service worker verifies the popup configuration and opens the full page
   if popup restoration fails. It has no side-panel or network authority.
 
@@ -55,29 +57,26 @@ not a Gmail tab or page DOM, is canonical.
 - The Chrome Web Store upload removes only the development `key`; the existing
   Store item supplies the canonical production identity.
 
-## Private-pilot OAuth
+## Production OAuth
 
-The visible page starts `chrome.identity.launchWebAuthFlow()` synchronously from
-a user click. It sends Google a public Web application client ID, the exact
-fixed-ID callback ending in `/oauth2`, explicit account choice, the sole
-read-only Gmail scope, and one-use random state.
-
-The callback parser requires exact origin/path/state, bearer token type, sane
-expiry, and the sole scope when returned. It rejects duplicated security
-fields, code/ID/refresh-token confusion, stale callbacks, and account changes.
+The visible page starts `chrome.identity.getAuthToken()` synchronously from a
+user click. The manifest pins a Chrome Extension OAuth client to the canonical
+Store ID and requests only `gmail.readonly`. The call enables granular
+permissions, requires interactive Google authorization, and rejects any token
+result that does not report exactly the sole requested scope.
 
 The access token is wrapped in an in-memory lease. Every request pins and
 rechecks the lease immediately before dispatch. Disconnect, expiry, newer
 selection, stale 401, late chooser, or cross-view cancellation cannot issue a
-request from invalid ownership. The lease is forgotten after the bounded run.
-
-This Web-client implicit flow preserves the no-backend private pilot, but it is
-not the frozen public architecture. Google documents Chrome Extension clients
-with `getAuthToken()` and treats `gmail.readonly` as restricted.
+request from invalid ownership. After the bounded run, Inbox Island removes the
+token from Chrome's Identity cache. Disconnect clears the extension's cached
+authorization state again. Neither operation is described as revoking the
+Google-side grant.
 
 ## Gmail synchronization
 
-1. The user chooses an account in Google's browser-owned UI.
+1. The user connects the Google account available through Chrome's
+   browser-owned authorization UI.
 2. Inbox Island calls only `users/me/profile`, displays the actual address, and
    waits for explicit confirmation.
 3. Confirmation rechecks that profile under the same lease.
@@ -87,7 +86,8 @@ with `getAuthToken()` and treats `gmail.readonly` as restricted.
    individual messages into source-bound Review placeholders.
 6. Deterministic local triage runs; optional inference may refine only clean
    non-safety uncertainty.
-7. A derived-only generation is stored atomically and the lease is forgotten.
+7. A derived-only generation is stored atomically, the in-memory lease is
+   forgotten, and the Chrome token cache entry is removed.
 
 Auth, mismatch, network, permission, server, and abort failures stop the run.
 A malformed/disappeared message fails safely without hiding the rest of its
@@ -107,7 +107,8 @@ batch.
 ## Proof boundary
 
 Source tests and browser/UI proofs use controlled synthetic data. Disposable
-Arc/Dia proof can establish exact build identity, visible launcher behavior,
-redirect/chooser entry, safe cancellation, and zero pre-consent Gmail access.
-It cannot establish real-mail quality. That requires the separate screened
-read-only sample and JPop's own-device pilot.
+Google Chrome proof establishes exact build identity, trusted authorization
+entry, Google's real chooser, and zero pre-consent Gmail access. Fresh Arc and
+Dia probes record provider-error pages and therefore support the Chrome-only
+release boundary. Real-mail quality still requires the separate screened
+sample and an authorized live-account pilot.

@@ -99,7 +99,7 @@ test("chooser denial stops before mailbox access with an actionable code", async
   assert.equal(harness.chooserCalls(), 1);
   assert.deepEqual(harness.connections, []);
   assert.equal(harness.nodes.get("#gmail-account-check").hidden, true);
-  assert.match(harness.errors.at(-1), /pilot test-user list/u);
+  assert.match(harness.errors.at(-1), /retry from Google Chrome/u);
   assert.match(harness.errors.at(-1), /GMAIL_AUTH_ACCESS_DENIED/u);
 });
 
@@ -146,7 +146,7 @@ test("access failure resets confirmation so retry reopens the chooser", async ()
   await harness.ui.run();
   assert.equal(harness.state.pendingAccount, undefined);
   assert.equal(harness.nodes.get("#gmail-account-check").hidden, true);
-  assert.match(harness.errors.at(-1), /pilot test-user access/u);
+  assert.match(harness.errors.at(-1), /Check Google Account access/u);
   assert.equal(harness.chooserCalls(), 1);
   await harness.ui.run();
   assert.equal(harness.chooserCalls(), 2);
